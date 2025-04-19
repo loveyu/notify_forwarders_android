@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Notify forwarders</string>
+    <string name="settings">设置</string>
+    <string name="no_notifications">当前没有通知</string>
+    <string name="notification_permission_title">需要通知访问权限</string>
+    <string name="notification_permission_desc">本应用需要获取通知监听权限，以便接收和转发通知消息。请在接下来的设置页面中授予该权限。</string>
+    <string name="grant_permission">授予权限</string>
+    <string name="back">返回</string>
+    <string name="notification_access">通知访问</string>
+    <string name="notification_access_desc">管理应用通知监听权限，确保应用能够正常接收和转发通知</string>
+    <string name="open_settings">打开设置</string>
+    
+    <!-- 服务器设置相关字符串 -->
+    <string name="server_settings">服务器设置</string>
+    <string name="server_settings_desc">配置接收通知的服务器地址，未指定端口时默认使用19283</string>
+    <string name="server_address">服务器地址</string>
+    <string name="server_address_hint">例如: 192.168.1.100 或 example.com:19283</string>
+    <string name="save">保存</string>
+    <string name="server_address_saved">服务器地址已保存</string>
+</resources>

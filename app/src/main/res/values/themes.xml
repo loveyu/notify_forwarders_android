@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 使用正确的Material 3主题引用 -->
+    <style name="Theme.NotifyForwarders" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- 系统状态栏 -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        
+        <!-- 确保全屏体验 -->
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>

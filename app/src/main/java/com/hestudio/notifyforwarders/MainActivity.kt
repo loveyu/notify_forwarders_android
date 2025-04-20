@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -140,6 +141,9 @@ fun NotificationScreen(
     requestPermission: () -> Unit,
     navigateToSettings: () -> Unit
 ) {
+    // 确认对话框状态
+    var showClearConfirmDialog by remember { mutableStateOf(false) }
+    
     Scaffold(
         topBar = {
             TopAppBar(
@@ -158,6 +162,20 @@ fun NotificationScreen(
                     }
                 }
             )
+        },
+        // 添加FAB用于清除历史记录
+        floatingActionButton = {
+            if (hasPermission && NotificationService.getNotifications().isNotEmpty()) {
+                FloatingActionButton(
+                    onClick = { showClearConfirmDialog = true },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Clear,
+                        contentDescription = "清除通知历史"
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         if (hasPermission) {
@@ -165,6 +183,30 @@ fun NotificationScreen(
                 notifications = NotificationService.getNotifications(),
                 modifier = Modifier.padding(innerPadding)
             )
+            
+            // 显示确认对话框
+            if (showClearConfirmDialog) {
+                AlertDialog(
+                    onDismissRequest = { showClearConfirmDialog = false },
+                    title = { Text("确认清除") },
+                    text = { Text("确定要清除所有通知历史记录吗？") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                NotificationService.clearNotifications()
+                                showClearConfirmDialog = false
+                            }
+                        ) {
+                            Text("确认清除")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showClearConfirmDialog = false }) {
+                            Text("取消")
+                        }
+                    }
+                )
+            }
         } else {
             PermissionRequest(
                 requestPermission = requestPermission,

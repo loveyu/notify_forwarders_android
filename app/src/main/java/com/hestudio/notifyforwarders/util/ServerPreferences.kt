@@ -2,6 +2,7 @@ package com.hestudio.notifyforwarders.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 
 object ServerPreferences {
     private const val PREF_NAME = "server_preferences"
@@ -13,9 +14,9 @@ object ServerPreferences {
     }
     
     fun saveServerAddress(context: Context, address: String) {
-        val editor = getPreferences(context).edit()
-        editor.putString(KEY_SERVER_ADDRESS, formatServerAddress(address))
-        editor.apply()
+        getPreferences(context).edit() {
+            putString(KEY_SERVER_ADDRESS, formatServerAddress(address))
+        }
     }
     
     fun getServerAddress(context: Context): String {
@@ -23,7 +24,7 @@ object ServerPreferences {
     }
     
     // 确保服务器地址格式正确，如果没有指定端口则添加默认端口
-    private fun formatServerAddress(address: String): String {
+    fun formatServerAddress(address: String): String {
         if (address.isBlank()) return ""
         
         // 如果地址已经包含端口号（例如 192.168.1.1:8080），则直接返回

@@ -19,6 +19,6 @@
     <string name="server_address_saved">服务器地址已保存</string>
     
     <!-- 版本相关字符串 -->
-    <string name="server_version_required">1.0.0</string>
+    <string name="server_version_required">1.0.1</string>
     <string name="server_version_mismatch">服务器版本不兼容，请确保服务器版本为 %s</string>
 </resources>

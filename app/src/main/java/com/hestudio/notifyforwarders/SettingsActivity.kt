@@ -1,5 +1,7 @@
 package com.hestudio.notifyforwarders
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -7,6 +9,10 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -36,8 +42,14 @@ import java.net.URL
 import kotlin.random.Random
 
 class SettingsActivity : ComponentActivity() {
+    private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
+    private val testChannelId = "test_notifications_channel"
+    private val progressChannelId = "progress_notifications_channel"
+    private val progressNotificationId = 1002
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        createNotificationChannels()
         enableEdgeToEdge()
 
         setContent {
@@ -49,7 +61,9 @@ class SettingsActivity : ComponentActivity() {
                             this
                         )
                     },
-                    onOpenBatteryOptimizationSettings = { openBatteryOptimizationSettings() }
+                    onOpenBatteryOptimizationSettings = { openBatteryOptimizationSettings() },
+                    onSendRandomNotification = { sendRandomNotification() },
+                    onSendProgressNotification = { sendProgressNotification() }
                 )
             }
         }
@@ -70,6 +84,99 @@ class SettingsActivity : ComponentActivity() {
             Toast.makeText(this, "无法打开电池优化设置", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private fun createNotificationChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // 创建测试通知渠道
+            val testChannel = NotificationChannel(
+                testChannelId,
+                "测试通知",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "用于发送测试通知"
+            }
+
+            // 创建进度通知渠道
+            val progressChannel = NotificationChannel(
+                progressChannelId,
+                "进度通知",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "用于显示进度更新的通知"
+            }
+
+            // 注册通知渠道
+            notificationManager.createNotificationChannel(testChannel)
+            notificationManager.createNotificationChannel(progressChannel)
+        }
+    }
+
+    private fun sendRandomNotification() {
+        val random = Random.Default
+        val titles = listOf(
+            "今日资讯", "系统提醒", "重要通知", "新消息", "活动提醒",
+            "安全提醒", "更新通知", "账户提醒", "日程提醒", "天气预报"
+        )
+        val contents = listOf(
+            "您有一条新消息需要查看", "系统更新已完成", "您的账户有新的活动",
+            "今日天气：晴天，温度25°C", "您的订单已发货", "电池电量低于20%",
+            "新版本已推送，请及时更新", "明天有一个重要会议",
+            "您有一个新的朋友请求", "周末活动邀请：户外烧烤"
+        )
+
+        val title = "测试通知 - " + titles[random.nextInt(titles.size)]
+        val content = contents[random.nextInt(contents.size)] + " - " +
+                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+        val notificationId = random.nextInt(10000)
+
+        val builder = NotificationCompat.Builder(this, testChannelId)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(title)
+            .setContentText(content)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+
+        notificationManager.notify(notificationId, builder.build())
+        Toast.makeText(this, "已发送测试通知", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun sendProgressNotification() {
+        // 创建一个通知构建器
+        val builder = NotificationCompat.Builder(this, progressChannelId)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle("进度通知测试")
+            .setContentText("正在更新进度...")
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            // 确保每次使用相同的通知ID，以便系统识别为同一通知的更新
+
+        // 立即显示一个0%的通知
+        builder.setProgress(100, 0, false)
+        notificationManager.notify(progressNotificationId, builder.build())
+
+        // 启动一个线程来更新进度
+        Thread {
+            for (progress in 0..10) {
+                val currentProgress = progress * 10
+                // 更新通知进度
+                builder.setProgress(100, currentProgress, false)
+                    .setContentText("当前进度: $currentProgress%")
+                notificationManager.notify(progressNotificationId, builder.build())
+
+                try {
+                    // 每次更新间隔300毫秒
+                    Thread.sleep(300)
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
+                }
+            }
+
+            // 进度完成后更新通知
+            builder.setContentText("进度已完成")
+                .setProgress(0, 0, false)
+            notificationManager.notify(progressNotificationId, builder.build())
+
+        }.start()
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,7 +184,9 @@ class SettingsActivity : ComponentActivity() {
 fun SettingsScreen(
     onBackPressed: () -> Unit,
     onOpenNotificationSettings: () -> Unit,
-    onOpenBatteryOptimizationSettings: () -> Unit
+    onOpenBatteryOptimizationSettings: () -> Unit,
+    onSendRandomNotification: () -> Unit = {},
+    onSendProgressNotification: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var serverAddress by remember { mutableStateOf(ServerPreferences.getServerAddress(context)) }
@@ -360,6 +469,46 @@ fun SettingsScreen(
                             modifier = Modifier.align(Alignment.End)
                         ) {
                             Text("连接并验证")
+                        }
+                    }
+                }
+            }
+
+            // 测试通知卡片
+            Card {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "测试通知功能",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "用于测试通知发送和接收功能，可以发送随机内容通知或进度通知",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                    ) {
+                        Button(
+                            onClick = onSendRandomNotification
+                        ) {
+                            Text("发送随机通知")
+                        }
+
+                        Button(
+                            onClick = onSendProgressNotification
+                        ) {
+                            Text("发送进度通知")
                         }
                     }
                 }

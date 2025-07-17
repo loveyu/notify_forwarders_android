@@ -77,17 +77,31 @@ class NotificationService : NotificationListenerService() {
             return
         }
         
+        // 生成唯一标识符
+        // 使用包名+通知ID作为唯一标识
+        val uniqueId = "$packageName:${sbn.id}"
+
         val notificationData = NotificationData(
             id = sbn.id,
             packageName = packageName,
             appName = appName,
             title = title,
             content = text,
-            time = time
+            time = time,
+            uniqueId = uniqueId
         )
-        
-        // 添加到通知列表
-        notifications.add(0, notificationData) // 添加到列表头部
+
+        // 检查是否是现有通知的更新
+        val existingIndex = notifications.indexOfFirst { it.uniqueId == uniqueId }
+        if (existingIndex != -1) {
+            // 是更新，替换原有通知
+            Log.d(TAG, "更新现有通知: $uniqueId")
+            notifications[existingIndex] = notificationData
+        } else {
+            // 是新通知，添加到列表头部
+            Log.d(TAG, "添加新通知: $uniqueId")
+            notifications.add(0, notificationData)
+        }
         
         // 转发通知到配置的服务器
         forwardNotificationToServer(notificationData)
@@ -152,6 +166,7 @@ class NotificationService : NotificationListenerService() {
                     put("title", notification.title)
                     put("description", notification.content)
                     put("devicename", getDeviceName()) // 添加设备名称参数
+                    put("uniqueId", notification.uniqueId) // 添加唯一标识字段
                 }
                 
                 // 发送JSON数据
@@ -221,5 +236,6 @@ data class NotificationData(
     val appName: String, // 添加应用名称字段
     val title: String,
     val content: String,
-    val time: Long
+    val time: Long,
+    val uniqueId: String // 添加唯一标识符，用于识别同一通知的更新
 )

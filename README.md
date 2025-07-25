@@ -2,7 +2,7 @@
 
 [![Build APK](https://github.com/loveyu/notify_forwarders_android/actions/workflows/build.yml/badge.svg)](https://github.com/loveyu/notify_forwarders_android/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Android](https://img.shields.io/badge/Android-8.0%2B-green.svg)](https://android-arsenal.com/api?level=26)
+[![Android](https://img.shields.io/badge/Android-13.0%2B-green.svg)](https://android-arsenal.com/api?level=33)
 
 > **[中文文档](README_CN.md)** | **English Documentation**
 
@@ -30,10 +30,19 @@ Download the latest stable version from the [Releases page](https://github.com/l
 Development APKs are available in [Actions artifacts](https://github.com/loveyu/notify_forwarders_android/actions) (30-day retention).
 
 ### System Requirements
-- Android 13 (API 33) or higher
-- Notification access permission required
-- POST_NOTIFICATIONS permission required (Android 13+)
-- Battery optimization exemption recommended
+
+#### Minimum Requirements
+- **Android Version**: Android 13 (API level 33) or higher
+- **RAM**: 2GB or more recommended
+- **Storage**: 50MB free space for installation
+- **Network**: Internet connection required for notification forwarding
+
+#### Development Requirements
+- **Android Studio**: Arctic Fox (2020.3.1) or newer
+- **JDK**: OpenJDK 17 or Oracle JDK 17
+- **Android SDK**: API level 35 (Android 15)
+- **Gradle**: 8.11.1 or newer
+- **Kotlin**: 2.0.21 or newer
 
 ## 🚀 Quick Start
 
@@ -50,25 +59,87 @@ Development APKs are available in [Actions artifacts](https://github.com/loveyu/
 6. Optional: Enable notification icon forwarding
 
 ### Required Permissions
-- **Notification Access**: Required for reading system notifications
-- **POST_NOTIFICATIONS**: Required for displaying foreground service notifications (Android 13+)
-- **Battery Optimization Exemption**: Recommended for stable background service
-- **Internet**: Required for forwarding notifications to server
+
+#### Core Permissions
+- **🔔 Notification Listener Service**:
+  - **Purpose**: Read and capture system notifications from all apps
+  - **Setup**: Manual configuration required in Android Settings
+  - **Critical**: App cannot function without this permission
+
+- **📱 POST_NOTIFICATIONS** (Android 13+):
+  - **Purpose**: Display foreground service notifications and status updates
+  - **Setup**: Automatically requested on first launch
+  - **Required**: Essential for service visibility and user feedback
+
+#### System Permissions
+- **🌐 INTERNET**:
+  - **Purpose**: Forward captured notifications to configured server
+  - **Setup**: Automatically granted (normal permission)
+  - **Required**: Core functionality depends on network access
+
+- **⚡ FOREGROUND_SERVICE**:
+  - **Purpose**: Run notification capture service in background
+  - **Setup**: Automatically granted (normal permission)
+  - **Required**: Ensures continuous notification monitoring
+
+- **🔄 FOREGROUND_SERVICE_DATA_SYNC** (Android 14+):
+  - **Purpose**: Specify foreground service type for data synchronization
+  - **Setup**: Automatically granted (normal permission)
+  - **Required**: Compliance with Android 14+ foreground service restrictions
+
+#### Optional but Recommended
+- **🔋 Battery Optimization Exemption**:
+  - **Purpose**: Prevent system from killing the service to save battery
+  - **Setup**: Manual configuration in Battery settings
+  - **Benefit**: Ensures reliable notification forwarding
+
+- **🚀 RECEIVE_BOOT_COMPLETED**:
+  - **Purpose**: Automatically start service after device reboot
+  - **Setup**: Automatically granted (normal permission)
+  - **Benefit**: Seamless operation without manual restart
 
 For detailed setup instructions, see [QUICK_START.md](QUICK_START.md).
 
 ### Permission Setup Guide
 
 #### 1. POST_NOTIFICATIONS Permission (Android 13+)
-- Automatically requested when the app starts
-- Required for displaying foreground service notifications
+**Automatic Setup:**
+- Automatically requested when the app starts for the first time
+- Required for displaying foreground service notifications and status updates
 - Can be granted through the app's permission request dialog
 
+**Manual Setup (if denied):**
+1. Open Android Settings
+2. Go to Apps → Notify Forwarders → Permissions
+3. Enable "Notifications" permission
+4. Restart the app
+
 #### 2. Notification Listener Permission
-- Must be manually enabled in Android settings
-- Go to: Settings → Apps → Special app access → Notification access
-- Find "Notify forwarders" and enable it
-- This permission allows the app to read system notifications
+**Manual Setup Required:**
+1. Open Android Settings
+2. Navigate to: **Settings → Apps → Special app access → Notification access**
+   - Alternative path: **Settings → Security & Privacy → Privacy → Notification access**
+3. Find "Notify Forwarders" in the list
+4. Toggle the switch to enable notification access
+5. Confirm the permission in the dialog that appears
+6. Return to the app - it should now show "Permission Granted"
+
+**Verification:**
+- The app's main screen will show "Permission Granted" status
+- If still showing "Permission Required", restart the app
+
+#### 3. Battery Optimization Exemption (Recommended)
+**Setup Steps:**
+1. Open Android Settings
+2. Go to **Battery → Battery Optimization** (or **Apps → Special app access → Battery optimization**)
+3. Find "Notify Forwarders" in the list
+4. Select "Don't optimize" or "Allow"
+5. Confirm the selection
+
+**Why This Matters:**
+- Prevents Android from killing the service to save battery
+- Ensures continuous notification monitoring
+- Critical for reliable operation on devices with aggressive battery management
 
 ### Troubleshooting
 
@@ -97,9 +168,40 @@ For detailed setup instructions, see [QUICK_START.md](QUICK_START.md).
 ## 🛠️ Development
 
 ### Prerequisites
-- Android Studio Arctic Fox or newer
-- JDK 17
-- Android SDK API 35
+
+#### Required Software
+- **Android Studio**: Arctic Fox (2020.3.1) or newer (Recommended: Latest stable)
+- **JDK**: OpenJDK 17 or Oracle JDK 17
+- **Android SDK**:
+  - Platform: API 35 (Android 15)
+  - Build Tools: 35.0.0 or newer
+  - Platform Tools: Latest
+- **Git**: For version control and repository cloning
+
+#### Development Dependencies
+The project uses Gradle Version Catalog for dependency management. Key dependencies include:
+
+**Core Android Libraries:**
+- AndroidX Core KTX: 1.16.0
+- AndroidX Lifecycle Runtime KTX: 2.8.7
+- AndroidX Activity Compose: 1.10.1
+
+**Jetpack Compose:**
+- Compose BOM: 2024.09.00
+- Material Design 3: Latest
+- UI Components: Latest
+- UI Tooling: Latest (debug builds)
+
+**Testing Libraries:**
+- JUnit: 4.13.2
+- AndroidX Test JUnit: 1.2.1
+- Espresso Core: 3.6.1
+- Compose UI Test: Latest
+
+**Build Tools:**
+- Android Gradle Plugin: 8.11.1
+- Kotlin: 2.0.21
+- Kotlin Compose Compiler: 2.0.21
 
 ### Local Build
 ```bash
@@ -142,14 +244,38 @@ The app supports 7 languages with intelligent language detection:
 
 ## 🏗️ Technical Specifications
 
-- **Language**: Kotlin
-- **UI Framework**: Jetpack Compose
-- **Architecture**: MVVM
-- **Build System**: Gradle (Kotlin DSL)
-- **Min SDK**: API 33 (Android 13)
-- **Target SDK**: API 35 (Android 15)
-- **Java Version**: JDK 17
-- **Internationalization**: Android Resources with 7 language variants
+### Core Technologies
+- **Programming Language**: Kotlin 2.0.21
+- **UI Framework**: Jetpack Compose (BOM 2024.09.00)
+- **Architecture Pattern**: MVVM (Model-View-ViewModel)
+- **Build System**: Gradle 8.11.1 with Kotlin DSL
+- **Dependency Management**: Version Catalog (TOML)
+
+### Android Platform
+- **Minimum SDK**: API 33 (Android 13.0)
+- **Target SDK**: API 35 (Android 15.0)
+- **Compile SDK**: API 35 (Android 15.0)
+- **Java Compatibility**: JDK 17 (source & target)
+- **Kotlin JVM Target**: 17
+
+### Key Dependencies
+- **AndroidX Core**: 1.16.0
+- **Lifecycle Runtime**: 2.8.7
+- **Activity Compose**: 1.10.1
+- **Material Design 3**: Latest (via Compose BOM)
+- **Compose UI**: Latest (via Compose BOM)
+
+### Build Configuration
+- **Android Gradle Plugin**: 8.11.1
+- **Kotlin Compiler**: 2.0.21
+- **ProGuard**: Enabled for release builds
+- **Resource Shrinking**: Enabled for release builds
+- **Code Obfuscation**: Enabled for release builds
+
+### Internationalization
+- **Supported Languages**: 7 language variants
+- **Resource System**: Android Resources with automatic locale detection
+- **Fallback Language**: Simplified Chinese (default)
 
 ## 🔄 Automated Builds
 

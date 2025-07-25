@@ -14,6 +14,7 @@ A modern Android notification forwarding application that captures system notifi
 - 🎨 **Modern UI**: Built with Material Design 3 guidelines
 - ⚡ **High Performance**: Native UI powered by Jetpack Compose
 - 🔧 **Flexible Configuration**: Customizable server address and notification limits
+- 🌍 **Multi-language Support**: 7 languages with automatic detection and manual switching
 - 🔋 **Battery Optimized**: Smart battery usage optimization
 - 🚀 **Automated CI/CD**: Complete build and release automation
 
@@ -36,7 +37,8 @@ Development APKs are available in [Actions artifacts](https://github.com/loveyu/
 1. Install the APK and launch the app
 2. Grant notification access permission
 3. Configure server address in settings
-4. Optional: Adjust notification limit settings
+4. Optional: Choose your preferred language in settings
+5. Optional: Adjust notification limit settings
 
 ### Required Permissions
 - **Notification Access**: Required for reading system notifications
@@ -73,6 +75,24 @@ For release builds:
 
 See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for detailed build instructions.
 
+## 🌍 Multi-language Support
+
+The app supports 7 languages with intelligent language detection:
+
+- **🇨🇳 简体中文** (Simplified Chinese) - Default
+- **🇺🇸 English**
+- **🇹🇼 繁體中文** (Traditional Chinese)
+- **🇯🇵 日本語** (Japanese)
+- **🇷🇺 Русский** (Russian)
+- **🇫🇷 Français** (French)
+- **🇩🇪 Deutsch** (German)
+
+### Language Features
+- **Automatic Detection**: Automatically selects the best language based on system locale
+- **Regional Support**: Chinese variants are automatically selected based on region (Mainland China → Simplified, Taiwan/Hong Kong/Macau → Traditional)
+- **Manual Override**: Users can manually select their preferred language in settings
+- **Persistent Settings**: Language preference is saved and applied on app restart
+
 ## 🏗️ Technical Specifications
 
 - **Language**: Kotlin
@@ -82,6 +102,7 @@ See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for detailed build instructio
 - **Min SDK**: API 26 (Android 8.0)
 - **Target SDK**: API 35 (Android 15)
 - **Java Version**: JDK 17
+- **Internationalization**: Android Resources with 7 language variants
 
 ## 🔄 Automated Builds
 

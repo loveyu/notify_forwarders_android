@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">Notify forwarders</string>
+    <string name="settings">Settings</string>
+    <string name="no_notifications">No notifications currently</string>
+    <string name="notification_permission_title">Notification access permission required</string>
+    <string name="notification_permission_desc">This app needs notification listener permission to receive and forward notification messages. Please grant this permission on the next settings page.</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="back">Back</string>
+    <string name="notification_access">Notification Access</string>
+    <string name="notification_access_desc">Manage app notification listener permissions to ensure the app can properly receive and forward notifications</string>
+    <string name="open_settings">Open Settings</string>
+    
+    <!-- Server settings related strings -->
+    <string name="server_settings">Server Settings</string>
+    <string name="server_settings_desc">Configure the server address to receive notifications. Default port 19283 is used when no port is specified</string>
+    <string name="server_address">Server Address</string>
+    <string name="server_address_hint">e.g.: 192.168.1.100 or example.com:19283</string>
+    <string name="save">Save</string>
+    <string name="server_address_saved">Server address saved</string>
+    
+    <!-- Version related strings -->
+    <string name="server_version_required">1.0.1</string>
+    <string name="server_version_mismatch">Server version incompatible, please ensure server version is %s</string>
+
+    <!-- Notification limit related strings -->
+    <string name="notification_limit_settings">Notification Limit</string>
+    <string name="notification_limit_desc">Set the maximum number of notifications displayed in the interface, default 200, range 1-10000</string>
+    <string name="notification_limit_hint">Enter quantity (1-10000)</string>
+    <string name="notification_limit_saved">Notification limit saved</string>
+    <string name="notification_limit_invalid">Please enter a number between 1 and 10000</string>
+    <string name="current_notification_count">Current notification count: %d</string>
+
+    <!-- Quick toggle related strings -->
+    <string name="notification_receive_switch">Receive Notifications</string>
+    <string name="notification_forward_switch">Forward Notifications</string>
+    <string name="notification_receive_enabled">Notification receiving enabled</string>
+    <string name="notification_receive_disabled">Notification receiving disabled</string>
+    <string name="notification_forward_enabled">Notification forwarding enabled</string>
+    <string name="notification_forward_disabled">Notification forwarding disabled</string>
+    <string name="notification_forward_no_server">Please configure server address first</string>
+    <string name="current_server_address">Current forwarding address: %s</string>
+    
+    <!-- Language settings -->
+    <string name="language_settings">Language Settings</string>
+    <string name="language_settings_desc">Choose your preferred language. The app will restart to apply the new language</string>
+    <string name="language_system_default">Follow System</string>
+    <string name="language_english">English</string>
+    <string name="language_chinese_simplified">简体中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_french">Français</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_changed">Language changed, restarting app…</string>
+    <string name="select_language">Select Language</string>
+</resources>

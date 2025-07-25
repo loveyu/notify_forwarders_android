@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">通知転送アプリ</string>
+    <string name="settings">設定</string>
+    <string name="no_notifications">現在通知はありません</string>
+    <string name="notification_permission_title">通知アクセス権限が必要です</string>
+    <string name="notification_permission_desc">このアプリは通知メッセージを受信・転送するために通知リスナー権限が必要です。次の設定画面でこの権限を許可してください。</string>
+    <string name="grant_permission">権限を許可</string>
+    <string name="back">戻る</string>
+    <string name="notification_access">通知アクセス</string>
+    <string name="notification_access_desc">アプリの通知リスナー権限を管理し、アプリが正常に通知を受信・転送できるようにします</string>
+    <string name="open_settings">設定を開く</string>
+    
+    <!-- サーバー設定関連文字列 -->
+    <string name="server_settings">サーバー設定</string>
+    <string name="server_settings_desc">通知を受信するサーバーアドレスを設定します。ポートが指定されていない場合、デフォルトで19283を使用します</string>
+    <string name="server_address">サーバーアドレス</string>
+    <string name="server_address_hint">例: 192.168.1.100 または example.com:19283</string>
+    <string name="save">保存</string>
+    <string name="server_address_saved">サーバーアドレスが保存されました</string>
+    
+    <!-- バージョン関連文字列 -->
+    <string name="server_version_required">1.0.1</string>
+    <string name="server_version_mismatch">サーバーバージョンが互換性がありません。サーバーバージョンが %s であることを確認してください</string>
+
+    <!-- 通知数制限関連文字列 -->
+    <string name="notification_limit_settings">通知数制限</string>
+    <string name="notification_limit_desc">インターフェースに表示される最大通知数を設定します。デフォルト200件、範囲1-10000件</string>
+    <string name="notification_limit_hint">数量を入力 (1-10000)</string>
+    <string name="notification_limit_saved">通知数制限が保存されました</string>
+    <string name="notification_limit_invalid">1から10000の間の数字を入力してください</string>
+    <string name="current_notification_count">現在の通知数: %d</string>
+
+    <!-- クイック切り替え関連文字列 -->
+    <string name="notification_receive_switch">通知受信</string>
+    <string name="notification_forward_switch">通知転送</string>
+    <string name="notification_receive_enabled">通知受信が有効になりました</string>
+    <string name="notification_receive_disabled">通知受信が無効になりました</string>
+    <string name="notification_forward_enabled">通知転送が有効になりました</string>
+    <string name="notification_forward_disabled">通知転送が無効になりました</string>
+    <string name="notification_forward_no_server">まずサーバーアドレスを設定してください</string>
+    <string name="current_server_address">現在の転送アドレス: %s</string>
+    
+    <!-- 言語設定 -->
+    <string name="language_settings">言語設定</string>
+    <string name="language_settings_desc">お好みの言語を選択してください。新しい言語を適用するためにアプリが再起動されます</string>
+    <string name="language_system_default">システムに従う</string>
+    <string name="language_english">English</string>
+    <string name="language_chinese_simplified">简体中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_french">Français</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_changed">言語が変更されました。アプリを再起動しています…</string>
+    <string name="select_language">言語を選択</string>
+</resources>

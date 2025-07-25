@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">通知轉發器</string>
+    <string name="settings">設定</string>
+    <string name="no_notifications">目前沒有通知</string>
+    <string name="notification_permission_title">需要通知存取權限</string>
+    <string name="notification_permission_desc">本應用程式需要取得通知監聽權限，以便接收和轉發通知訊息。請在接下來的設定頁面中授予該權限。</string>
+    <string name="grant_permission">授予權限</string>
+    <string name="back">返回</string>
+    <string name="notification_access">通知存取</string>
+    <string name="notification_access_desc">管理應用程式通知監聽權限，確保應用程式能夠正常接收和轉發通知</string>
+    <string name="open_settings">開啟設定</string>
+    
+    <!-- 伺服器設定相關字串 -->
+    <string name="server_settings">伺服器設定</string>
+    <string name="server_settings_desc">設定接收通知的伺服器位址，未指定連接埠時預設使用19283</string>
+    <string name="server_address">伺服器位址</string>
+    <string name="server_address_hint">例如: 192.168.1.100 或 example.com:19283</string>
+    <string name="save">儲存</string>
+    <string name="server_address_saved">伺服器位址已儲存</string>
+    
+    <!-- 版本相關字串 -->
+    <string name="server_version_required">1.0.1</string>
+    <string name="server_version_mismatch">伺服器版本不相容，請確保伺服器版本為 %s</string>
+
+    <!-- 通知數量限制相關字串 -->
+    <string name="notification_limit_settings">通知數量限制</string>
+    <string name="notification_limit_desc">設定介面顯示的最大通知數量，預設200條，範圍1-10000條</string>
+    <string name="notification_limit_hint">輸入數量 (1-10000)</string>
+    <string name="notification_limit_saved">通知數量限制已儲存</string>
+    <string name="notification_limit_invalid">請輸入1到10000之間的數字</string>
+    <string name="current_notification_count">目前通知數量: %d</string>
+
+    <!-- 快捷開關相關字串 -->
+    <string name="notification_receive_switch">接收通知</string>
+    <string name="notification_forward_switch">轉發通知</string>
+    <string name="notification_receive_enabled">通知接收已開啟</string>
+    <string name="notification_receive_disabled">通知接收已關閉</string>
+    <string name="notification_forward_enabled">通知轉發已開啟</string>
+    <string name="notification_forward_disabled">通知轉發已關閉</string>
+    <string name="notification_forward_no_server">請先設定伺服器位址</string>
+    <string name="current_server_address">目前轉發位址: %s</string>
+    
+    <!-- 語言設定 -->
+    <string name="language_settings">語言設定</string>
+    <string name="language_settings_desc">選擇您偏好的語言。應用程式將重新啟動以套用新語言</string>
+    <string name="language_system_default">跟隨系統</string>
+    <string name="language_english">English</string>
+    <string name="language_chinese_simplified">简体中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_french">Français</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_changed">語言已變更，正在重新啟動應用程式…</string>
+    <string name="select_language">選擇語言</string>
+</resources>

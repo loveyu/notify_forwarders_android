@@ -10,6 +10,7 @@ object ServerPreferences {
     private const val KEY_NOTIFICATION_LIMIT = "notification_limit"
     private const val KEY_NOTIFICATION_RECEIVE_ENABLED = "notification_receive_enabled"
     private const val KEY_NOTIFICATION_FORWARD_ENABLED = "notification_forward_enabled"
+    private const val KEY_SELECTED_LANGUAGE = "selected_language"
     private const val DEFAULT_PORT = 19283
     private const val MIN_NOTIFICATION_LIMIT = 1
     private const val DEFAULT_NOTIFICATION_LIMIT = 200
@@ -104,5 +105,17 @@ object ServerPreferences {
     // 检查是否可以开启通知转发（需要配置服务器地址）
     fun canEnableNotificationForward(context: Context): Boolean {
         return hasValidServerConfig(context)
+    }
+
+    // 保存选择的语言
+    fun saveSelectedLanguage(context: Context, languageCode: String) {
+        getPreferences(context).edit() {
+            putString(KEY_SELECTED_LANGUAGE, languageCode)
+        }
+    }
+
+    // 获取选择的语言，默认为系统语言
+    fun getSelectedLanguage(context: Context): String {
+        return getPreferences(context).getString(KEY_SELECTED_LANGUAGE, "system") ?: "system"
     }
 }

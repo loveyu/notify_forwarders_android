@@ -1,5 +1,6 @@
 package com.hestudio.notifyforwarders
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -57,6 +58,7 @@ import com.hestudio.notifyforwarders.service.NotificationService
 import com.hestudio.notifyforwarders.ui.theme.NotifyForwardersTheme
 import com.hestudio.notifyforwarders.util.NotificationUtils
 import com.hestudio.notifyforwarders.util.ServerPreferences
+import com.hestudio.notifyforwarders.util.LocaleHelper
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -65,6 +67,13 @@ class MainActivity : ComponentActivity() {
     // 添加权限状态跟踪变量
     private val hasNotificationPermission = mutableStateOf(false)
     private val REQUEST_IGNORE_BATTERY_OPTIMIZATIONS = 1001
+
+    override fun attachBaseContext(newBase: Context?) {
+        super.attachBaseContext(newBase?.let { context ->
+            val languageCode = ServerPreferences.getSelectedLanguage(context)
+            LocaleHelper.setLocale(context, languageCode)
+        })
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

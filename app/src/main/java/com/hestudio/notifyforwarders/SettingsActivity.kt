@@ -38,6 +38,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +57,7 @@ import com.hestudio.notifyforwarders.service.NotificationService
 import com.hestudio.notifyforwarders.ui.theme.NotifyForwardersTheme
 import com.hestudio.notifyforwarders.util.NotificationUtils
 import com.hestudio.notifyforwarders.util.ServerPreferences
+import com.hestudio.notifyforwarders.util.LocaleHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -72,6 +75,13 @@ class SettingsActivity : ComponentActivity() {
     private val testChannelId = "test_notifications_channel"
     private val progressChannelId = "progress_notifications_channel"
     private val progressNotificationId = 1002
+
+    override fun attachBaseContext(newBase: Context?) {
+        super.attachBaseContext(newBase?.let { context ->
+            val languageCode = ServerPreferences.getSelectedLanguage(context)
+            LocaleHelper.setLocale(context, languageCode)
+        })
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -606,10 +616,122 @@ fun SettingsScreen(
                 }
             }
 
+            // 语言设置卡片
+            LanguageSettingsCard()
+
             // 底部间距，确保最后一个元素下方有足够空间
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
+}
+
+@Composable
+fun LanguageSettingsCard() {
+    val context = LocalContext.current
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    val currentLanguage = LocaleHelper.getCurrentLanguage(context)
+
+    Card {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.language_settings),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = stringResource(R.string.language_settings_desc),
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "当前语言: ${LocaleHelper.getLanguageDisplayName(context, currentLanguage)}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { showLanguageDialog = true },
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text(stringResource(R.string.select_language))
+            }
+        }
+    }
+
+    // 语言选择对话框
+    if (showLanguageDialog) {
+        LanguageSelectionDialog(
+            currentLanguage = currentLanguage,
+            onLanguageSelected = { selectedLanguage ->
+                if (LocaleHelper.needsRestart(context, selectedLanguage)) {
+                    LocaleHelper.saveLanguage(context, selectedLanguage)
+                    Toast.makeText(context, context.getString(R.string.language_changed), Toast.LENGTH_SHORT).show()
+
+                    // 重启应用
+                    val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                    intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(intent)
+                    if (context is ComponentActivity) {
+                        context.finish()
+                    }
+                }
+                showLanguageDialog = false
+            },
+            onDismiss = { showLanguageDialog = false }
+        )
+    }
+}
+
+@Composable
+fun LanguageSelectionDialog(
+    currentLanguage: LocaleHelper.SupportedLanguage,
+    onLanguageSelected: (LocaleHelper.SupportedLanguage) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val languages = LocaleHelper.SupportedLanguage.getAllLanguages()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.select_language)) },
+        text = {
+            Column {
+                languages.forEach { language ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = language == currentLanguage,
+                            onClick = { onLanguageSelected(language) }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = LocaleHelper.getLanguageDisplayName(context, language),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消")
+            }
+        }
+    )
 }
 
 // 生成6位随机验证码

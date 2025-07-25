@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">Benachrichtigungsweiterleitung</string>
+    <string name="settings">Einstellungen</string>
+    <string name="no_notifications">Derzeit keine Benachrichtigungen</string>
+    <string name="notification_permission_title">Berechtigung für Benachrichtigungszugriff erforderlich</string>
+    <string name="notification_permission_desc">Diese App benötigt die Berechtigung zum Abhören von Benachrichtigungen, um Benachrichtigungen zu empfangen und weiterzuleiten. Bitte gewähren Sie diese Berechtigung auf der nächsten Einstellungsseite.</string>
+    <string name="grant_permission">Berechtigung gewähren</string>
+    <string name="back">Zurück</string>
+    <string name="notification_access">Benachrichtigungszugriff</string>
+    <string name="notification_access_desc">Verwalten Sie die Berechtigungen der App zum Abhören von Benachrichtigungen, um sicherzustellen, dass die App Benachrichtigungen ordnungsgemäß empfangen und weiterleiten kann</string>
+    <string name="open_settings">Einstellungen öffnen</string>
+    
+    <!-- Server-Einstellungszeichenfolgen -->
+    <string name="server_settings">Server-Einstellungen</string>
+    <string name="server_settings_desc">Konfigurieren Sie die Serveradresse zum Empfangen von Benachrichtigungen. Standardport 19283 wird verwendet, wenn kein Port angegeben ist</string>
+    <string name="server_address">Serveradresse</string>
+    <string name="server_address_hint">z.B.: 192.168.1.100 oder example.com:19283</string>
+    <string name="save">Speichern</string>
+    <string name="server_address_saved">Serveradresse gespeichert</string>
+    
+    <!-- Versionszeichenfolgen -->
+    <string name="server_version_required">1.0.1</string>
+    <string name="server_version_mismatch">Serverversion inkompatibel, bitte stellen Sie sicher, dass die Serverversion %s ist</string>
+
+    <!-- Benachrichtigungslimit-Zeichenfolgen -->
+    <string name="notification_limit_settings">Benachrichtigungslimit</string>
+    <string name="notification_limit_desc">Legen Sie die maximale Anzahl der in der Benutzeroberfläche angezeigten Benachrichtigungen fest, Standard 200, Bereich 1-10000</string>
+    <string name="notification_limit_hint">Menge eingeben (1-10000)</string>
+    <string name="notification_limit_saved">Benachrichtigungslimit gespeichert</string>
+    <string name="notification_limit_invalid">Bitte geben Sie eine Zahl zwischen 1 und 10000 ein</string>
+    <string name="current_notification_count">Aktuelle Benachrichtigungsanzahl: %d</string>
+
+    <!-- Schnellumschaltungszeichenfolgen -->
+    <string name="notification_receive_switch">Benachrichtigungen empfangen</string>
+    <string name="notification_forward_switch">Benachrichtigungen weiterleiten</string>
+    <string name="notification_receive_enabled">Benachrichtigungsempfang aktiviert</string>
+    <string name="notification_receive_disabled">Benachrichtigungsempfang deaktiviert</string>
+    <string name="notification_forward_enabled">Benachrichtigungsweiterleitung aktiviert</string>
+    <string name="notification_forward_disabled">Benachrichtigungsweiterleitung deaktiviert</string>
+    <string name="notification_forward_no_server">Bitte konfigurieren Sie zuerst die Serveradresse</string>
+    <string name="current_server_address">Aktuelle Weiterleitungsadresse: %s</string>
+    
+    <!-- Spracheinstellungen -->
+    <string name="language_settings">Spracheinstellungen</string>
+    <string name="language_settings_desc">Wählen Sie Ihre bevorzugte Sprache. Die App wird neu gestartet, um die neue Sprache anzuwenden</string>
+    <string name="language_system_default">System folgen</string>
+    <string name="language_english">English</string>
+    <string name="language_chinese_simplified">简体中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_french">Français</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_changed">Sprache geändert, App wird neu gestartet…</string>
+    <string name="select_language">Sprache auswählen</string>
+</resources>

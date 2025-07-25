@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">Переадресация уведомлений</string>
+    <string name="settings">Настройки</string>
+    <string name="no_notifications">В настоящее время уведомлений нет</string>
+    <string name="notification_permission_title">Требуется разрешение на доступ к уведомлениям</string>
+    <string name="notification_permission_desc">Этому приложению требуется разрешение на прослушивание уведомлений для получения и переадресации уведомлений. Пожалуйста, предоставьте это разрешение на следующей странице настроек.</string>
+    <string name="grant_permission">Предоставить разрешение</string>
+    <string name="back">Назад</string>
+    <string name="notification_access">Доступ к уведомлениям</string>
+    <string name="notification_access_desc">Управление разрешениями прослушивания уведомлений приложения, чтобы приложение могло правильно получать и переадресовывать уведомления</string>
+    <string name="open_settings">Открыть настройки</string>
+    
+    <!-- Строки настроек сервера -->
+    <string name="server_settings">Настройки сервера</string>
+    <string name="server_settings_desc">Настройте адрес сервера для получения уведомлений. По умолчанию используется порт 19283, если порт не указан</string>
+    <string name="server_address">Адрес сервера</string>
+    <string name="server_address_hint">например: 192.168.1.100 или example.com:19283</string>
+    <string name="save">Сохранить</string>
+    <string name="server_address_saved">Адрес сервера сохранен</string>
+    
+    <!-- Строки версии -->
+    <string name="server_version_required">1.0.1</string>
+    <string name="server_version_mismatch">Версия сервера несовместима, убедитесь, что версия сервера %s</string>
+
+    <!-- Строки ограничения количества уведомлений -->
+    <string name="notification_limit_settings">Ограничение количества уведомлений</string>
+    <string name="notification_limit_desc">Установите максимальное количество уведомлений, отображаемых в интерфейсе, по умолчанию 200, диапазон 1-10000</string>
+    <string name="notification_limit_hint">Введите количество (1-10000)</string>
+    <string name="notification_limit_saved">Ограничение количества уведомлений сохранено</string>
+    <string name="notification_limit_invalid">Пожалуйста, введите число от 1 до 10000</string>
+    <string name="current_notification_count">Текущее количество уведомлений: %d</string>
+
+    <!-- Строки быстрого переключения -->
+    <string name="notification_receive_switch">Получение уведомлений</string>
+    <string name="notification_forward_switch">Переадресация уведомлений</string>
+    <string name="notification_receive_enabled">Получение уведомлений включено</string>
+    <string name="notification_receive_disabled">Получение уведомлений отключено</string>
+    <string name="notification_forward_enabled">Переадресация уведомлений включена</string>
+    <string name="notification_forward_disabled">Переадресация уведомлений отключена</string>
+    <string name="notification_forward_no_server">Сначала настройте адрес сервера</string>
+    <string name="current_server_address">Текущий адрес переадресации: %s</string>
+    
+    <!-- Настройки языка -->
+    <string name="language_settings">Настройки языка</string>
+    <string name="language_settings_desc">Выберите предпочитаемый язык. Приложение перезапустится для применения нового языка</string>
+    <string name="language_system_default">Следовать системе</string>
+    <string name="language_english">English</string>
+    <string name="language_chinese_simplified">简体中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_french">Français</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_changed">Язык изменен, перезапуск приложения…</string>
+    <string name="select_language">Выбрать язык</string>
+</resources>

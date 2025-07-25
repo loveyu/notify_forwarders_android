@@ -53,4 +53,91 @@
     <string name="language_german">Deutsch</string>
     <string name="language_changed">Sprache geändert, App wird neu gestartet…</string>
     <string name="select_language">Sprache auswählen</string>
+    <string name="current_language">Aktuelle Sprache: %s</string>
+
+    <!-- Hintergrundeinstellungen -->
+    <string name="background_settings">Hintergrundeinstellungen</string>
+    <string name="background_settings_desc">Batterieoptimierung-Ausnahme für die App festlegen, damit der Benachrichtigungsdienst im Hintergrund weiterläuft, ohne vom System beendet zu werden</string>
+    <string name="battery_optimization_settings">Batterieoptimierung-Einstellungen</string>
+    <string name="battery_optimization_failed">Batterieoptimierung-Einstellungen können nicht geöffnet werden</string>
+
+    <!-- Test-Benachrichtigungsfunktion -->
+    <string name="test_notification_title">Test-Benachrichtigungsfunktion</string>
+    <string name="test_notification_desc">Wird zum Testen der Benachrichtigungs-Sende- und Empfangsfunktionen verwendet, kann zufällige Inhaltsbenachrichtigungen oder Fortschrittsbenachrichtigungen senden</string>
+    <string name="send_random_notification">Zufällige Benachrichtigung senden</string>
+    <string name="send_progress_notification">Fortschrittsbenachrichtigung senden</string>
+    <string name="test_notification_sent">Test-Benachrichtigung gesendet</string>
+
+    <!-- Verifizierungscode-bezogen -->
+    <string name="verification_code_prompt">Bitte geben Sie den folgenden Verifizierungscode auf dem Server ein</string>
+    <string name="verification_code">Verifizierungscode</string>
+    <string name="verification_code_hint">6-stelligen Verifizierungscode eingeben</string>
+    <string name="verification_success">Verifizierung erfolgreich, Serveradresse gespeichert</string>
+    <string name="verification_failed">Verifizierungscode falsch, bitte erneut versuchen</string>
+    <string name="connect_and_verify">Verbinden und verifizieren</string>
+    <string name="verify">Verifizieren</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="confirm">Bestätigen</string>
+
+    <!-- Toast-Nachrichten -->
+    <string name="server_connection_failed">Verbindung zum Server nicht möglich, bitte überprüfen Sie, ob die Adresse korrekt ist</string>
+    <string name="server_connection_error">Serververbindung fehlgeschlagen: %s</string>
+    <string name="server_address_required">Bitte geben Sie zuerst die Serveradresse ein</string>
+    <string name="service_start_failed">Dienst konnte nicht gestartet werden</string>
+    <string name="battery_optimization_request_failed">Batterieoptimierung-Ausnahme kann nicht angefordert werden</string>
+    <string name="battery_optimization_granted">Batterieoptimierung-Ausnahme-Berechtigung erhalten</string>
+    <string name="battery_optimization_warning">App könnte im Hintergrund vom System beendet werden</string>
+
+    <!-- Dialoge -->
+    <string name="confirm_clear_title">Löschen bestätigen</string>
+    <string name="confirm_clear_message">Sind Sie sicher, dass Sie den gesamten Benachrichtigungsverlauf löschen möchten?</string>
+    <string name="confirm_clear_button">Löschen bestätigen</string>
+    <string name="clear_notification_history">Benachrichtigungsverlauf löschen</string>
+
+    <!-- Benachrichtigungskanäle und Inhalt -->
+    <string name="test_notification_channel">Test-Benachrichtigungen</string>
+    <string name="test_notification_channel_desc">Wird zum Senden von Test-Benachrichtigungen verwendet</string>
+    <string name="progress_notification_channel">Fortschrittsbenachrichtigungen</string>
+    <string name="progress_notification_channel_desc">Wird zur Anzeige von Fortschritts-Update-Benachrichtigungen verwendet</string>
+    <string name="progress_notification_test_title">Fortschrittsbenachrichtigung-Test</string>
+    <string name="progress_notification_updating">Fortschritt wird aktualisiert...</string>
+    <string name="progress_notification_current">Aktueller Fortschritt: %d%%</string>
+    <string name="progress_notification_completed">Fortschritt abgeschlossen</string>
+
+    <!-- Vordergrunddienst -->
+    <string name="foreground_service_channel">Benachrichtigungs-Weiterleitungsdienst</string>
+    <string name="foreground_service_channel_desc">Benachrichtigungs-Weiterleitungsdienst am Laufen halten</string>
+    <string name="foreground_service_title">Benachrichtigungs-Weiterleitungsdienst läuft</string>
+    <string name="foreground_service_text">Tippen Sie, um Benachrichtigungs-Weiterleitungseinstellungen zu verwalten</string>
+
+    <!-- Test-Benachrichtigungsinhalt -->
+    <string name="test_notification_prefix">Test-Benachrichtigung - </string>
+    <string-array name="test_notification_titles">
+        <item>Heutige Nachrichten</item>
+        <item>System-Erinnerung</item>
+        <item>Wichtige Mitteilung</item>
+        <item>Neue Nachricht</item>
+        <item>Ereignis-Erinnerung</item>
+        <item>Sicherheitswarnung</item>
+        <item>Update-Benachrichtigung</item>
+        <item>Konto-Erinnerung</item>
+        <item>Terminplan-Erinnerung</item>
+        <item>Wettervorhersage</item>
+    </string-array>
+    <string-array name="test_notification_contents">
+        <item>Sie haben eine neue Nachricht zu überprüfen</item>
+        <item>System-Update abgeschlossen</item>
+        <item>Neue Aktivität in Ihrem Konto</item>
+        <item>Heutiges Wetter: Sonnig, 25°C</item>
+        <item>Ihre Bestellung wurde versandt</item>
+        <item>Batteriestand unter 20%</item>
+        <item>Neue Version verfügbar, bitte aktualisieren</item>
+        <item>Wichtiges Meeting morgen</item>
+        <item>Sie haben eine neue Freundschaftsanfrage</item>
+        <item>Wochenend-Aktivitäts-Einladung: Outdoor-Grillen</item>
+    </string-array>
+
+    <!-- Server-Verifizierung -->
+    <string name="server_verification_title">Anfrage zur Verbindungsherstellung mit diesem Gerät</string>
+    <string name="server_verification_desc">Bitte geben Sie den folgenden Verifizierungscode auf Ihrem Telefon ein: %s</string>
 </resources>

@@ -53,4 +53,91 @@
     <string name="language_german">Deutsch</string>
     <string name="language_changed">言語が変更されました。アプリを再起動しています…</string>
     <string name="select_language">言語を選択</string>
+    <string name="current_language">現在の言語: %s</string>
+
+    <!-- バックグラウンド設定 -->
+    <string name="background_settings">バックグラウンド設定</string>
+    <string name="background_settings_desc">アプリのバッテリー最適化除外を設定し、通知サービスがバックグラウンドで継続的に動作し、システムによってスリープされないようにします</string>
+    <string name="battery_optimization_settings">バッテリー最適化設定</string>
+    <string name="battery_optimization_failed">バッテリー最適化設定を開けません</string>
+
+    <!-- テスト通知機能 -->
+    <string name="test_notification_title">テスト通知機能</string>
+    <string name="test_notification_desc">通知の送信と受信機能をテストするために使用され、ランダムコンテンツ通知や進行状況通知を送信できます</string>
+    <string name="send_random_notification">ランダム通知を送信</string>
+    <string name="send_progress_notification">進行状況通知を送信</string>
+    <string name="test_notification_sent">テスト通知を送信しました</string>
+
+    <!-- 認証コード関連 -->
+    <string name="verification_code_prompt">サーバー側で以下の認証コードを入力してください</string>
+    <string name="verification_code">認証コード</string>
+    <string name="verification_code_hint">6桁の認証コードを入力</string>
+    <string name="verification_success">認証成功、サーバーアドレスを保存しました</string>
+    <string name="verification_failed">認証コードが正しくありません。再試行してください</string>
+    <string name="connect_and_verify">接続して認証</string>
+    <string name="verify">認証</string>
+    <string name="cancel">キャンセル</string>
+    <string name="confirm">確認</string>
+
+    <!-- トーストメッセージ -->
+    <string name="server_connection_failed">サーバーに接続できません。アドレスが正しいか確認してください</string>
+    <string name="server_connection_error">サーバー接続に失敗しました: %s</string>
+    <string name="server_address_required">まずサーバーアドレスを入力してください</string>
+    <string name="service_start_failed">サービスの開始に失敗しました</string>
+    <string name="battery_optimization_request_failed">バッテリー最適化除外を要求できません</string>
+    <string name="battery_optimization_granted">バッテリー最適化除外権限を取得しました</string>
+    <string name="battery_optimization_warning">アプリがバックグラウンドでシステムによって終了される可能性があります</string>
+
+    <!-- ダイアログ -->
+    <string name="confirm_clear_title">クリア確認</string>
+    <string name="confirm_clear_message">すべての通知履歴をクリアしてもよろしいですか？</string>
+    <string name="confirm_clear_button">クリア確認</string>
+    <string name="clear_notification_history">通知履歴をクリア</string>
+
+    <!-- 通知チャンネルとコンテンツ -->
+    <string name="test_notification_channel">テスト通知</string>
+    <string name="test_notification_channel_desc">テスト通知の送信に使用</string>
+    <string name="progress_notification_channel">進行状況通知</string>
+    <string name="progress_notification_channel_desc">進行状況更新通知の表示に使用</string>
+    <string name="progress_notification_test_title">進行状況通知テスト</string>
+    <string name="progress_notification_updating">進行状況を更新中...</string>
+    <string name="progress_notification_current">現在の進行状況: %d%%</string>
+    <string name="progress_notification_completed">進行状況完了</string>
+
+    <!-- フォアグラウンドサービス -->
+    <string name="foreground_service_channel">通知転送サービス</string>
+    <string name="foreground_service_channel_desc">通知転送サービスを実行し続ける</string>
+    <string name="foreground_service_title">通知転送サービスが実行中です</string>
+    <string name="foreground_service_text">タップして通知転送設定を管理</string>
+
+    <!-- テスト通知コンテンツ -->
+    <string name="test_notification_prefix">テスト通知 - </string>
+    <string-array name="test_notification_titles">
+        <item>今日のニュース</item>
+        <item>システムリマインダー</item>
+        <item>重要なお知らせ</item>
+        <item>新しいメッセージ</item>
+        <item>イベントリマインダー</item>
+        <item>セキュリティアラート</item>
+        <item>更新通知</item>
+        <item>アカウントリマインダー</item>
+        <item>スケジュールリマインダー</item>
+        <item>天気予報</item>
+    </string-array>
+    <string-array name="test_notification_contents">
+        <item>確認すべき新しいメッセージがあります</item>
+        <item>システム更新が完了しました</item>
+        <item>アカウントに新しいアクティビティがあります</item>
+        <item>今日の天気：晴れ、25°C</item>
+        <item>ご注文が発送されました</item>
+        <item>バッテリー残量が20%を下回りました</item>
+        <item>新しいバージョンが利用可能です。更新してください</item>
+        <item>明日重要な会議があります</item>
+        <item>新しい友達リクエストがあります</item>
+        <item>週末のアクティビティ招待：アウトドアBBQ</item>
+    </string-array>
+
+    <!-- サーバー認証 -->
+    <string name="server_verification_title">このデバイスとの接続確立要求</string>
+    <string name="server_verification_desc">携帯電話で以下の認証コードを入力してください：%s</string>
 </resources>

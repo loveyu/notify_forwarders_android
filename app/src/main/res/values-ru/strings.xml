@@ -53,4 +53,91 @@
     <string name="language_german">Deutsch</string>
     <string name="language_changed">Язык изменен, перезапуск приложения…</string>
     <string name="select_language">Выбрать язык</string>
+    <string name="current_language">Текущий язык: %s</string>
+
+    <!-- Настройки фона -->
+    <string name="background_settings">Настройки фона</string>
+    <string name="background_settings_desc">Установите исключение оптимизации батареи для приложения, чтобы служба уведомлений продолжала работать в фоне без завершения системой</string>
+    <string name="battery_optimization_settings">Настройки оптимизации батареи</string>
+    <string name="battery_optimization_failed">Не удается открыть настройки оптимизации батареи</string>
+
+    <!-- Функция тестовых уведомлений -->
+    <string name="test_notification_title">Функция тестовых уведомлений</string>
+    <string name="test_notification_desc">Используется для тестирования функций отправки и получения уведомлений, может отправлять уведомления со случайным содержимым или уведомления о прогрессе</string>
+    <string name="send_random_notification">Отправить случайное уведомление</string>
+    <string name="send_progress_notification">Отправить уведомление о прогрессе</string>
+    <string name="test_notification_sent">Тестовое уведомление отправлено</string>
+
+    <!-- Связанное с кодом подтверждения -->
+    <string name="verification_code_prompt">Пожалуйста, введите следующий код подтверждения на сервере</string>
+    <string name="verification_code">Код подтверждения</string>
+    <string name="verification_code_hint">Введите 6-значный код подтверждения</string>
+    <string name="verification_success">Подтверждение успешно, адрес сервера сохранен</string>
+    <string name="verification_failed">Код подтверждения неверен, попробуйте снова</string>
+    <string name="connect_and_verify">Подключиться и подтвердить</string>
+    <string name="verify">Подтвердить</string>
+    <string name="cancel">Отмена</string>
+    <string name="confirm">Подтвердить</string>
+
+    <!-- Сообщения Toast -->
+    <string name="server_connection_failed">Не удается подключиться к серверу, проверьте правильность адреса</string>
+    <string name="server_connection_error">Не удалось подключиться к серверу: %s</string>
+    <string name="server_address_required">Сначала введите адрес сервера</string>
+    <string name="service_start_failed">Не удалось запустить службу</string>
+    <string name="battery_optimization_request_failed">Не удается запросить исключение оптимизации батареи</string>
+    <string name="battery_optimization_granted">Получено разрешение на исключение оптимизации батареи</string>
+    <string name="battery_optimization_warning">Приложение может быть завершено системой в фоне</string>
+
+    <!-- Диалоги -->
+    <string name="confirm_clear_title">Подтвердить очистку</string>
+    <string name="confirm_clear_message">Вы уверены, что хотите очистить всю историю уведомлений?</string>
+    <string name="confirm_clear_button">Подтвердить очистку</string>
+    <string name="clear_notification_history">Очистить историю уведомлений</string>
+
+    <!-- Каналы уведомлений и содержимое -->
+    <string name="test_notification_channel">Тестовые уведомления</string>
+    <string name="test_notification_channel_desc">Используется для отправки тестовых уведомлений</string>
+    <string name="progress_notification_channel">Уведомления о прогрессе</string>
+    <string name="progress_notification_channel_desc">Используется для отображения уведомлений об обновлении прогресса</string>
+    <string name="progress_notification_test_title">Тест уведомления о прогрессе</string>
+    <string name="progress_notification_updating">Обновление прогресса...</string>
+    <string name="progress_notification_current">Текущий прогресс: %d%%</string>
+    <string name="progress_notification_completed">Прогресс завершен</string>
+
+    <!-- Служба переднего плана -->
+    <string name="foreground_service_channel">Служба пересылки уведомлений</string>
+    <string name="foreground_service_channel_desc">Поддерживать работу службы пересылки уведомлений</string>
+    <string name="foreground_service_title">Служба пересылки уведомлений работает</string>
+    <string name="foreground_service_text">Нажмите для управления настройками пересылки уведомлений</string>
+
+    <!-- Содержимое тестовых уведомлений -->
+    <string name="test_notification_prefix">Тестовое уведомление - </string>
+    <string-array name="test_notification_titles">
+        <item>Сегодняшние новости</item>
+        <item>Системное напоминание</item>
+        <item>Важное уведомление</item>
+        <item>Новое сообщение</item>
+        <item>Напоминание о событии</item>
+        <item>Предупреждение безопасности</item>
+        <item>Уведомление об обновлении</item>
+        <item>Напоминание об аккаунте</item>
+        <item>Напоминание о расписании</item>
+        <item>Прогноз погоды</item>
+    </string-array>
+    <string-array name="test_notification_contents">
+        <item>У вас есть новое сообщение для проверки</item>
+        <item>Обновление системы завершено</item>
+        <item>Новая активность в вашем аккаунте</item>
+        <item>Сегодняшняя погода: Солнечно, 25°C</item>
+        <item>Ваш заказ отправлен</item>
+        <item>Уровень батареи ниже 20%</item>
+        <item>Доступна новая версия, пожалуйста, обновите</item>
+        <item>Завтра важная встреча</item>
+        <item>У вас новый запрос на дружбу</item>
+        <item>Приглашение на выходные: Барбекю на природе</item>
+    </string-array>
+
+    <!-- Подтверждение сервера -->
+    <string name="server_verification_title">Запрос на установление соединения с этим устройством</string>
+    <string name="server_verification_desc">Пожалуйста, введите следующий код подтверждения на вашем телефоне: %s</string>
 </resources>

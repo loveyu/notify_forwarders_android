@@ -53,4 +53,91 @@
     <string name="language_german">Deutsch</string>
     <string name="language_changed">語言已變更，正在重新啟動應用程式…</string>
     <string name="select_language">選擇語言</string>
+    <string name="current_language">目前語言: %s</string>
+
+    <!-- 背景執行設定 -->
+    <string name="background_settings">背景執行設定</string>
+    <string name="background_settings_desc">設定應用程式的電池最佳化豁免，使通知服務能夠在背景持續工作，不被系統休眠</string>
+    <string name="battery_optimization_settings">電池最佳化設定</string>
+    <string name="battery_optimization_failed">無法開啟電池最佳化設定</string>
+
+    <!-- 測試通知功能 -->
+    <string name="test_notification_title">測試通知功能</string>
+    <string name="test_notification_desc">用於測試通知發送和接收功能，可以發送隨機內容通知或進度通知</string>
+    <string name="send_random_notification">發送隨機通知</string>
+    <string name="send_progress_notification">發送進度通知</string>
+    <string name="test_notification_sent">已發送測試通知</string>
+
+    <!-- 驗證碼相關 -->
+    <string name="verification_code_prompt">請在伺服器端輸入以下驗證碼</string>
+    <string name="verification_code">驗證碼</string>
+    <string name="verification_code_hint">輸入6位驗證碼</string>
+    <string name="verification_success">驗證成功，已儲存伺服器位址</string>
+    <string name="verification_failed">驗證碼不正確，請重試</string>
+    <string name="connect_and_verify">連接並驗證</string>
+    <string name="verify">驗證</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">確定</string>
+
+    <!-- Toast 訊息 -->
+    <string name="server_connection_failed">無法連接到伺服器，請檢查位址是否正確</string>
+    <string name="server_connection_error">連接伺服器失敗: %s</string>
+    <string name="server_address_required">請先輸入伺服器位址</string>
+    <string name="service_start_failed">啟動服務失敗</string>
+    <string name="battery_optimization_request_failed">無法請求電池最佳化豁免</string>
+    <string name="battery_optimization_granted">已取得電池最佳化豁免權限</string>
+    <string name="battery_optimization_warning">應用程式可能在背景被系統終止</string>
+
+    <!-- 對話框 -->
+    <string name="confirm_clear_title">確認清除</string>
+    <string name="confirm_clear_message">確定要清除所有通知歷史記錄嗎？</string>
+    <string name="confirm_clear_button">確認清除</string>
+    <string name="clear_notification_history">清除通知歷史</string>
+
+    <!-- 通知頻道和內容 -->
+    <string name="test_notification_channel">測試通知</string>
+    <string name="test_notification_channel_desc">用於發送測試通知</string>
+    <string name="progress_notification_channel">進度通知</string>
+    <string name="progress_notification_channel_desc">用於顯示進度更新的通知</string>
+    <string name="progress_notification_test_title">進度通知測試</string>
+    <string name="progress_notification_updating">正在更新進度...</string>
+    <string name="progress_notification_current">目前進度: %d%%</string>
+    <string name="progress_notification_completed">進度已完成</string>
+
+    <!-- 前台服務 -->
+    <string name="foreground_service_channel">通知轉發服務</string>
+    <string name="foreground_service_channel_desc">保持通知轉發服務執行</string>
+    <string name="foreground_service_title">通知轉發服務正在執行</string>
+    <string name="foreground_service_text">點擊管理通知轉發設定</string>
+
+    <!-- 測試通知內容 -->
+    <string name="test_notification_prefix">測試通知 - </string>
+    <string-array name="test_notification_titles">
+        <item>今日資訊</item>
+        <item>系統提醒</item>
+        <item>重要通知</item>
+        <item>新訊息</item>
+        <item>活動提醒</item>
+        <item>安全提醒</item>
+        <item>更新通知</item>
+        <item>帳戶提醒</item>
+        <item>日程提醒</item>
+        <item>天氣預報</item>
+    </string-array>
+    <string-array name="test_notification_contents">
+        <item>您有一條新訊息需要查看</item>
+        <item>系統更新已完成</item>
+        <item>您的帳戶有新的活動</item>
+        <item>今日天氣：晴天，溫度25°C</item>
+        <item>您的訂單已發貨</item>
+        <item>電池電量低於20%</item>
+        <item>新版本已推送，請及時更新</item>
+        <item>明天有一個重要會議</item>
+        <item>您有一個新的朋友請求</item>
+        <item>週末活動邀請：戶外燒烤</item>
+    </string-array>
+
+    <!-- 伺服器驗證 -->
+    <string name="server_verification_title">請求與本機建立連接</string>
+    <string name="server_verification_desc">請在手機輸入以下驗證碼：%s</string>
 </resources>

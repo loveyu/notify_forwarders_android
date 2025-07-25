@@ -53,4 +53,91 @@
     <string name="language_german">Deutsch</string>
     <string name="language_changed">Langue modifiée, redémarrage de l\'application…</string>
     <string name="select_language">Sélectionner la langue</string>
+    <string name="current_language">Langue actuelle : %s</string>
+
+    <!-- Paramètres d\'arrière-plan -->
+    <string name="background_settings">Paramètres d\'arrière-plan</string>
+    <string name="background_settings_desc">Définir l\'exemption d\'optimisation de la batterie pour l\'application afin de maintenir le service de notification en arrière-plan sans être tué par le système</string>
+    <string name="battery_optimization_settings">Paramètres d\'optimisation de la batterie</string>
+    <string name="battery_optimization_failed">Impossible d\'ouvrir les paramètres d\'optimisation de la batterie</string>
+
+    <!-- Fonction de notification de test -->
+    <string name="test_notification_title">Fonction de notification de test</string>
+    <string name="test_notification_desc">Utilisé pour tester les fonctions d\'envoi et de réception de notifications, peut envoyer des notifications de contenu aléatoire ou des notifications de progression</string>
+    <string name="send_random_notification">Envoyer une notification aléatoire</string>
+    <string name="send_progress_notification">Envoyer une notification de progression</string>
+    <string name="test_notification_sent">Notification de test envoyée</string>
+
+    <!-- Lié au code de vérification -->
+    <string name="verification_code_prompt">Veuillez entrer le code de vérification suivant sur le serveur</string>
+    <string name="verification_code">Code de vérification</string>
+    <string name="verification_code_hint">Entrez le code de vérification à 6 chiffres</string>
+    <string name="verification_success">Vérification réussie, adresse du serveur sauvegardée</string>
+    <string name="verification_failed">Code de vérification incorrect, veuillez réessayer</string>
+    <string name="connect_and_verify">Connecter et vérifier</string>
+    <string name="verify">Vérifier</string>
+    <string name="cancel">Annuler</string>
+    <string name="confirm">Confirmer</string>
+
+    <!-- Messages Toast -->
+    <string name="server_connection_failed">Impossible de se connecter au serveur, veuillez vérifier si l\'adresse est correcte</string>
+    <string name="server_connection_error">Échec de la connexion au serveur : %s</string>
+    <string name="server_address_required">Veuillez d\'abord entrer l\'adresse du serveur</string>
+    <string name="service_start_failed">Échec du démarrage du service</string>
+    <string name="battery_optimization_request_failed">Impossible de demander l\'exemption d\'optimisation de la batterie</string>
+    <string name="battery_optimization_granted">Autorisation d\'exemption d\'optimisation de la batterie accordée</string>
+    <string name="battery_optimization_warning">L\'application peut être tuée par le système en arrière-plan</string>
+
+    <!-- Dialogues -->
+    <string name="confirm_clear_title">Confirmer l\'effacement</string>
+    <string name="confirm_clear_message">Êtes-vous sûr de vouloir effacer tout l\'historique des notifications ?</string>
+    <string name="confirm_clear_button">Confirmer l\'effacement</string>
+    <string name="clear_notification_history">Effacer l\'historique des notifications</string>
+
+    <!-- Canaux de notification et contenu -->
+    <string name="test_notification_channel">Notifications de test</string>
+    <string name="test_notification_channel_desc">Utilisé pour envoyer des notifications de test</string>
+    <string name="progress_notification_channel">Notifications de progression</string>
+    <string name="progress_notification_channel_desc">Utilisé pour afficher les notifications de mise à jour de progression</string>
+    <string name="progress_notification_test_title">Test de notification de progression</string>
+    <string name="progress_notification_updating">Mise à jour de la progression...</string>
+    <string name="progress_notification_current">Progression actuelle : %d%%</string>
+    <string name="progress_notification_completed">Progression terminée</string>
+
+    <!-- Service de premier plan -->
+    <string name="foreground_service_channel">Service de transfert de notifications</string>
+    <string name="foreground_service_channel_desc">Maintenir le service de transfert de notifications en cours d\'exécution</string>
+    <string name="foreground_service_title">Le service de transfert de notifications est en cours d\'exécution</string>
+    <string name="foreground_service_text">Appuyez pour gérer les paramètres de transfert de notifications</string>
+
+    <!-- Contenu des notifications de test -->
+    <string name="test_notification_prefix">Notification de test - </string>
+    <string-array name="test_notification_titles">
+        <item>Actualités d\'aujourd\'hui</item>
+        <item>Rappel système</item>
+        <item>Avis important</item>
+        <item>Nouveau message</item>
+        <item>Rappel d\'événement</item>
+        <item>Alerte de sécurité</item>
+        <item>Notification de mise à jour</item>
+        <item>Rappel de compte</item>
+        <item>Rappel de planning</item>
+        <item>Prévisions météo</item>
+    </string-array>
+    <string-array name="test_notification_contents">
+        <item>Vous avez un nouveau message à vérifier</item>
+        <item>Mise à jour du système terminée</item>
+        <item>Nouvelle activité dans votre compte</item>
+        <item>Météo d\'aujourd\'hui : Ensoleillé, 25°C</item>
+        <item>Votre commande a été expédiée</item>
+        <item>Niveau de batterie inférieur à 20%</item>
+        <item>Nouvelle version disponible, veuillez mettre à jour</item>
+        <item>Réunion importante demain</item>
+        <item>Vous avez une nouvelle demande d\'ami</item>
+        <item>Invitation d\'activité de week-end : Barbecue en plein air</item>
+    </string-array>
+
+    <!-- Vérification du serveur -->
+    <string name="server_verification_title">Demande d\'établissement de connexion avec cet appareil</string>
+    <string name="server_verification_desc">Veuillez entrer le code de vérification suivant sur votre téléphone : %s</string>
 </resources>

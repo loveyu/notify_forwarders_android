@@ -53,4 +53,91 @@
     <string name="language_german">Deutsch</string>
     <string name="language_changed">语言已更改，正在重新启动应用…</string>
     <string name="select_language">选择语言</string>
+    <string name="current_language">当前语言: %s</string>
+
+    <!-- 后台运行设置 -->
+    <string name="background_settings">后台运行设置</string>
+    <string name="background_settings_desc">设置应用的电池优化豁免，使通知服务能够在后台持续工作，不被系统休眠</string>
+    <string name="battery_optimization_settings">电池优化设置</string>
+    <string name="battery_optimization_failed">无法打开电池优化设置</string>
+
+    <!-- 测试通知功能 -->
+    <string name="test_notification_title">测试通知功能</string>
+    <string name="test_notification_desc">用于测试通知发送和接收功能，可以发送随机内容通知或进度通知</string>
+    <string name="send_random_notification">发送随机通知</string>
+    <string name="send_progress_notification">发送进度通知</string>
+    <string name="test_notification_sent">已发送测试通知</string>
+
+    <!-- 验证码相关 -->
+    <string name="verification_code_prompt">请在服务器端输入以下验证码</string>
+    <string name="verification_code">验证码</string>
+    <string name="verification_code_hint">输入6位验证码</string>
+    <string name="verification_success">验证成功，已保存服务器地址</string>
+    <string name="verification_failed">验证码不正确，请重试</string>
+    <string name="connect_and_verify">连接并验证</string>
+    <string name="verify">验证</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确定</string>
+
+    <!-- Toast 消息 -->
+    <string name="server_connection_failed">无法连接到服务器，请检查地址是否正确</string>
+    <string name="server_connection_error">连接服务器失败: %s</string>
+    <string name="server_address_required">请先输入服务器地址</string>
+    <string name="service_start_failed">启动服务失败</string>
+    <string name="battery_optimization_request_failed">无法请求电池优化豁免</string>
+    <string name="battery_optimization_granted">已获取电池优化豁免权限</string>
+    <string name="battery_optimization_warning">应用可能在后台被系统杀死</string>
+
+    <!-- 对话框 -->
+    <string name="confirm_clear_title">确认清除</string>
+    <string name="confirm_clear_message">确定要清除所有通知历史记录吗？</string>
+    <string name="confirm_clear_button">确认清除</string>
+    <string name="clear_notification_history">清除通知历史</string>
+
+    <!-- 通知渠道和内容 -->
+    <string name="test_notification_channel">测试通知</string>
+    <string name="test_notification_channel_desc">用于发送测试通知</string>
+    <string name="progress_notification_channel">进度通知</string>
+    <string name="progress_notification_channel_desc">用于显示进度更新的通知</string>
+    <string name="progress_notification_test_title">进度通知测试</string>
+    <string name="progress_notification_updating">正在更新进度...</string>
+    <string name="progress_notification_current">当前进度: %d%%</string>
+    <string name="progress_notification_completed">进度已完成</string>
+
+    <!-- 前台服务 -->
+    <string name="foreground_service_channel">通知转发服务</string>
+    <string name="foreground_service_channel_desc">保持通知转发服务运行</string>
+    <string name="foreground_service_title">通知转发服务正在运行</string>
+    <string name="foreground_service_text">点击管理通知转发设置</string>
+
+    <!-- 测试通知内容 -->
+    <string name="test_notification_prefix">测试通知 - </string>
+    <string-array name="test_notification_titles">
+        <item>今日资讯</item>
+        <item>系统提醒</item>
+        <item>重要通知</item>
+        <item>新消息</item>
+        <item>活动提醒</item>
+        <item>安全提醒</item>
+        <item>更新通知</item>
+        <item>账户提醒</item>
+        <item>日程提醒</item>
+        <item>天气预报</item>
+    </string-array>
+    <string-array name="test_notification_contents">
+        <item>您有一条新消息需要查看</item>
+        <item>系统更新已完成</item>
+        <item>您的账户有新的活动</item>
+        <item>今日天气：晴天，温度25°C</item>
+        <item>您的订单已发货</item>
+        <item>电池电量低于20%</item>
+        <item>新版本已推送，请及时更新</item>
+        <item>明天有一个重要会议</item>
+        <item>您有一个新的朋友请求</item>
+        <item>周末活动邀请：户外烧烤</item>
+    </string-array>
+
+    <!-- 服务器验证 -->
+    <string name="server_verification_title">请求与本机建立连接</string>
+    <string name="server_verification_desc">请在手机输入以下验证码：%s</string>
 </resources>

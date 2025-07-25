@@ -227,10 +227,10 @@ class NotificationService : NotificationListenerService() {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "通知转发服务",
+                getString(R.string.foreground_service_channel),
                 NotificationManager.IMPORTANCE_LOW // 低优先级，不会打扰用户
             ).apply {
-                description = "保持通知转发服务运行"
+                description = getString(R.string.foreground_service_channel_desc)
                 setShowBadge(false) // 不在启动器图标上显示通知角标
             }
             notificationManager.createNotificationChannel(channel)
@@ -246,8 +246,8 @@ class NotificationService : NotificationListenerService() {
 
         // 构建通知
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("通知转发服务正在运行")
-            .setContentText("点击管理通知转发设置")
+            .setContentTitle(getString(R.string.foreground_service_title))
+            .setContentText(getString(R.string.foreground_service_text))
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setOngoing(true) // 设置为不可清除

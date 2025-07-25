@@ -154,7 +154,7 @@ class MainActivity : ComponentActivity() {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(this, "启动服务失败", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.service_start_failed), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -172,7 +172,7 @@ class MainActivity : ComponentActivity() {
                     startActivityForResult(intent, REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(this, "无法请求电池优化豁免", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.battery_optimization_request_failed), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -183,9 +183,9 @@ class MainActivity : ComponentActivity() {
         if (requestCode == REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) {
             val powerManager = getSystemService(POWER_SERVICE) as PowerManager
             if (powerManager.isIgnoringBatteryOptimizations(packageName)) {
-                Toast.makeText(this, "已获取电池优化豁免权限", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.battery_optimization_granted), Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "应用可能在后台被系统杀死", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.battery_optimization_warning), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -229,7 +229,7 @@ fun NotificationScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Clear,
-                        contentDescription = "清除通知历史"
+                        contentDescription = stringResource(R.string.clear_notification_history)
                     )
                 }
             }
@@ -255,8 +255,8 @@ fun NotificationScreen(
             if (showClearConfirmDialog) {
                 AlertDialog(
                     onDismissRequest = { showClearConfirmDialog = false },
-                    title = { Text("确认清除") },
-                    text = { Text("确定要清除所有通知历史记录吗？") },
+                    title = { Text(stringResource(R.string.confirm_clear_title)) },
+                    text = { Text(stringResource(R.string.confirm_clear_message)) },
                     confirmButton = {
                         TextButton(
                             onClick = {
@@ -264,12 +264,12 @@ fun NotificationScreen(
                                 showClearConfirmDialog = false
                             }
                         ) {
-                            Text("确认清除")
+                            Text(stringResource(R.string.confirm_clear_button))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showClearConfirmDialog = false }) {
-                            Text("取消")
+                            Text(stringResource(R.string.cancel))
                         }
                     }
                 )
@@ -496,7 +496,7 @@ fun QuickToggleSection() {
             },
             confirmButton = {
                 TextButton(onClick = { showServerAddressDialog = false }) {
-                    Text("确定")
+                    Text(stringResource(R.string.confirm))
                 }
             }
         )

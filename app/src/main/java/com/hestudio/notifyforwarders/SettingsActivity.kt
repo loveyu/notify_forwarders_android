@@ -117,7 +117,7 @@ class SettingsActivity : ComponentActivity() {
             startActivity(intent)
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(this, "无法打开电池优化设置", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.battery_optimization_failed), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -126,19 +126,19 @@ class SettingsActivity : ComponentActivity() {
             // 创建测试通知渠道
             val testChannel = NotificationChannel(
                 testChannelId,
-                "测试通知",
+                getString(R.string.test_notification_channel),
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
-                description = "用于发送测试通知"
+                description = getString(R.string.test_notification_channel_desc)
             }
 
             // 创建进度通知渠道
             val progressChannel = NotificationChannel(
                 progressChannelId,
-                "进度通知",
+                getString(R.string.progress_notification_channel),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "用于显示进度更新的通知"
+                description = getString(R.string.progress_notification_channel_desc)
             }
 
             // 注册通知渠道
@@ -149,18 +149,10 @@ class SettingsActivity : ComponentActivity() {
 
     private fun sendRandomNotification() {
         val random = Random.Default
-        val titles = listOf(
-            "今日资讯", "系统提醒", "重要通知", "新消息", "活动提醒",
-            "安全提醒", "更新通知", "账户提醒", "日程提醒", "天气预报"
-        )
-        val contents = listOf(
-            "您有一条新消息需要查看", "系统更新已完成", "您的账户有新的活动",
-            "今日天气：晴天，温度25°C", "您的订单已发货", "电池电量低于20%",
-            "新版本已推送，请及时更新", "明天有一个重要会议",
-            "您有一个新的朋友请求", "周末活动邀请：户外烧烤"
-        )
+        val titles = resources.getStringArray(R.array.test_notification_titles)
+        val contents = resources.getStringArray(R.array.test_notification_contents)
 
-        val title = "测试通知 - " + titles[random.nextInt(titles.size)]
+        val title = getString(R.string.test_notification_prefix) + titles[random.nextInt(titles.size)]
         val content = contents[random.nextInt(contents.size)] + " - " +
                 SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
         val notificationId = random.nextInt(10000)
@@ -173,15 +165,15 @@ class SettingsActivity : ComponentActivity() {
             .setAutoCancel(true)
 
         notificationManager.notify(notificationId, builder.build())
-        Toast.makeText(this, "已发送测试通知", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.test_notification_sent), Toast.LENGTH_SHORT).show()
     }
 
     private fun sendProgressNotification() {
         // 创建一个通知构建器
         val builder = NotificationCompat.Builder(this, progressChannelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("进度通知测试")
-            .setContentText("正在更新进度...")
+            .setContentTitle(getString(R.string.progress_notification_test_title))
+            .setContentText(getString(R.string.progress_notification_updating))
             .setPriority(NotificationCompat.PRIORITY_LOW)
             // 确保每次使用相同的通知ID，以便系统识别为同一通知的更新
 
@@ -195,7 +187,7 @@ class SettingsActivity : ComponentActivity() {
                 val currentProgress = progress * 10
                 // 更新通知进度
                 builder.setProgress(100, currentProgress, false)
-                    .setContentText("当前进度: $currentProgress%")
+                    .setContentText(getString(R.string.progress_notification_current, currentProgress))
                 notificationManager.notify(progressNotificationId, builder.build())
 
                 try {
@@ -207,7 +199,7 @@ class SettingsActivity : ComponentActivity() {
             }
 
             // 进度完成后更新通知
-            builder.setContentText("进度已完成")
+            builder.setContentText(getString(R.string.progress_notification_completed))
                 .setProgress(0, 0, false)
             notificationManager.notify(progressNotificationId, builder.build())
 
@@ -304,14 +296,14 @@ fun SettingsScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "后台运行设置",
+                        text = stringResource(R.string.background_settings),
                         style = MaterialTheme.typography.titleMedium
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "设置应用的电池优化豁免，使通知服务能够在后台持续工作，不被系统休眠",
+                        text = stringResource(R.string.background_settings_desc),
                         style = MaterialTheme.typography.bodyMedium
                     )
 
@@ -321,7 +313,7 @@ fun SettingsScreen(
                         onClick = onOpenBatteryOptimizationSettings,
                         modifier = Modifier.align(Alignment.End)
                     ) {
-                        Text("电池优化设置")
+                        Text(stringResource(R.string.battery_optimization_settings))
                     }
                 }
             }
@@ -363,7 +355,7 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "请在服务器端输入以下验证码",
+                            text = stringResource(R.string.verification_code_prompt),
                             style = MaterialTheme.typography.bodyMedium
                         )
 
@@ -377,8 +369,8 @@ fun SettingsScreen(
                                     verificationCode = it
                                 }
                             },
-                            label = { Text("验证码") },
-                            placeholder = { Text("输入6位验证码") },
+                            label = { Text(stringResource(R.string.verification_code)) },
+                            placeholder = { Text(stringResource(R.string.verification_code_hint)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
@@ -407,7 +399,7 @@ fun SettingsScreen(
                                 verificationMessage = ""
                                 isVerified = false
                             }) {
-                                Text("取消")
+                                Text(stringResource(R.string.cancel))
                             }
 
                             Spacer(modifier = Modifier.width(8.dp))
@@ -417,7 +409,7 @@ fun SettingsScreen(
                                     if (verificationCode == generatedCode) {
                                         // 验证成功，保存服务器地址
                                         ServerPreferences.saveServerAddress(context, serverAddress)
-                                        verificationMessage = "验证成功，已保存服务器地址"
+                                        verificationMessage = context.getString(R.string.verification_success)
                                         isVerified = true
 
                                         // 延迟关闭验证界面
@@ -430,13 +422,13 @@ fun SettingsScreen(
                                         }
                                     } else {
                                         // 验证失败
-                                        verificationMessage = "验证码不正确，请重试"
+                                        verificationMessage = context.getString(R.string.verification_failed)
                                         isVerified = false
                                     }
                                 },
                                 enabled = verificationCode.length == 6
                             ) {
-                                Text("验证")
+                                Text(stringResource(R.string.verify))
                             }
                         }
                     } else {
@@ -458,7 +450,8 @@ fun SettingsScreen(
                                                 // 发送验证码到服务器
                                                 val result = sendVerificationCode(
                                                     serverAddress,
-                                                    generatedCode
+                                                    generatedCode,
+                                                    context
                                                 )
                                                 if (result) {
                                                     isVerifying = true
@@ -466,7 +459,7 @@ fun SettingsScreen(
                                                 } else {
                                                     Toast.makeText(
                                                         context,
-                                                        "无法连接到服务器，请检查地址是否正确",
+                                                        context.getString(R.string.server_connection_failed),
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 }
@@ -489,7 +482,7 @@ fun SettingsScreen(
                                             e.printStackTrace()
                                             Toast.makeText(
                                                 context,
-                                                "连接服务器失败: ${e.message}",
+                                                context.getString(R.string.server_connection_error, e.message ?: ""),
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         }
@@ -497,14 +490,14 @@ fun SettingsScreen(
                                 } else {
                                     Toast.makeText(
                                         context,
-                                        "请先输入服务器地址",
+                                        context.getString(R.string.server_address_required),
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
                             },
                             modifier = Modifier.align(Alignment.End)
                         ) {
-                            Text("连接并验证")
+                            Text(stringResource(R.string.connect_and_verify))
                         }
                     }
                 }
@@ -584,14 +577,14 @@ fun SettingsScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "测试通知功能",
+                        text = stringResource(R.string.test_notification_title),
                         style = MaterialTheme.typography.titleMedium
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "用于测试通知发送和接收功能，可以发送随机内容通知或进度通知",
+                        text = stringResource(R.string.test_notification_desc),
                         style = MaterialTheme.typography.bodyMedium
                     )
 
@@ -604,13 +597,13 @@ fun SettingsScreen(
                         Button(
                             onClick = onSendRandomNotification
                         ) {
-                            Text("发送随机通知")
+                            Text(stringResource(R.string.send_random_notification))
                         }
 
                         Button(
                             onClick = onSendProgressNotification
                         ) {
-                            Text("发送进度通知")
+                            Text(stringResource(R.string.send_progress_notification))
                         }
                     }
                 }
@@ -652,7 +645,7 @@ fun LanguageSettingsCard() {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "当前语言: ${LocaleHelper.getLanguageDisplayName(context, currentLanguage)}",
+                text = stringResource(R.string.current_language, LocaleHelper.getLanguageDisplayName(context, currentLanguage)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -728,7 +721,7 @@ fun LanguageSelectionDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -800,7 +793,7 @@ suspend fun checkServerVersion(serverAddress: String, context: Context): Boolean
     }
 
 // 发送验证码到服务器
-suspend fun sendVerificationCode(serverAddress: String, code: String): Boolean =
+suspend fun sendVerificationCode(serverAddress: String, code: String, context: Context): Boolean =
     withContext(Dispatchers.IO) {
         try {
             // 格式化服务器地址，确保包含http://前缀
@@ -826,8 +819,8 @@ suspend fun sendVerificationCode(serverAddress: String, code: String): Boolean =
             val jsonBody = JSONObject().apply {
                 put("devicename", deviceName)
                 put("appname", appName)
-                put("title", "请求与本机建立连接")
-                put("description", "请在手机输入以下验证码：$code")
+                put("title", context.getString(R.string.server_verification_title))
+                put("description", context.getString(R.string.server_verification_desc, code))
             }
 
             // 发送JSON数据

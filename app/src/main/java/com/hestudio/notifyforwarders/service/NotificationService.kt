@@ -43,6 +43,11 @@ class NotificationService : NotificationListenerService() {
         fun clearNotifications() {
             notifications.clear()
         }
+
+        // 获取当前通知数量
+        fun getNotificationCount(): Int {
+            return notifications.size
+        }
     }
     
     private val serviceScope = CoroutineScope(Dispatchers.IO)
@@ -101,6 +106,17 @@ class NotificationService : NotificationListenerService() {
             // 是新通知，添加到列表头部
             Log.d(TAG, "添加新通知: $uniqueId")
             notifications.add(0, notificationData)
+
+            // 检查通知数量限制
+            val notificationLimit = ServerPreferences.getNotificationLimit(this@NotificationService)
+            if (notifications.size > notificationLimit) {
+                // 移除超出限制的旧通知
+                val removeCount = notifications.size - notificationLimit
+                repeat(removeCount) {
+                    notifications.removeLastOrNull()
+                }
+                Log.d(TAG, "移除了 $removeCount 条旧通知，当前通知数量: ${notifications.size}")
+            }
         }
         
         // 转发通知到配置的服务器
@@ -167,6 +183,7 @@ class NotificationService : NotificationListenerService() {
                     put("description", notification.content)
                     put("devicename", getDeviceName()) // 添加设备名称参数
                     put("uniqueId", notification.uniqueId) // 添加唯一标识字段
+                    put("id", notification.id) // 这个包的记录ID
                 }
                 
                 // 发送JSON数据

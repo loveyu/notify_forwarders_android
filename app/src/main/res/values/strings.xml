@@ -21,4 +21,12 @@
     <!-- 版本相关字符串 -->
     <string name="server_version_required">1.0.1</string>
     <string name="server_version_mismatch">服务器版本不兼容，请确保服务器版本为 %s</string>
+
+    <!-- 通知数量限制相关字符串 -->
+    <string name="notification_limit_settings">通知数量限制</string>
+    <string name="notification_limit_desc">设置界面显示的最大通知数量，默认200条，范围1-10000条</string>
+    <string name="notification_limit_hint">输入数量 (1-10000)</string>
+    <string name="notification_limit_saved">通知数量限制已保存</string>
+    <string name="notification_limit_invalid">请输入1到10000之间的数字</string>
+    <string name="current_notification_count">当前通知数量: %d</string>
 </resources>

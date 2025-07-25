@@ -19,7 +19,7 @@ A modern Android notification forwarding application that captures system notifi
 - 🚀 **Automated CI/CD**: Complete build and release automation
 - 🔐 **Android 13+ Ready**: Full support for modern notification permissions and APIs
 - 📋 **Smart Notification Management**: Updated notifications automatically move to the top of the list
-- 🎯 **Smart Icon Forwarding**: Intelligent icon handling with notification icons prioritized over app icons, featuring configurable rounded corners (5%-50%) and optimized caching
+- 🎯 **Smart Icon Forwarding**: Intelligent icon handling with notification icons prioritized over app icons in both forwarding and UI display, featuring configurable rounded corners (5%-50%) and optimized caching
 
 ## 📥 Download & Installation
 
@@ -161,10 +161,11 @@ For detailed setup instructions, see [QUICK_START.md](QUICK_START.md).
 The app features an intelligent icon forwarding system that enhances notification visualization on the server side.
 
 ### Key Features
-- **🔄 Priority-based Icon Selection**: Notification icons are prioritized over application icons for better context
+- **🔄 Priority-based Icon Selection**: Notification icons are prioritized over application icons for better context in both server forwarding and local UI display
 - **🎨 Configurable Rounded Corners**: Icons display with customizable rounded corners (5%-50%, default 10%) for modern aesthetics
 - **⚡ Optimized Caching**: Only application icons are cached (up to 1 day), notification icons are processed in real-time
 - **📦 Integrated Forwarding**: Icon data is sent directly with notifications, eliminating separate API calls
+- **📱 Consistent UI Display**: Notification list shows the same icons that are forwarded to the server, ensuring visual consistency
 - **🌍 Multi-language Support**: Icon settings are fully translated across all supported languages
 
 ### How It Works
@@ -172,13 +173,20 @@ The app features an intelligent icon forwarding system that enhances notificatio
 2. **Fallback Strategy**: If no notification icon exists, the system uses the cached application icon
 3. **Real-time Processing**: Notification icons are converted to Base64 and MD5 hash in real-time (no caching)
 4. **Efficient Delivery**: Icon data is included directly in the notification payload to the server
-5. **Smart Caching**: Application icons are cached for 24 hours to reduce processing overhead
+5. **Consistent UI Display**: The notification list UI displays the same icon that was captured and forwarded, ensuring visual consistency
+6. **Smart Caching**: Application icons are cached for 24 hours to reduce processing overhead
 
 ### Configuration
 1. Enable icon forwarding in **Settings → Notification Icon Settings → Send Notification Icons**
 2. Customize icon corner radius (5%-50%) using the slider in the same settings section
 
 ## 📋 Recent Updates
+
+### Version 1.3.2 - Optimized Icon Display Consistency
+- **🎯 Fixed Notification Icon Display**: Notification list now correctly displays the same icons that are forwarded to the server
+- **🔄 Improved Icon Priority Logic**: UI components now prioritize notification icons over application icons, matching the forwarding behavior
+- **📱 Enhanced Visual Consistency**: Ensures that users see the exact same icons in the app that are sent to the server
+- **🛠️ Code Optimization**: Streamlined icon loading logic for better performance and maintainability
 
 ### Version 1.3.1 - Enhanced Icon Customization
 - **🎨 Configurable Corner Radius**: Adjustable icon corner radius from 5% to 50% (default 10%)

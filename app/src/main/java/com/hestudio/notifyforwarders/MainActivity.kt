@@ -64,6 +64,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import android.graphics.BitmapFactory
 import android.util.Base64
+import android.util.Log
 import com.hestudio.notifyforwarders.service.JobSchedulerService
 import com.hestudio.notifyforwarders.service.NotificationData
 import com.hestudio.notifyforwarders.service.NotificationService
@@ -334,46 +335,61 @@ fun NotificationList(
 fun AppIcon(
     packageName: String,
     appName: String,
+    iconBase64: String? = null,
     size: androidx.compose.ui.unit.Dp = 40.dp,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     var iconBitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
 
-    // 尝试获取图标
-    androidx.compose.runtime.LaunchedEffect(packageName) {
+    // 尝试获取图标，优先使用通知图标
+    androidx.compose.runtime.LaunchedEffect(packageName, iconBase64) {
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
             try {
-                // 首先尝试从缓存获取
-                val iconData = IconCacheManager.getIconData(context, packageName, appName)
-                if (iconData != null) {
-                    // 从Base64解码图标
-                    val iconBytes = Base64.decode(iconData.iconBase64, Base64.DEFAULT)
-                    val bitmap = BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.size)
-                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                        iconBitmap = bitmap
+                val bitmap = if (!iconBase64.isNullOrEmpty()) {
+                    // 优先使用通知图标数据
+                    try {
+                        val iconBytes = Base64.decode(iconBase64, Base64.DEFAULT)
+                        BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.size)
+                    } catch (e: Exception) {
+                        Log.w("AppIcon", "Failed to decode notification icon, falling back to app icon", e)
+                        null
                     }
                 } else {
-                    // 如果缓存中没有，直接从PackageManager获取
-                    val packageManager = context.packageManager
-                    val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
-                    val drawable = packageManager.getApplicationIcon(applicationInfo)
+                    null
+                }
 
-                    // 转换为Bitmap
-                    val bitmap = android.graphics.Bitmap.createBitmap(
-                        drawable.intrinsicWidth.coerceAtLeast(1),
-                        drawable.intrinsicHeight.coerceAtLeast(1),
-                        android.graphics.Bitmap.Config.ARGB_8888
-                    )
-                    val canvas = android.graphics.Canvas(bitmap)
-                    drawable.setBounds(0, 0, canvas.width, canvas.height)
-                    drawable.draw(canvas)
+                val finalBitmap = bitmap ?: run {
+                    // 回退到应用图标，首先尝试从缓存获取
+                    val iconData = IconCacheManager.getIconData(context, packageName, appName)
+                    if (iconData != null) {
+                        // 从Base64解码图标
+                        val iconBytes = Base64.decode(iconData.iconBase64, Base64.DEFAULT)
+                        BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.size)
+                    } else {
+                        // 如果缓存中没有，直接从PackageManager获取
+                        val packageManager = context.packageManager
+                        val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
+                        val drawable = packageManager.getApplicationIcon(applicationInfo)
 
-                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                        iconBitmap = bitmap
+                        // 转换为Bitmap
+                        val bitmap = android.graphics.Bitmap.createBitmap(
+                            drawable.intrinsicWidth.coerceAtLeast(1),
+                            drawable.intrinsicHeight.coerceAtLeast(1),
+                            android.graphics.Bitmap.Config.ARGB_8888
+                        )
+                        val canvas = android.graphics.Canvas(bitmap)
+                        drawable.setBounds(0, 0, canvas.width, canvas.height)
+                        drawable.draw(canvas)
+                        bitmap
                     }
                 }
+
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    iconBitmap = finalBitmap
+                }
             } catch (e: Exception) {
+                Log.e("AppIcon", "Failed to load icon for $packageName", e)
                 // 如果获取失败，iconBitmap保持为null，会显示默认图标
             }
         }
@@ -424,10 +440,11 @@ fun NotificationItem(notification: NotificationData) {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 应用图标
+            // 应用图标，优先显示通知图标
             AppIcon(
                 packageName = notification.packageName,
                 appName = notification.appName,
+                iconBase64 = notification.iconBase64,
                 size = 48.dp
             )
 

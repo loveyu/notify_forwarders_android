@@ -2,9 +2,19 @@
     <string name="app_name">通知転送アプリ</string>
     <string name="settings">設定</string>
     <string name="no_notifications">現在通知はありません</string>
-    <string name="notification_permission_title">通知アクセス権限が必要です</string>
-    <string name="notification_permission_desc">このアプリは通知メッセージを受信・転送するために通知リスナー権限が必要です。次の設定画面でこの権限を許可してください。</string>
+    <string name="notification_permission_title">通知権限が必要です</string>
+    <string name="notification_permission_desc">このアプリは通知メッセージを受信・転送するために通知関連の権限が必要です。</string>
     <string name="grant_permission">権限を許可</string>
+
+    <!-- POST_NOTIFICATIONS権限関連文字列 -->
+    <string name="post_notifications_permission_title">通知権限</string>
+    <string name="post_notifications_permission_desc">アプリはフォアグラウンドサービスのステータス通知を表示するために通知権限が必要です。</string>
+    <string name="grant_post_notifications_permission">通知権限を許可</string>
+
+    <!-- 通知リスナー権限関連文字列 -->
+    <string name="notification_listener_permission_title">通知リスナー権限</string>
+    <string name="notification_listener_permission_desc">アプリはシステム通知を受信・転送するために通知リスナー権限が必要です。</string>
+    <string name="grant_notification_listener_permission">通知リスナー権限を許可</string>
     <string name="back">戻る</string>
     <string name="notification_access">通知アクセス</string>
     <string name="notification_access_desc">アプリの通知リスナー権限を管理し、アプリが正常に通知を受信・転送できるようにします</string>

@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -70,6 +71,7 @@ import com.hestudio.notifyforwarders.util.NotificationUtils
 import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.LocaleHelper
 import com.hestudio.notifyforwarders.util.IconCacheManager
+import com.hestudio.notifyforwarders.util.PermissionUtils
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -79,7 +81,28 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
     // 添加权限状态跟踪变量
     private val hasNotificationPermission = mutableStateOf(false)
-    private val REQUEST_IGNORE_BATTERY_OPTIMIZATIONS = 1001
+    private val hasPostNotificationsPermission = mutableStateOf(false)
+
+    // 权限请求启动器
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        hasPostNotificationsPermission.value = isGranted
+        // 重新设置界面内容以反映权限状态变化
+        updateUI()
+    }
+
+    // 电池优化豁免请求启动器
+    private val batteryOptimizationLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        if (powerManager.isIgnoringBatteryOptimizations(packageName)) {
+            Toast.makeText(this, getString(R.string.battery_optimization_granted), Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, getString(R.string.battery_optimization_warning), Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase?.let { context ->
@@ -92,25 +115,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         // 初始化权限状态
         hasNotificationPermission.value = NotificationUtils.isNotificationListenerEnabled(this)
+        hasPostNotificationsPermission.value = PermissionUtils.hasPostNotificationsPermission(this)
 
         enableEdgeToEdge()
-        setContent {
-            NotifyForwardersTheme {
-                // 使用状态变量而不是直接调用函数
-                NotificationScreen(
-                    hasPermission = hasNotificationPermission.value,
-                    requestPermission = { NotificationUtils.openNotificationListenerSettings(this) },
-                    navigateToSettings = {
-                        startActivity(
-                            Intent(
-                                this,
-                                SettingsActivity::class.java
-                            )
-                        )
-                    }
-                )
-            }
-        }
+        updateUI()
 
         // 启动通知监听服务
         startNotificationService()
@@ -122,6 +130,29 @@ class MainActivity : ComponentActivity() {
         JobSchedulerService.scheduleJob(this)
     }
 
+    private fun updateUI() {
+        setContent {
+            NotifyForwardersTheme {
+                NotificationScreen(
+                    hasPermission = hasNotificationPermission.value,
+                    hasPostNotificationsPermission = hasPostNotificationsPermission.value,
+                    requestPermission = { NotificationUtils.openNotificationListenerSettings(this) },
+                    requestPostNotificationsPermission = {
+                        requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    },
+                    navigateToSettings = {
+                        startActivity(
+                            Intent(
+                                this,
+                                SettingsActivity::class.java
+                            )
+                        )
+                    }
+                )
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         // 重启通知监听服务以确保连接正常
@@ -129,42 +160,25 @@ class MainActivity : ComponentActivity() {
 
         // 更新权限状态
         val currentPermissionState = NotificationUtils.isNotificationListenerEnabled(this)
-        if (hasNotificationPermission.value != currentPermissionState) {
+        val currentPostNotificationsState = PermissionUtils.hasPostNotificationsPermission(this)
+
+        if (hasNotificationPermission.value != currentPermissionState ||
+            hasPostNotificationsPermission.value != currentPostNotificationsState) {
             hasNotificationPermission.value = currentPermissionState
+            hasPostNotificationsPermission.value = currentPostNotificationsState
 
             // 如果权限状态改变，重新设置界面内容
-            setContent {
-                NotifyForwardersTheme {
-                    NotificationScreen(
-                        hasPermission = hasNotificationPermission.value,
-                        requestPermission = {
-                            NotificationUtils.openNotificationListenerSettings(
-                                this
-                            )
-                        },
-                        navigateToSettings = {
-                            startActivity(
-                                Intent(
-                                    this,
-                                    SettingsActivity::class.java
-                                )
-                            )
-                        }
-                    )
-                }
-            }
+            updateUI()
         }
     }
+
+
 
     // 启动通知监听服务
     private fun startNotificationService() {
         try {
             val serviceIntent = Intent(this, NotificationService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent)
-            } else {
-                startService(serviceIntent)
-            }
+            startForegroundService(serviceIntent)
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(this, getString(R.string.service_start_failed), Toast.LENGTH_SHORT).show()
@@ -173,42 +187,32 @@ class MainActivity : ComponentActivity() {
 
     // 请求电池优化豁免
     private fun requestBatteryOptimizationExemption() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val powerManager = getSystemService(POWER_SERVICE) as PowerManager
-            val packageName = packageName
-            if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
-                try {
-                    val intent = Intent().apply {
-                        action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                        data = Uri.parse("package:$packageName")
-                    }
-                    startActivityForResult(intent, REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    Toast.makeText(this, getString(R.string.battery_optimization_request_failed), Toast.LENGTH_SHORT).show()
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        val packageName = packageName
+        if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
+            try {
+                val intent = Intent().apply {
+                    action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                    data = Uri.parse("package:$packageName")
                 }
+                batteryOptimizationLauncher.launch(intent)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(this, getString(R.string.battery_optimization_request_failed), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) {
-            val powerManager = getSystemService(POWER_SERVICE) as PowerManager
-            if (powerManager.isIgnoringBatteryOptimizations(packageName)) {
-                Toast.makeText(this, getString(R.string.battery_optimization_granted), Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, getString(R.string.battery_optimization_warning), Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationScreen(
     hasPermission: Boolean,
+    hasPostNotificationsPermission: Boolean,
     requestPermission: () -> Unit,
+    requestPostNotificationsPermission: () -> Unit,
     navigateToSettings: () -> Unit
 ) {
     val context = LocalContext.current
@@ -249,7 +253,7 @@ fun NotificationScreen(
             }
         }
     ) { innerPadding ->
-        if (hasPermission) {
+        if (hasPermission && hasPostNotificationsPermission) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -290,7 +294,10 @@ fun NotificationScreen(
             }
         } else {
             PermissionRequest(
-                requestPermission = requestPermission,
+                hasNotificationListenerPermission = hasPermission,
+                hasPostNotificationsPermission = hasPostNotificationsPermission,
+                requestNotificationListenerPermission = requestPermission,
+                requestPostNotificationsPermission = requestPostNotificationsPermission,
                 modifier = Modifier.padding(innerPadding)
             )
         }
@@ -466,7 +473,10 @@ fun NotificationItem(notification: NotificationData) {
 
 @Composable
 fun PermissionRequest(
-    requestPermission: () -> Unit,
+    hasNotificationListenerPermission: Boolean,
+    hasPostNotificationsPermission: Boolean,
+    requestNotificationListenerPermission: () -> Unit,
+    requestPostNotificationsPermission: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -491,8 +501,68 @@ fun PermissionRequest(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Button(onClick = requestPermission) {
-            Text(stringResource(R.string.grant_permission))
+        // POST_NOTIFICATIONS权限请求
+        if (!hasPostNotificationsPermission) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.post_notifications_permission_title),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.post_notifications_permission_desc),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = requestPostNotificationsPermission,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.grant_post_notifications_permission))
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        // 通知监听权限请求
+        if (!hasNotificationListenerPermission) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.notification_listener_permission_title),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.notification_listener_permission_desc),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = requestNotificationListenerPermission,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.grant_notification_listener_permission))
+                    }
+                }
+            }
         }
     }
 }

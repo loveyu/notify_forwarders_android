@@ -2,9 +2,19 @@
     <string name="app_name">Transfert de notifications</string>
     <string name="settings">Paramètres</string>
     <string name="no_notifications">Aucune notification actuellement</string>
-    <string name="notification_permission_title">Autorisation d\'accès aux notifications requise</string>
-    <string name="notification_permission_desc">Cette application a besoin de l\'autorisation d\'écoute des notifications pour recevoir et transférer les messages de notification. Veuillez accorder cette autorisation sur la page de paramètres suivante.</string>
+    <string name="notification_permission_title">Autorisations de notification requises</string>
+    <string name="notification_permission_desc">Cette application a besoin d\'autorisations liées aux notifications pour recevoir et transférer les messages de notification.</string>
     <string name="grant_permission">Accorder l\'autorisation</string>
+
+    <!-- Chaînes liées à l\'autorisation POST_NOTIFICATIONS -->
+    <string name="post_notifications_permission_title">Autorisation de notification</string>
+    <string name="post_notifications_permission_desc">L\'application a besoin de l\'autorisation de notification pour afficher les notifications d\'état du service de premier plan.</string>
+    <string name="grant_post_notifications_permission">Accorder l\'autorisation de notification</string>
+
+    <!-- Chaînes liées à l\'autorisation d\'écoute des notifications -->
+    <string name="notification_listener_permission_title">Autorisation d\'écoute des notifications</string>
+    <string name="notification_listener_permission_desc">L\'application a besoin de l\'autorisation d\'écoute des notifications pour recevoir et transférer les notifications système.</string>
+    <string name="grant_notification_listener_permission">Accorder l\'autorisation d\'écoute des notifications</string>
     <string name="back">Retour</string>
     <string name="notification_access">Accès aux notifications</string>
     <string name="notification_access_desc">Gérer les autorisations d\'écoute des notifications de l\'application pour s\'assurer que l\'application peut correctement recevoir et transférer les notifications</string>

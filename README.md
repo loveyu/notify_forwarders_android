@@ -11,12 +11,15 @@ A modern Android notification forwarding application that captures system notifi
 ## ✨ Features
 
 - 📱 **Real-time Notification Forwarding**: Capture and forward Android system notifications instantly
-- 🎨 **Modern UI**: Built with Material Design 3 guidelines
+- 🎨 **Modern UI**: Built with Material Design 3 guidelines and edge-to-edge display
 - ⚡ **High Performance**: Native UI powered by Jetpack Compose
 - 🔧 **Flexible Configuration**: Customizable server address and notification limits
 - 🌍 **Multi-language Support**: 7 languages with automatic detection and manual switching
-- 🔋 **Battery Optimized**: Smart battery usage optimization
+- 🔋 **Battery Optimized**: Smart battery usage optimization with modern permission handling
 - 🚀 **Automated CI/CD**: Complete build and release automation
+- 🔐 **Android 13+ Ready**: Full support for modern notification permissions and APIs
+- 📋 **Smart Notification Management**: Updated notifications automatically move to the top of the list
+- 🎯 **App Icon Support**: Optional forwarding of application icons with notifications
 
 ## 📥 Download & Installation
 
@@ -27,25 +30,69 @@ Download the latest stable version from the [Releases page](https://github.com/l
 Development APKs are available in [Actions artifacts](https://github.com/loveyu/notify_forwarders_android/actions) (30-day retention).
 
 ### System Requirements
-- Android 8.0 (API 26) or higher
+- Android 13 (API 33) or higher
 - Notification access permission required
+- POST_NOTIFICATIONS permission required (Android 13+)
 - Battery optimization exemption recommended
 
 ## 🚀 Quick Start
 
+> **Note**: This app requires Android 13 (API 33) or higher. For older Android versions, please use a previous release.
+
 ### Initial Setup
 1. Install the APK and launch the app
-2. Grant notification access permission
+2. Grant notification permissions:
+   - **POST_NOTIFICATIONS**: Required for displaying foreground service notifications (Android 13+)
+   - **Notification Listener**: Required for reading system notifications
 3. Configure server address in settings
 4. Optional: Choose your preferred language in settings
 5. Optional: Adjust notification limit settings
+6. Optional: Enable notification icon forwarding
 
 ### Required Permissions
 - **Notification Access**: Required for reading system notifications
+- **POST_NOTIFICATIONS**: Required for displaying foreground service notifications (Android 13+)
 - **Battery Optimization Exemption**: Recommended for stable background service
 - **Internet**: Required for forwarding notifications to server
 
 For detailed setup instructions, see [QUICK_START.md](QUICK_START.md).
+
+### Permission Setup Guide
+
+#### 1. POST_NOTIFICATIONS Permission (Android 13+)
+- Automatically requested when the app starts
+- Required for displaying foreground service notifications
+- Can be granted through the app's permission request dialog
+
+#### 2. Notification Listener Permission
+- Must be manually enabled in Android settings
+- Go to: Settings → Apps → Special app access → Notification access
+- Find "Notify forwarders" and enable it
+- This permission allows the app to read system notifications
+
+### Troubleshooting
+
+#### App not receiving notifications?
+1. Ensure both permissions are granted
+2. Check if battery optimization is disabled for the app
+3. Verify the notification listener service is enabled
+4. Restart the app if permissions were recently granted
+
+#### Notifications not forwarding?
+1. Check server address configuration
+2. Ensure the server is running and accessible
+3. Verify network connectivity
+4. Check if notification forwarding is enabled in settings
+
+## 📋 Recent Updates
+
+### Version 1.2.0 - Android 13+ Support
+- **🔐 Modern Permission System**: Full support for Android 13+ POST_NOTIFICATIONS permission
+- **📱 Minimum Android Version**: Updated to Android 13 (API 33) for enhanced security and performance
+- **🎯 Smart Notification Management**: Updated notifications now move to the top of the list automatically
+- **🔧 Code Modernization**: Removed deprecated APIs and improved compatibility
+- **🌍 Enhanced Translations**: Updated all language translations for new permission features
+- **⚡ Performance Improvements**: Optimized notification handling and UI responsiveness
 
 ## 🛠️ Development
 
@@ -99,7 +146,7 @@ The app supports 7 languages with intelligent language detection:
 - **UI Framework**: Jetpack Compose
 - **Architecture**: MVVM
 - **Build System**: Gradle (Kotlin DSL)
-- **Min SDK**: API 26 (Android 8.0)
+- **Min SDK**: API 33 (Android 13)
 - **Target SDK**: API 35 (Android 15)
 - **Java Version**: JDK 17
 - **Internationalization**: Android Resources with 7 language variants

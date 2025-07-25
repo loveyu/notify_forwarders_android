@@ -2,9 +2,19 @@
     <string name="app_name">Notify forwarders</string>
     <string name="settings">Settings</string>
     <string name="no_notifications">No notifications currently</string>
-    <string name="notification_permission_title">Notification access permission required</string>
-    <string name="notification_permission_desc">This app needs notification listener permission to receive and forward notification messages. Please grant this permission on the next settings page.</string>
+    <string name="notification_permission_title">Notification permissions required</string>
+    <string name="notification_permission_desc">This app needs notification-related permissions to receive and forward notification messages.</string>
     <string name="grant_permission">Grant Permission</string>
+
+    <!-- POST_NOTIFICATIONS permission related strings -->
+    <string name="post_notifications_permission_title">Notification Permission</string>
+    <string name="post_notifications_permission_desc">The app needs notification permission to display foreground service status notifications.</string>
+    <string name="grant_post_notifications_permission">Grant Notification Permission</string>
+
+    <!-- Notification listener permission related strings -->
+    <string name="notification_listener_permission_title">Notification Listener Permission</string>
+    <string name="notification_listener_permission_desc">The app needs notification listener permission to receive and forward system notifications.</string>
+    <string name="grant_notification_listener_permission">Grant Notification Listener Permission</string>
     <string name="back">Back</string>
     <string name="notification_access">Notification Access</string>
     <string name="notification_access_desc">Manage app notification listener permissions to ensure the app can properly receive and forward notifications</string>

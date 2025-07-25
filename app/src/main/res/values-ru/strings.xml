@@ -2,9 +2,19 @@
     <string name="app_name">Переадресация уведомлений</string>
     <string name="settings">Настройки</string>
     <string name="no_notifications">В настоящее время уведомлений нет</string>
-    <string name="notification_permission_title">Требуется разрешение на доступ к уведомлениям</string>
-    <string name="notification_permission_desc">Этому приложению требуется разрешение на прослушивание уведомлений для получения и переадресации уведомлений. Пожалуйста, предоставьте это разрешение на следующей странице настроек.</string>
+    <string name="notification_permission_title">Требуются разрешения уведомлений</string>
+    <string name="notification_permission_desc">Этому приложению требуются разрешения, связанные с уведомлениями, для получения и переадресации уведомлений.</string>
     <string name="grant_permission">Предоставить разрешение</string>
+
+    <!-- Строки, связанные с разрешением POST_NOTIFICATIONS -->
+    <string name="post_notifications_permission_title">Разрешение уведомлений</string>
+    <string name="post_notifications_permission_desc">Приложению требуется разрешение уведомлений для отображения уведомлений о состоянии службы переднего плана.</string>
+    <string name="grant_post_notifications_permission">Предоставить разрешение уведомлений</string>
+
+    <!-- Строки, связанные с разрешением прослушивания уведомлений -->
+    <string name="notification_listener_permission_title">Разрешение прослушивания уведомлений</string>
+    <string name="notification_listener_permission_desc">Приложению требуется разрешение прослушивания уведомлений для получения и переадресации системных уведомлений.</string>
+    <string name="grant_notification_listener_permission">Предоставить разрешение прослушивания уведомлений</string>
     <string name="back">Назад</string>
     <string name="notification_access">Доступ к уведомлениям</string>
     <string name="notification_access_desc">Управление разрешениями прослушивания уведомлений приложения, чтобы приложение могло правильно получать и переадресовывать уведомления</string>

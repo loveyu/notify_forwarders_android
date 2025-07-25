@@ -2,9 +2,19 @@
     <string name="app_name">通知轉發器</string>
     <string name="settings">設定</string>
     <string name="no_notifications">目前沒有通知</string>
-    <string name="notification_permission_title">需要通知存取權限</string>
-    <string name="notification_permission_desc">本應用程式需要取得通知監聽權限，以便接收和轉發通知訊息。請在接下來的設定頁面中授予該權限。</string>
+    <string name="notification_permission_title">需要通知權限</string>
+    <string name="notification_permission_desc">本應用程式需要取得通知相關權限，以便接收和轉發通知訊息。</string>
     <string name="grant_permission">授予權限</string>
+
+    <!-- POST_NOTIFICATIONS權限相關字串 -->
+    <string name="post_notifications_permission_title">通知發送權限</string>
+    <string name="post_notifications_permission_desc">應用程式需要通知發送權限來顯示前台服務狀態通知。</string>
+    <string name="grant_post_notifications_permission">授予通知發送權限</string>
+
+    <!-- 通知監聽權限相關字串 -->
+    <string name="notification_listener_permission_title">通知監聽權限</string>
+    <string name="notification_listener_permission_desc">應用程式需要通知監聽權限來接收和轉發系統通知。</string>
+    <string name="grant_notification_listener_permission">授予通知監聽權限</string>
     <string name="back">返回</string>
     <string name="notification_access">通知存取</string>
     <string name="notification_access_desc">管理應用程式通知監聽權限，確保應用程式能夠正常接收和轉發通知</string>

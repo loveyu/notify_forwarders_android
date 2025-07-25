@@ -49,13 +49,14 @@ fun NotifyForwardersTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // 设置状态栏颜色为透明，以便实现边到边的效果
-            window.statusBarColor = Color.Transparent.toArgb()
-            // 设置导航栏颜色为系统导航栏颜色，或透明以实现边到边效果
-            window.navigationBarColor = Color.Transparent.toArgb()
+            val insetsController = WindowCompat.getInsetsController(window, view)
+
+            // 设置状态栏和导航栏为透明，以便实现边到边的效果
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+
             // 确保系统栏图标颜色适应主题
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
-            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
+            insetsController.isAppearanceLightStatusBars = !darkTheme
+            insetsController.isAppearanceLightNavigationBars = !darkTheme
         }
     }
 

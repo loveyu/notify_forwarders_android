@@ -127,24 +127,25 @@ class NotificationService : NotificationListenerService() {
         // 检查是否是现有通知的更新
         val existingIndex = notifications.indexOfFirst { it.uniqueId == uniqueId }
         if (existingIndex != -1) {
-            // 是更新，替换原有通知
-            Log.d(TAG, "更新现有通知: $uniqueId")
-            notifications[existingIndex] = notificationData
+            // 是更新，先移除原有通知，然后将新通知添加到列表头部
+            Log.d(TAG, "更新现有通知并移动到顶部: $uniqueId")
+            notifications.removeAt(existingIndex)
+            notifications.add(0, notificationData)
         } else {
             // 是新通知，添加到列表头部
             Log.d(TAG, "添加新通知: $uniqueId")
             notifications.add(0, notificationData)
+        }
 
-            // 检查通知数量限制
-            val notificationLimit = ServerPreferences.getNotificationLimit(this@NotificationService)
-            if (notifications.size > notificationLimit) {
-                // 移除超出限制的旧通知
-                val removeCount = notifications.size - notificationLimit
-                repeat(removeCount) {
-                    notifications.removeLastOrNull()
-                }
-                Log.d(TAG, "移除了 $removeCount 条旧通知，当前通知数量: ${notifications.size}")
+        // 检查通知数量限制（无论是新通知还是更新通知都需要检查）
+        val notificationLimit = ServerPreferences.getNotificationLimit(this@NotificationService)
+        if (notifications.size > notificationLimit) {
+            // 移除超出限制的旧通知
+            val removeCount = notifications.size - notificationLimit
+            repeat(removeCount) {
+                notifications.removeLastOrNull()
             }
+            Log.d(TAG, "移除了 $removeCount 条旧通知，当前通知数量: ${notifications.size}")
         }
         
         // 转发通知到配置的服务器

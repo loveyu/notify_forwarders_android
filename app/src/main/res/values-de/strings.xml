@@ -2,9 +2,19 @@
     <string name="app_name">Benachrichtigungsweiterleitung</string>
     <string name="settings">Einstellungen</string>
     <string name="no_notifications">Derzeit keine Benachrichtigungen</string>
-    <string name="notification_permission_title">Berechtigung für Benachrichtigungszugriff erforderlich</string>
-    <string name="notification_permission_desc">Diese App benötigt die Berechtigung zum Abhören von Benachrichtigungen, um Benachrichtigungen zu empfangen und weiterzuleiten. Bitte gewähren Sie diese Berechtigung auf der nächsten Einstellungsseite.</string>
+    <string name="notification_permission_title">Benachrichtigungsberechtigungen erforderlich</string>
+    <string name="notification_permission_desc">Diese App benötigt benachrichtigungsbezogene Berechtigungen, um Benachrichtigungen zu empfangen und weiterzuleiten.</string>
     <string name="grant_permission">Berechtigung gewähren</string>
+
+    <!-- POST_NOTIFICATIONS Berechtigung bezogene Zeichenfolgen -->
+    <string name="post_notifications_permission_title">Benachrichtigungsberechtigung</string>
+    <string name="post_notifications_permission_desc">Die App benötigt die Benachrichtigungsberechtigung, um Vordergrund-Service-Statusbenachrichtigungen anzuzeigen.</string>
+    <string name="grant_post_notifications_permission">Benachrichtigungsberechtigung gewähren</string>
+
+    <!-- Benachrichtigungs-Listener-Berechtigung bezogene Zeichenfolgen -->
+    <string name="notification_listener_permission_title">Benachrichtigungs-Listener-Berechtigung</string>
+    <string name="notification_listener_permission_desc">Die App benötigt die Benachrichtigungs-Listener-Berechtigung, um Systembenachrichtigungen zu empfangen und weiterzuleiten.</string>
+    <string name="grant_notification_listener_permission">Benachrichtigungs-Listener-Berechtigung gewähren</string>
     <string name="back">Zurück</string>
     <string name="notification_access">Benachrichtigungszugriff</string>
     <string name="notification_access_desc">Verwalten Sie die Berechtigungen der App zum Abhören von Benachrichtigungen, um sicherzustellen, dass die App Benachrichtigungen ordnungsgemäß empfangen und weiterleiten kann</string>

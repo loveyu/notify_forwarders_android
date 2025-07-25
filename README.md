@@ -108,7 +108,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter issues or have suggestions:
 - Create an [Issue](https://github.com/loveyu/notify_forwarders_android/issues)
-- Join the [Discussions](https://github.com/loveyu/notify_forwarders_android/discussions)
 
 ## 📚 Documentation
 

@@ -106,7 +106,6 @@ Release版本需要配置签名：
 
 如果您遇到问题或有建议，请：
 - 创建 [Issue](https://github.com/loveyu/notify_forwarders_android/issues)
-- 查看现有的 [Discussions](https://github.com/loveyu/notify_forwarders_android/discussions)
 
 ## 相关文档
 

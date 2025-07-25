@@ -12,11 +12,11 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.hestudio.notifyforwarders"
+        applicationId = "net.loveyu.notifyforwarders"
         minSdk = 26
         targetSdk = 35
         versionCode = 3
-        versionName = "1.1.0"
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

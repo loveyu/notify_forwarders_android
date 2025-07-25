@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -52,6 +54,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import android.graphics.BitmapFactory
+import android.util.Base64
 import com.hestudio.notifyforwarders.service.JobSchedulerService
 import com.hestudio.notifyforwarders.service.NotificationData
 import com.hestudio.notifyforwarders.service.NotificationService
@@ -59,9 +69,12 @@ import com.hestudio.notifyforwarders.ui.theme.NotifyForwardersTheme
 import com.hestudio.notifyforwarders.util.NotificationUtils
 import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.LocaleHelper
+import com.hestudio.notifyforwarders.util.IconCacheManager
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     // 添加权限状态跟踪变量
@@ -198,6 +211,7 @@ fun NotificationScreen(
     requestPermission: () -> Unit,
     navigateToSettings: () -> Unit
 ) {
+    val context = LocalContext.current
     // 确认对话框状态
     var showClearConfirmDialog by remember { mutableStateOf(false) }
 
@@ -260,7 +274,7 @@ fun NotificationScreen(
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                NotificationService.clearNotifications()
+                                NotificationService.clearNotificationsAndCache(context)
                                 showClearConfirmDialog = false
                             }
                         ) {
@@ -309,6 +323,83 @@ fun NotificationList(
 }
 
 @Composable
+fun AppIcon(
+    packageName: String,
+    appName: String,
+    size: androidx.compose.ui.unit.Dp = 40.dp,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    var iconBitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+
+    // 尝试获取图标
+    androidx.compose.runtime.LaunchedEffect(packageName) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                // 首先尝试从缓存获取
+                val iconData = IconCacheManager.getIconData(context, packageName, appName)
+                if (iconData != null) {
+                    // 从Base64解码图标
+                    val iconBytes = Base64.decode(iconData.iconBase64, Base64.DEFAULT)
+                    val bitmap = BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.size)
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        iconBitmap = bitmap
+                    }
+                } else {
+                    // 如果缓存中没有，直接从PackageManager获取
+                    val packageManager = context.packageManager
+                    val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
+                    val drawable = packageManager.getApplicationIcon(applicationInfo)
+
+                    // 转换为Bitmap
+                    val bitmap = android.graphics.Bitmap.createBitmap(
+                        drawable.intrinsicWidth.coerceAtLeast(1),
+                        drawable.intrinsicHeight.coerceAtLeast(1),
+                        android.graphics.Bitmap.Config.ARGB_8888
+                    )
+                    val canvas = android.graphics.Canvas(bitmap)
+                    drawable.setBounds(0, 0, canvas.width, canvas.height)
+                    drawable.draw(canvas)
+
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        iconBitmap = bitmap
+                    }
+                }
+            } catch (e: Exception) {
+                // 如果获取失败，iconBitmap保持为null，会显示默认图标
+            }
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+        contentAlignment = Alignment.Center
+    ) {
+        iconBitmap?.let { bitmap ->
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = appName,
+                modifier = Modifier
+                    .size(size)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        } ?: run {
+            // 显示默认图标
+            Icon(
+                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                contentDescription = appName,
+                modifier = Modifier.size(size * 0.6f),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
 fun NotificationItem(notification: NotificationData) {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
     val timeString = dateFormat.format(Date(notification.time))
@@ -317,43 +408,58 @@ fun NotificationItem(notification: NotificationData) {
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            // 应用图标
+            AppIcon(
+                packageName = notification.packageName,
+                appName = notification.appName,
+                size = 48.dp
+            )
+
+            // 通知内容
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = notification.appName,
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = timeString,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
-                    text = notification.appName,  // 修改为显示应用名称而非包名
-                    style = MaterialTheme.typography.labelMedium,
+                    text = notification.title,
+                    style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
+                    overflow = TextOverflow.Ellipsis
                 )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
-                    text = timeString,
-                    style = MaterialTheme.typography.labelSmall
+                    text = notification.content,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = notification.title,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = notification.content,
-                style = MaterialTheme.typography.bodyMedium
-            )
         }
     }
 }

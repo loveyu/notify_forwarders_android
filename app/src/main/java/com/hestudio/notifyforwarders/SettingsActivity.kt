@@ -40,6 +40,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -609,6 +610,9 @@ fun SettingsScreen(
                 }
             }
 
+            // 通知图标设置卡片
+            NotificationIconSettingsCard()
+
             // 语言设置卡片
             LanguageSettingsCard()
 
@@ -616,6 +620,63 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
+}
+
+@Composable
+fun NotificationIconSettingsCard() {
+    val context = LocalContext.current
+    var iconEnabled by remember {
+        mutableStateOf(ServerPreferences.isNotificationIconEnabled(context))
+    }
+
+    Card {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.notification_icon_settings),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Text(
+                text = stringResource(R.string.notification_icon_settings_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.notification_icon_switch),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Switch(
+                    checked = iconEnabled,
+                    onCheckedChange = { enabled ->
+                        iconEnabled = enabled
+                        ServerPreferences.saveNotificationIconEnabled(context, enabled)
+
+                        val message = if (enabled) {
+                            context.getString(R.string.notification_icon_enabled)
+                        } else {
+                            context.getString(R.string.notification_icon_disabled)
+                        }
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+        }
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
 }
 
 @Composable

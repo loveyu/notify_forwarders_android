@@ -16,6 +16,7 @@ import androidx.core.app.NotificationCompat
 import com.hestudio.notifyforwarders.MainActivity
 import com.hestudio.notifyforwarders.R
 import com.hestudio.notifyforwarders.util.ServerPreferences
+import com.hestudio.notifyforwarders.util.IconCacheManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,6 +45,12 @@ class NotificationService : NotificationListenerService() {
             notifications.clear()
         }
 
+        // 清除通知列表和图标缓存
+        fun clearNotificationsAndCache(context: Context) {
+            notifications.clear()
+            IconCacheManager.clearAllCache(context)
+        }
+
         // 获取当前通知数量
         fun getNotificationCount(): Int {
             return notifications.size
@@ -55,6 +62,10 @@ class NotificationService : NotificationListenerService() {
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "NotificationService onCreate")
+
+        // 启动时清空图标缓存
+        IconCacheManager.clearAllCache(this)
+
         startForeground()
     }
 
@@ -92,6 +103,16 @@ class NotificationService : NotificationListenerService() {
         // 使用包名+通知ID作为唯一标识
         val uniqueId = "$packageName:${sbn.id}"
 
+        // 获取图标MD5（如果开启了图标功能）
+        var iconMd5: String? = null
+        if (ServerPreferences.isNotificationIconEnabled(this)) {
+            val iconData = IconCacheManager.getIconData(this, packageName, appName)
+            iconMd5 = iconData?.iconMd5
+
+            // 定期清理过期缓存
+            IconCacheManager.cleanupExpiredCache(this)
+        }
+
         val notificationData = NotificationData(
             id = sbn.id,
             packageName = packageName,
@@ -99,7 +120,8 @@ class NotificationService : NotificationListenerService() {
             title = title,
             content = text,
             time = time,
-            uniqueId = uniqueId
+            uniqueId = uniqueId,
+            iconMd5 = iconMd5
         )
 
         // 检查是否是现有通知的更新
@@ -160,6 +182,69 @@ class NotificationService : NotificationListenerService() {
     private fun getDeviceName(): String {
         return Build.MODEL // 获取设备型号作为设备名称
     }
+
+    /**
+     * 异步推送图标信息到服务器
+     */
+    private fun pushIconToServer(packageName: String, appName: String, iconMd5: String) {
+        // 检查是否可以推送（10分钟限制）
+        if (!IconCacheManager.canPushIcon(iconMd5)) {
+            Log.d(TAG, "图标推送受限制，跳过: $iconMd5")
+            return
+        }
+
+        serviceScope.launch {
+            try {
+                val iconData = IconCacheManager.getIconData(this@NotificationService, packageName, appName)
+                if (iconData == null) {
+                    Log.e(TAG, "无法获取图标数据: $packageName")
+                    return@launch
+                }
+
+                val serverAddress = ServerPreferences.getServerAddress(this@NotificationService)
+                val serverUrl = "http://$serverAddress/api/icon"
+                Log.d(TAG, "正在推送图标到 $serverUrl")
+
+                val url = URL(serverUrl)
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "POST"
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.doOutput = true
+                connection.connectTimeout = 10000
+                connection.readTimeout = 10000
+
+                // 创建图标推送JSON数据
+                val jsonBody = JSONObject().apply {
+                    put("packageName", packageName)
+                    put("appName", appName)
+                    put("iconMd5", iconMd5)
+                    put("iconBase64", iconData.iconBase64)
+                    put("devicename", getDeviceName())
+                }
+
+                // 发送JSON数据
+                val outputStream = connection.outputStream
+                val writer = OutputStreamWriter(outputStream, "UTF-8")
+                writer.write(jsonBody.toString())
+                writer.flush()
+                writer.close()
+
+                // 获取响应
+                val responseCode = connection.responseCode
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    Log.d(TAG, "图标推送成功: $iconMd5")
+                    // 记录推送时间
+                    IconCacheManager.recordIconPush(iconMd5)
+                } else {
+                    Log.e(TAG, "图标推送失败: HTTP $responseCode")
+                }
+
+                connection.disconnect()
+            } catch (e: Exception) {
+                Log.e(TAG, "图标推送失败: $iconMd5", e)
+            }
+        }
+    }
     
     private fun forwardNotificationToServer(notification: NotificationData) {
         // 检查通知转发开关
@@ -196,6 +281,11 @@ class NotificationService : NotificationListenerService() {
                     put("devicename", getDeviceName()) // 添加设备名称参数
                     put("uniqueId", notification.uniqueId) // 添加唯一标识字段
                     put("id", notification.id) // 这个包的记录ID
+
+                    // 如果有图标MD5，添加到请求中
+                    notification.iconMd5?.let { iconMd5 ->
+                        put("iconMd5", iconMd5)
+                    }
                 }
                 
                 // 发送JSON数据
@@ -209,10 +299,17 @@ class NotificationService : NotificationListenerService() {
                 val responseCode = connection.responseCode
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     Log.d(TAG, "通知转发成功")
+
+                    // 检查是否需要推送图标
+                    val iconStatus = connection.getHeaderField("x-icon-status")
+                    if (iconStatus == "miss" && notification.iconMd5 != null) {
+                        // 异步推送图标信息
+                        pushIconToServer(notification.packageName, notification.appName, notification.iconMd5)
+                    }
                 } else {
                     Log.e(TAG, "通知转发失败: HTTP $responseCode")
                 }
-                
+
                 connection.disconnect()
             } catch (e: Exception) {
                 Log.e(TAG, "通知转发失败", e)
@@ -266,5 +363,6 @@ data class NotificationData(
     val title: String,
     val content: String,
     val time: Long,
-    val uniqueId: String // 添加唯一标识符，用于识别同一通知的更新
+    val uniqueId: String, // 添加唯一标识符，用于识别同一通知的更新
+    val iconMd5: String? = null // 图标MD5值
 )

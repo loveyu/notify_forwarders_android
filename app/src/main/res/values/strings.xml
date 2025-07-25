@@ -40,6 +40,13 @@
     <string name="notification_forward_no_server">请先配置服务器地址</string>
     <string name="current_server_address">当前转发地址: %s</string>
 
+    <!-- 通知图标相关字符串 -->
+    <string name="notification_icon_settings">通知图标设置</string>
+    <string name="notification_icon_settings_desc">开启后将发送应用图标信息到服务器，图标会被缓存最多1天</string>
+    <string name="notification_icon_switch">发送通知图标</string>
+    <string name="notification_icon_enabled">通知图标发送已开启</string>
+    <string name="notification_icon_disabled">通知图标发送已关闭</string>
+
     <!-- 语言设置 -->
     <string name="language_settings">语言设置</string>
     <string name="language_settings_desc">选择您偏好的语言。应用将重新启动以应用新语言</string>

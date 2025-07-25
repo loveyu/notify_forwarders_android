@@ -11,6 +11,7 @@ object ServerPreferences {
     private const val KEY_NOTIFICATION_RECEIVE_ENABLED = "notification_receive_enabled"
     private const val KEY_NOTIFICATION_FORWARD_ENABLED = "notification_forward_enabled"
     private const val KEY_SELECTED_LANGUAGE = "selected_language"
+    private const val KEY_NOTIFICATION_ICON_ENABLED = "notification_icon_enabled"
     private const val DEFAULT_PORT = 19283
     private const val MIN_NOTIFICATION_LIMIT = 1
     private const val DEFAULT_NOTIFICATION_LIMIT = 200
@@ -117,5 +118,17 @@ object ServerPreferences {
     // 获取选择的语言，默认为系统语言
     fun getSelectedLanguage(context: Context): String {
         return getPreferences(context).getString(KEY_SELECTED_LANGUAGE, "system") ?: "system"
+    }
+
+    // 保存通知图标开关状态
+    fun saveNotificationIconEnabled(context: Context, enabled: Boolean) {
+        getPreferences(context).edit() {
+            putBoolean(KEY_NOTIFICATION_ICON_ENABLED, enabled)
+        }
+    }
+
+    // 获取通知图标开关状态，默认为false
+    fun isNotificationIconEnabled(context: Context): Boolean {
+        return getPreferences(context).getBoolean(KEY_NOTIFICATION_ICON_ENABLED, false)
     }
 }

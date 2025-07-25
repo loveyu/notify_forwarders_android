@@ -4,6 +4,9 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+import java.util.Properties
+import java.io.FileInputStream
+
 android {
     namespace = "com.hestudio.notifyforwarders"
     compileSdk = 35
@@ -23,13 +26,13 @@ android {
         create("release") {
             val keystorePropertiesFile = rootProject.file("keystore.properties")
             if (keystorePropertiesFile.exists()) {
-                val keystoreProperties = java.util.Properties()
-                keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+                val keystoreProperties = Properties()
+                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
                 storeFile = file("${keystoreProperties["STORE_FILE"]}")
-                storePassword = keystoreProperties["STORE_PASSWORD"] as String
-                keyAlias = keystoreProperties["KEY_ALIAS"] as String
-                keyPassword = keystoreProperties["KEY_PASSWORD"] as String
+                storePassword = keystoreProperties["STORE_PASSWORD"].toString()
+                keyAlias = keystoreProperties["KEY_ALIAS"].toString()
+                keyPassword = keystoreProperties["KEY_PASSWORD"].toString()
             }
         }
     }

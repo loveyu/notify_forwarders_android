@@ -65,17 +65,23 @@ class NotificationService : NotificationListenerService() {
     }
     
     override fun onNotificationPosted(sbn: StatusBarNotification) {
+        // 检查通知接收开关
+        if (!ServerPreferences.isNotificationReceiveEnabled(this)) {
+            Log.d(TAG, "通知接收已关闭，忽略通知")
+            return
+        }
+
         val notification = sbn.notification
         val extras = notification.extras
-        
+
         val packageName = sbn.packageName
         val appName = getApplicationName(packageName)
         val title = extras.getString(Notification.EXTRA_TITLE) ?: ""
         val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
         val time = sbn.postTime
-        
+
         Log.d(TAG, "通知已接收: $packageName, $appName, $title, $text")
-        
+
         // 过滤掉没有内容的通知
         if (text.isBlank() && title.isBlank()) {
             Log.d(TAG, "过滤空内容通知: $packageName")
@@ -156,8 +162,14 @@ class NotificationService : NotificationListenerService() {
     }
     
     private fun forwardNotificationToServer(notification: NotificationData) {
+        // 检查通知转发开关
+        if (!ServerPreferences.isNotificationForwardEnabled(this)) {
+            Log.d(TAG, "通知转发已关闭，不转发通知")
+            return
+        }
+
         val serverAddress = ServerPreferences.getServerAddress(this)
-        
+
         if (serverAddress.isEmpty()) {
             Log.d(TAG, "服务器地址未配置，不转发通知")
             return

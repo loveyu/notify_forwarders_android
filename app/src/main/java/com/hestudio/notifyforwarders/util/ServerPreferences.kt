@@ -8,6 +8,8 @@ object ServerPreferences {
     private const val PREF_NAME = "server_preferences"
     private const val KEY_SERVER_ADDRESS = "server_address"
     private const val KEY_NOTIFICATION_LIMIT = "notification_limit"
+    private const val KEY_NOTIFICATION_RECEIVE_ENABLED = "notification_receive_enabled"
+    private const val KEY_NOTIFICATION_FORWARD_ENABLED = "notification_forward_enabled"
     private const val DEFAULT_PORT = 19283
     private const val MIN_NOTIFICATION_LIMIT = 1
     private const val DEFAULT_NOTIFICATION_LIMIT = 200
@@ -72,5 +74,35 @@ object ServerPreferences {
     // 获取最大通知数量限制
     fun getMaxNotificationLimit(): Int {
         return MAX_NOTIFICATION_LIMIT
+    }
+
+    // 保存通知接收开关状态
+    fun saveNotificationReceiveEnabled(context: Context, enabled: Boolean) {
+        getPreferences(context).edit() {
+            putBoolean(KEY_NOTIFICATION_RECEIVE_ENABLED, enabled)
+        }
+    }
+
+    // 获取通知接收开关状态，默认为true
+    fun isNotificationReceiveEnabled(context: Context): Boolean {
+        return getPreferences(context).getBoolean(KEY_NOTIFICATION_RECEIVE_ENABLED, true)
+    }
+
+    // 保存通知转发开关状态
+    fun saveNotificationForwardEnabled(context: Context, enabled: Boolean) {
+        getPreferences(context).edit() {
+            putBoolean(KEY_NOTIFICATION_FORWARD_ENABLED, enabled)
+        }
+    }
+
+    // 获取通知转发开关状态，如果配置了服务器地址默认为true，否则为false
+    fun isNotificationForwardEnabled(context: Context): Boolean {
+        val hasServerConfig = hasValidServerConfig(context)
+        return getPreferences(context).getBoolean(KEY_NOTIFICATION_FORWARD_ENABLED, hasServerConfig)
+    }
+
+    // 检查是否可以开启通知转发（需要配置服务器地址）
+    fun canEnableNotificationForward(context: Context): Boolean {
+        return hasValidServerConfig(context)
     }
 }

@@ -29,4 +29,14 @@
     <string name="notification_limit_saved">通知数量限制已保存</string>
     <string name="notification_limit_invalid">请输入1到10000之间的数字</string>
     <string name="current_notification_count">当前通知数量: %d</string>
+
+    <!-- 快捷开关相关字符串 -->
+    <string name="notification_receive_switch">接收通知</string>
+    <string name="notification_forward_switch">转发通知</string>
+    <string name="notification_receive_enabled">通知接收已开启</string>
+    <string name="notification_receive_disabled">通知接收已关闭</string>
+    <string name="notification_forward_enabled">通知转发已开启</string>
+    <string name="notification_forward_disabled">通知转发已关闭</string>
+    <string name="notification_forward_no_server">请先配置服务器地址</string>
+    <string name="current_server_address">当前转发地址: %s</string>
 </resources>

@@ -19,7 +19,7 @@ A modern Android notification forwarding application that captures system notifi
 - 🚀 **Automated CI/CD**: Complete build and release automation
 - 🔐 **Android 13+ Ready**: Full support for modern notification permissions and APIs
 - 📋 **Smart Notification Management**: Updated notifications automatically move to the top of the list
-- 🎯 **App Icon Support**: Optional forwarding of application icons with notifications
+- 🎯 **Smart Icon Forwarding**: Intelligent icon handling with notification icons prioritized over app icons, featuring 5% rounded corners and optimized caching
 
 ## 📥 Download & Installation
 
@@ -56,7 +56,7 @@ Development APKs are available in [Actions artifacts](https://github.com/loveyu/
 3. Configure server address in settings
 4. Optional: Choose your preferred language in settings
 5. Optional: Adjust notification limit settings
-6. Optional: Enable notification icon forwarding
+6. Optional: Enable smart notification icon forwarding
 
 ### Required Permissions
 
@@ -155,7 +155,37 @@ For detailed setup instructions, see [QUICK_START.md](QUICK_START.md).
 3. Verify network connectivity
 4. Check if notification forwarding is enabled in settings
 
+## 🎯 Smart Icon Forwarding
+
+### Overview
+The app features an intelligent icon forwarding system that enhances notification visualization on the server side.
+
+### Key Features
+- **🔄 Priority-based Icon Selection**: Notification icons are prioritized over application icons for better context
+- **🎨 Rounded Corner Design**: Icons display with subtle 5% rounded corners for modern aesthetics
+- **⚡ Optimized Caching**: Only application icons are cached (up to 1 day), notification icons are processed in real-time
+- **📦 Integrated Forwarding**: Icon data is sent directly with notifications, eliminating separate API calls
+- **🌍 Multi-language Support**: Icon settings are fully translated across all supported languages
+
+### How It Works
+1. **Icon Detection**: When a notification arrives, the system first checks for notification-specific icons (largeIcon, smallIcon)
+2. **Fallback Strategy**: If no notification icon exists, the system uses the cached application icon
+3. **Real-time Processing**: Notification icons are converted to Base64 and MD5 hash in real-time (no caching)
+4. **Efficient Delivery**: Icon data is included directly in the notification payload to the server
+5. **Smart Caching**: Application icons are cached for 24 hours to reduce processing overhead
+
+### Configuration
+Enable icon forwarding in **Settings → Notification Icon Settings → Send Notification Icons**
+
 ## 📋 Recent Updates
+
+### Version 1.3.0 - Smart Icon Forwarding
+- **🎯 Intelligent Icon Handling**: Prioritizes notification icons over app icons for better context
+- **🎨 Modern Icon Design**: 5% rounded corners replace circular icons for contemporary look
+- **⚡ Optimized Performance**: Notification icons processed in real-time, app icons cached efficiently
+- **📦 Streamlined Forwarding**: Icon data sent directly with notifications, no separate API calls
+- **🌍 Complete Translations**: Icon settings fully translated across all 7 supported languages
+- **🔧 Enhanced UI**: Improved test notification button layout for better multi-language support
 
 ### Version 1.2.0 - Android 13+ Support
 - **🔐 Modern Permission System**: Full support for Android 13+ POST_NOTIFICATIONS permission

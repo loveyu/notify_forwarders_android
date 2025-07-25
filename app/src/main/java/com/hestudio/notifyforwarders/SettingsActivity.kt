@@ -52,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
 import com.hestudio.notifyforwarders.service.NotificationService
@@ -591,20 +592,31 @@ fun SettingsScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Row(
+                    // 使用 Column 布局避免在长文本语言下换行
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Button(
-                            onClick = onSendRandomNotification
+                            onClick = onSendRandomNotification,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(stringResource(R.string.send_random_notification))
+                            Text(
+                                text = stringResource(R.string.send_random_notification),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
 
                         Button(
-                            onClick = onSendProgressNotification
+                            onClick = onSendProgressNotification,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(stringResource(R.string.send_progress_notification))
+                            Text(
+                                text = stringResource(R.string.send_progress_notification),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
                     }
                 }

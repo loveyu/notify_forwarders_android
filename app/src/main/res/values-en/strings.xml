@@ -49,6 +49,13 @@
     <string name="notification_forward_disabled">Notification forwarding disabled</string>
     <string name="notification_forward_no_server">Please configure server address first</string>
     <string name="current_server_address">Current forwarding address: %s</string>
+
+    <!-- Notification icon related strings -->
+    <string name="notification_icon_settings">Notification Icon Settings</string>
+    <string name="notification_icon_settings_desc">When enabled, app icon information will be sent to the server. Icons are cached for up to 1 day</string>
+    <string name="notification_icon_switch">Send Notification Icons</string>
+    <string name="notification_icon_enabled">Notification icon sending enabled</string>
+    <string name="notification_icon_disabled">Notification icon sending disabled</string>
     
     <!-- Language settings -->
     <string name="language_settings">Language Settings</string>

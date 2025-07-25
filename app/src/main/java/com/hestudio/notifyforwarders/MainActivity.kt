@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -378,10 +379,12 @@ fun AppIcon(
         }
     }
 
+    val cornerRadius = size * 0.05f // 5% 圆角
+
     Box(
         modifier = modifier
             .size(size)
-            .clip(CircleShape)
+            .clip(RoundedCornerShape(cornerRadius))
             .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
     ) {
@@ -391,7 +394,7 @@ fun AppIcon(
                 contentDescription = appName,
                 modifier = Modifier
                     .size(size)
-                    .clip(CircleShape),
+                    .clip(RoundedCornerShape(cornerRadius)),
                 contentScale = ContentScale.Crop
             )
         } ?: run {

@@ -263,7 +263,7 @@ object IconCacheManager {
     /**
      * Bitmap转Base64
      */
-    private fun bitmapToBase64(bitmap: Bitmap): String {
+    fun bitmapToBase64(bitmap: Bitmap): String {
         val byteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
         val byteArray = byteArrayOutputStream.toByteArray()
@@ -273,7 +273,7 @@ object IconCacheManager {
     /**
      * 计算MD5
      */
-    private fun calculateMd5(input: String): String {
+    fun calculateMd5(input: String): String {
         val md = MessageDigest.getInstance("MD5")
         val digest = md.digest(input.toByteArray())
         return digest.joinToString("") { "%02x".format(it) }

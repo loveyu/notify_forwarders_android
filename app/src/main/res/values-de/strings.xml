@@ -49,6 +49,13 @@
     <string name="notification_forward_disabled">Benachrichtigungsweiterleitung deaktiviert</string>
     <string name="notification_forward_no_server">Bitte konfigurieren Sie zuerst die Serveradresse</string>
     <string name="current_server_address">Aktuelle Weiterleitungsadresse: %s</string>
+
+    <!-- Benachrichtigungssymbol-bezogene Strings -->
+    <string name="notification_icon_settings">Benachrichtigungssymbol-Einstellungen</string>
+    <string name="notification_icon_settings_desc">Wenn aktiviert, werden App-Symbol-Informationen an den Server gesendet. Symbole werden bis zu 1 Tag zwischengespeichert</string>
+    <string name="notification_icon_switch">Benachrichtigungssymbole senden</string>
+    <string name="notification_icon_enabled">Senden von Benachrichtigungssymbolen aktiviert</string>
+    <string name="notification_icon_disabled">Senden von Benachrichtigungssymbolen deaktiviert</string>
     
     <!-- Spracheinstellungen -->
     <string name="language_settings">Spracheinstellungen</string>

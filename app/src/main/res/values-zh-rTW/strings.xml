@@ -49,6 +49,13 @@
     <string name="notification_forward_disabled">通知轉發已關閉</string>
     <string name="notification_forward_no_server">請先設定伺服器位址</string>
     <string name="current_server_address">目前轉發位址: %s</string>
+
+    <!-- 通知圖示相關字串 -->
+    <string name="notification_icon_settings">通知圖示設定</string>
+    <string name="notification_icon_settings_desc">開啟後將發送應用程式圖示資訊到伺服器，圖示會被快取最多1天</string>
+    <string name="notification_icon_switch">發送通知圖示</string>
+    <string name="notification_icon_enabled">通知圖示發送已開啟</string>
+    <string name="notification_icon_disabled">通知圖示發送已關閉</string>
     
     <!-- 語言設定 -->
     <string name="language_settings">語言設定</string>

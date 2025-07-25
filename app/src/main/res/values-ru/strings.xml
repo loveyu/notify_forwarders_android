@@ -49,6 +49,13 @@
     <string name="notification_forward_disabled">Переадресация уведомлений отключена</string>
     <string name="notification_forward_no_server">Сначала настройте адрес сервера</string>
     <string name="current_server_address">Текущий адрес переадресации: %s</string>
+
+    <!-- Строки значков уведомлений -->
+    <string name="notification_icon_settings">Настройки значков уведомлений</string>
+    <string name="notification_icon_settings_desc">При включении информация о значках приложений будет отправляться на сервер. Значки кэшируются до 1 дня</string>
+    <string name="notification_icon_switch">Отправлять значки уведомлений</string>
+    <string name="notification_icon_enabled">Отправка значков уведомлений включена</string>
+    <string name="notification_icon_disabled">Отправка значков уведомлений отключена</string>
     
     <!-- Настройки языка -->
     <string name="language_settings">Настройки языка</string>

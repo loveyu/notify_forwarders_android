@@ -7,6 +7,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -103,11 +106,26 @@ class NotificationService : NotificationListenerService() {
         // 使用包名+通知ID作为唯一标识
         val uniqueId = "$packageName:${sbn.id}"
 
-        // 获取图标MD5（如果开启了图标功能）
+        // 获取图标信息（如果开启了图标功能）
         var iconMd5: String? = null
+        var iconBase64: String? = null
         if (ServerPreferences.isNotificationIconEnabled(this)) {
-            val iconData = IconCacheManager.getIconData(this, packageName, appName)
-            iconMd5 = iconData?.iconMd5
+            // 优先使用通知中的图标
+            val notificationIcon = getNotificationIcon(notification)
+            if (notificationIcon != null) {
+                // 通知图标不缓存，直接处理
+                iconBase64 = IconCacheManager.bitmapToBase64(notificationIcon)
+                iconMd5 = IconCacheManager.calculateMd5(iconBase64)
+                Log.d(TAG, "使用通知图标: $packageName")
+            } else {
+                // 使用应用图标（缓存）
+                val iconData = IconCacheManager.getIconData(this, packageName, appName)
+                if (iconData != null) {
+                    iconMd5 = iconData.iconMd5
+                    iconBase64 = iconData.iconBase64
+                    Log.d(TAG, "使用应用图标: $packageName")
+                }
+            }
 
             // 定期清理过期缓存
             IconCacheManager.cleanupExpiredCache(this)
@@ -121,7 +139,8 @@ class NotificationService : NotificationListenerService() {
             content = text,
             time = time,
             uniqueId = uniqueId,
-            iconMd5 = iconMd5
+            iconMd5 = iconMd5,
+            iconBase64 = iconBase64
         )
 
         // 检查是否是现有通知的更新
@@ -182,6 +201,59 @@ class NotificationService : NotificationListenerService() {
     
     private fun getDeviceName(): String {
         return Build.MODEL // 获取设备型号作为设备名称
+    }
+
+    /**
+     * 从通知中获取图标
+     * 优先使用 largeIcon，其次使用 smallIcon
+     */
+    private fun getNotificationIcon(notification: Notification): Bitmap? {
+        try {
+            // 优先使用 largeIcon
+            notification.getLargeIcon()?.let { icon ->
+                val drawable = icon.loadDrawable(this)
+                drawable?.let { d ->
+                    return when (d) {
+                        is BitmapDrawable -> d.bitmap
+                        else -> {
+                            // 转换其他类型的 Drawable 为 Bitmap
+                            val bitmap = Bitmap.createBitmap(
+                                d.intrinsicWidth.coerceAtLeast(1),
+                                d.intrinsicHeight.coerceAtLeast(1),
+                                Bitmap.Config.ARGB_8888
+                            )
+                            val canvas = Canvas(bitmap)
+                            d.setBounds(0, 0, canvas.width, canvas.height)
+                            d.draw(canvas)
+                            bitmap
+                        }
+                    }
+                }
+            }
+
+            // 如果没有 largeIcon，尝试使用 smallIcon
+            notification.smallIcon?.let { iconRes ->
+                try {
+                    val drawable = iconRes.loadDrawable(this)
+                    drawable?.let { d ->
+                        val bitmap = Bitmap.createBitmap(
+                            d.intrinsicWidth.coerceAtLeast(1),
+                            d.intrinsicHeight.coerceAtLeast(1),
+                            Bitmap.Config.ARGB_8888
+                        )
+                        val canvas = Canvas(bitmap)
+                        d.setBounds(0, 0, canvas.width, canvas.height)
+                        d.draw(canvas)
+                        return bitmap
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "无法获取 smallIcon: ${e.message}")
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "获取通知图标失败: ${e.message}")
+        }
+        return null
     }
 
     /**
@@ -283,9 +355,12 @@ class NotificationService : NotificationListenerService() {
                     put("uniqueId", notification.uniqueId) // 添加唯一标识字段
                     put("id", notification.id) // 这个包的记录ID
 
-                    // 如果有图标MD5，添加到请求中
+                    // 如果有图标信息，直接添加到请求中
                     notification.iconMd5?.let { iconMd5 ->
                         put("iconMd5", iconMd5)
+                        notification.iconBase64?.let { iconBase64 ->
+                            put("iconBase64", iconBase64)
+                        }
                     }
                 }
                 
@@ -300,13 +375,7 @@ class NotificationService : NotificationListenerService() {
                 val responseCode = connection.responseCode
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     Log.d(TAG, "通知转发成功")
-
-                    // 检查是否需要推送图标
-                    val iconStatus = connection.getHeaderField("x-icon-status")
-                    if (iconStatus == "miss" && notification.iconMd5 != null) {
-                        // 异步推送图标信息
-                        pushIconToServer(notification.packageName, notification.appName, notification.iconMd5)
-                    }
+                    // 图标已经随通知一起发送，不需要额外的异步推送
                 } else {
                     Log.e(TAG, "通知转发失败: HTTP $responseCode")
                 }
@@ -365,5 +434,6 @@ data class NotificationData(
     val content: String,
     val time: Long,
     val uniqueId: String, // 添加唯一标识符，用于识别同一通知的更新
-    val iconMd5: String? = null // 图标MD5值
+    val iconMd5: String? = null, // 图标MD5值
+    val iconBase64: String? = null // 图标Base64数据
 )

@@ -49,6 +49,13 @@
     <string name="notification_forward_disabled">Transfert des notifications désactivé</string>
     <string name="notification_forward_no_server">Veuillez d\'abord configurer l\'adresse du serveur</string>
     <string name="current_server_address">Adresse de transfert actuelle : %s</string>
+
+    <!-- Chaînes d\'icônes de notification -->
+    <string name="notification_icon_settings">Paramètres d\'icônes de notification</string>
+    <string name="notification_icon_settings_desc">Lorsque activé, les informations d\'icônes d\'application seront envoyées au serveur. Les icônes sont mises en cache jusqu\'à 1 jour</string>
+    <string name="notification_icon_switch">Envoyer les icônes de notification</string>
+    <string name="notification_icon_enabled">Envoi d\'icônes de notification activé</string>
+    <string name="notification_icon_disabled">Envoi d\'icônes de notification désactivé</string>
     
     <!-- Paramètres de langue -->
     <string name="language_settings">Paramètres de langue</string>

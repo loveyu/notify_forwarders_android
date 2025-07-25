@@ -86,8 +86,10 @@
     <string name="test_notification_title">测试通知功能</string>
     <string name="test_notification_desc">用于测试通知发送和接收功能，可以发送随机内容通知或进度通知</string>
     <string name="send_random_notification">发送随机通知</string>
+    <string name="send_random_notification_with_icon">发送带图标的随机通知</string>
     <string name="send_progress_notification">发送进度通知</string>
     <string name="test_notification_sent">已发送测试通知</string>
+    <string name="test_notification_with_icon_sent">已发送带图标的测试通知</string>
 
     <!-- 验证码相关 -->
     <string name="verification_code_prompt">请在服务器端输入以下验证码</string>

@@ -4,6 +4,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -57,6 +60,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
+import androidx.core.graphics.drawable.IconCompat
 import com.hestudio.notifyforwarders.service.NotificationService
 import com.hestudio.notifyforwarders.ui.theme.NotifyForwardersTheme
 import com.hestudio.notifyforwarders.util.NotificationUtils
@@ -103,6 +107,7 @@ class SettingsActivity : ComponentActivity() {
                     },
                     onOpenBatteryOptimizationSettings = { openBatteryOptimizationSettings() },
                     onSendRandomNotification = { sendRandomNotification() },
+                    onSendRandomNotificationWithIcon = { sendRandomNotificationWithIcon() },
                     onSendProgressNotification = { sendProgressNotification() }
                 )
             }
@@ -172,6 +177,74 @@ class SettingsActivity : ComponentActivity() {
         Toast.makeText(this, getString(R.string.test_notification_sent), Toast.LENGTH_SHORT).show()
     }
 
+    private fun sendRandomNotificationWithIcon() {
+        val random = Random.Default
+        val titles = resources.getStringArray(R.array.test_notification_titles)
+        val contents = resources.getStringArray(R.array.test_notification_contents)
+
+        val title = getString(R.string.test_notification_prefix) + titles[random.nextInt(titles.size)]
+        val content = contents[random.nextInt(contents.size)] + " - " +
+                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+        val notificationId = random.nextInt(10000)
+
+        // 生成随机彩色图标
+        val randomIcon = generateRandomColorIcon()
+
+        val builder = NotificationCompat.Builder(this, testChannelId)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setLargeIcon(randomIcon) // 设置大图标为随机彩色图标
+            .setContentTitle(title)
+            .setContentText(content)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+
+        notificationManager.notify(notificationId, builder.build())
+        Toast.makeText(this, getString(R.string.test_notification_with_icon_sent), Toast.LENGTH_SHORT).show()
+    }
+
+    /**
+     * 生成随机彩色图标
+     */
+    private fun generateRandomColorIcon(): Bitmap {
+        val size = 128 // 图标大小
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        val random = Random.Default
+
+        // 生成随机颜色
+        val red = random.nextInt(256)
+        val green = random.nextInt(256)
+        val blue = random.nextInt(256)
+        val color = android.graphics.Color.rgb(red, green, blue)
+
+        val paint = Paint().apply {
+            isAntiAlias = true
+            setColor(color)
+        }
+
+        // 绘制圆形图标
+        val centerX = size / 2f
+        val centerY = size / 2f
+        val radius = size / 2f - 4f // 留一点边距
+
+        canvas.drawCircle(centerX, centerY, radius, paint)
+
+        // 添加白色文字 "T" 表示测试
+        val textPaint = Paint().apply {
+            isAntiAlias = true
+            setColor(android.graphics.Color.WHITE)
+            textSize = size * 0.5f
+            textAlign = Paint.Align.CENTER
+            isFakeBoldText = true
+        }
+
+        val textY = centerY + (textPaint.textSize / 3f)
+        canvas.drawText("T", centerX, textY, textPaint)
+
+        return bitmap
+    }
+
     private fun sendProgressNotification() {
         // 创建一个通知构建器
         val builder = NotificationCompat.Builder(this, progressChannelId)
@@ -218,6 +291,7 @@ fun SettingsScreen(
     onOpenNotificationSettings: () -> Unit,
     onOpenBatteryOptimizationSettings: () -> Unit,
     onSendRandomNotification: () -> Unit = {},
+    onSendRandomNotificationWithIcon: () -> Unit = {},
     onSendProgressNotification: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -605,6 +679,17 @@ fun SettingsScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.send_random_notification),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+
+                        Button(
+                            onClick = onSendRandomNotificationWithIcon,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = stringResource(R.string.send_random_notification_with_icon),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )

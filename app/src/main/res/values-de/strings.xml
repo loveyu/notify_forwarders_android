@@ -86,8 +86,10 @@
     <string name="test_notification_title">Test-Benachrichtigungsfunktion</string>
     <string name="test_notification_desc">Wird zum Testen der Benachrichtigungs-Sende- und Empfangsfunktionen verwendet, kann zufällige Inhaltsbenachrichtigungen oder Fortschrittsbenachrichtigungen senden</string>
     <string name="send_random_notification">Zufällige Benachrichtigung senden</string>
+    <string name="send_random_notification_with_icon">Zufällige Benachrichtigung mit Symbol senden</string>
     <string name="send_progress_notification">Fortschrittsbenachrichtigung senden</string>
     <string name="test_notification_sent">Test-Benachrichtigung gesendet</string>
+    <string name="test_notification_with_icon_sent">Test-Benachrichtigung mit Symbol gesendet</string>
 
     <!-- Verifizierungscode-bezogen -->
     <string name="verification_code_prompt">Bitte geben Sie den folgenden Verifizierungscode auf dem Server ein</string>

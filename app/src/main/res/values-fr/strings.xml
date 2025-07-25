@@ -86,8 +86,10 @@
     <string name="test_notification_title">Fonction de notification de test</string>
     <string name="test_notification_desc">Utilisé pour tester les fonctions d\'envoi et de réception de notifications, peut envoyer des notifications de contenu aléatoire ou des notifications de progression</string>
     <string name="send_random_notification">Envoyer une notification aléatoire</string>
+    <string name="send_random_notification_with_icon">Envoyer une notification aléatoire avec icône</string>
     <string name="send_progress_notification">Envoyer une notification de progression</string>
     <string name="test_notification_sent">Notification de test envoyée</string>
+    <string name="test_notification_with_icon_sent">Notification de test avec icône envoyée</string>
 
     <!-- Lié au code de vérification -->
     <string name="verification_code_prompt">Veuillez entrer le code de vérification suivant sur le serveur</string>

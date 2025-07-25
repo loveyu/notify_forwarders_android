@@ -86,8 +86,10 @@
     <string name="test_notification_title">テスト通知機能</string>
     <string name="test_notification_desc">通知の送信と受信機能をテストするために使用され、ランダムコンテンツ通知や進行状況通知を送信できます</string>
     <string name="send_random_notification">ランダム通知を送信</string>
+    <string name="send_random_notification_with_icon">アイコン付きランダム通知を送信</string>
     <string name="send_progress_notification">進行状況通知を送信</string>
     <string name="test_notification_sent">テスト通知を送信しました</string>
+    <string name="test_notification_with_icon_sent">アイコン付きテスト通知を送信しました</string>
 
     <!-- 認証コード関連 -->
     <string name="verification_code_prompt">サーバー側で以下の認証コードを入力してください</string>

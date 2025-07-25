@@ -86,8 +86,10 @@
     <string name="test_notification_title">Функция тестовых уведомлений</string>
     <string name="test_notification_desc">Используется для тестирования функций отправки и получения уведомлений, может отправлять уведомления со случайным содержимым или уведомления о прогрессе</string>
     <string name="send_random_notification">Отправить случайное уведомление</string>
+    <string name="send_random_notification_with_icon">Отправить случайное уведомление с иконкой</string>
     <string name="send_progress_notification">Отправить уведомление о прогрессе</string>
     <string name="test_notification_sent">Тестовое уведомление отправлено</string>
+    <string name="test_notification_with_icon_sent">Тестовое уведомление с иконкой отправлено</string>
 
     <!-- Связанное с кодом подтверждения -->
     <string name="verification_code_prompt">Пожалуйста, введите следующий код подтверждения на сервере</string>

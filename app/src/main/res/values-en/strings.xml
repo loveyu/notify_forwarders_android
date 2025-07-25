@@ -86,8 +86,10 @@
     <string name="test_notification_title">Test Notification Function</string>
     <string name="test_notification_desc">Used to test notification sending and receiving functions, can send random content notifications or progress notifications</string>
     <string name="send_random_notification">Send Random Notification</string>
+    <string name="send_random_notification_with_icon">Send Random Notification with Icon</string>
     <string name="send_progress_notification">Send Progress Notification</string>
     <string name="test_notification_sent">Test notification sent</string>
+    <string name="test_notification_with_icon_sent">Test notification with icon sent</string>
 
     <!-- Verification code related -->
     <string name="verification_code_prompt">Please enter the following verification code on the server</string>

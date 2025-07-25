@@ -47,6 +47,11 @@ base64 -i release.keystore -o keystore_base64.txt
 
 ## 本地构建
 
+### 环境要求
+- Android Studio Arctic Fox 或更高版本
+- JDK 17
+- Android SDK API 35
+
 ### Debug版本
 ```bash
 ./gradlew assembleDebug

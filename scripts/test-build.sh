@@ -7,6 +7,21 @@ set -e
 
 echo "🚀 开始测试构建配置..."
 
+# 检查Java版本
+echo "☕ 检查Java版本..."
+if command -v java &> /dev/null; then
+    JAVA_VERSION=$(java -version 2>&1 | head -n 1 | cut -d'"' -f2 | cut -d'.' -f1)
+    if [ "$JAVA_VERSION" -ge 17 ]; then
+        echo "✅ Java版本检查通过: $(java -version 2>&1 | head -n 1)"
+    else
+        echo "⚠️  警告: 检测到Java版本低于17，建议使用Java 17"
+        echo "   当前版本: $(java -version 2>&1 | head -n 1)"
+    fi
+else
+    echo "❌ 未找到Java，请安装JDK 17"
+    exit 1
+fi
+
 # 检查必要文件
 echo "📋 检查必要文件..."
 if [ ! -f "gradlew" ]; then

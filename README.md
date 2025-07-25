@@ -31,7 +31,7 @@
 
 ### 环境要求
 - Android Studio Arctic Fox 或更高版本
-- JDK 11
+- JDK 17
 - Android SDK API 35
 
 ### 构建步骤

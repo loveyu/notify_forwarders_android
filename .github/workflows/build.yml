@@ -55,8 +55,7 @@ jobs:
           echo "is_release=false" >> $GITHUB_OUTPUT
         fi
         
-    - name: Create keystore for release builds
-      if: steps.build_info.outputs.is_release == 'true'
+    - name: Create keystore for all builds
       run: |
         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/release.keystore
         echo "STORE_FILE=release.keystore" >> keystore.properties
@@ -110,7 +109,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Clean up keystore
-      if: always() && steps.build_info.outputs.is_release == 'true'
+      if: always()
       run: |
         rm -f app/release.keystore
         rm -f keystore.properties

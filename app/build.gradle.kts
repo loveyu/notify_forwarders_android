@@ -6,6 +6,8 @@ plugins {
 
 import java.util.Properties
 import java.io.FileInputStream
+import java.text.SimpleDateFormat
+import java.util.Date
 
 android {
     namespace = "com.hestudio.notifyforwarders"
@@ -40,9 +42,20 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
+
+            // 为 debug 版本生成带时间戳的版本号
+            val dateFormat = SimpleDateFormat("yyMMddHHmm")
+            val timestamp = dateFormat.format(Date())
+            versionNameSuffix = "-debug-$timestamp"
+
             isDebuggable = true
             isMinifyEnabled = false
+
+            // 为 debug 版本也添加签名配置
+            val keystorePropertiesFile = rootProject.file("keystore.properties")
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
 
         release {

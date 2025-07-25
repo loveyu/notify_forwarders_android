@@ -52,10 +52,14 @@
 
     <!-- Notification icon related strings -->
     <string name="notification_icon_settings">Notification Icon Settings</string>
-    <string name="notification_icon_settings_desc">When enabled, app icon information will be sent to the server. Icons are cached for up to 1 day</string>
+    <string name="notification_icon_settings_desc">When enabled, app icon information will be sent to the server. Notification icons are prioritized, and icons are cached for up to 1 day</string>
     <string name="notification_icon_switch">Send Notification Icons</string>
     <string name="notification_icon_enabled">Notification icon sending enabled</string>
     <string name="notification_icon_disabled">Notification icon sending disabled</string>
+    <string name="icon_corner_radius_setting">Icon Corner Radius</string>
+    <string name="icon_corner_radius_desc">Adjust the corner radius of icons, ranging from 5% to 50%</string>
+    <string name="current_corner_radius">Current radius: %d%%</string>
+    <string name="icon_corner_radius_changed">Icon corner radius set to %d%%</string>
     
     <!-- Language settings -->
     <string name="language_settings">Language Settings</string>

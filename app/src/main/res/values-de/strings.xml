@@ -52,10 +52,14 @@
 
     <!-- Benachrichtigungssymbol-bezogene Strings -->
     <string name="notification_icon_settings">Benachrichtigungssymbol-Einstellungen</string>
-    <string name="notification_icon_settings_desc">Wenn aktiviert, werden App-Symbol-Informationen an den Server gesendet. Symbole werden bis zu 1 Tag zwischengespeichert</string>
+    <string name="notification_icon_settings_desc">Wenn aktiviert, werden App-Symbol-Informationen an den Server gesendet. Benachrichtigungssymbole haben Vorrang, Symbole werden bis zu 1 Tag zwischengespeichert</string>
     <string name="notification_icon_switch">Benachrichtigungssymbole senden</string>
     <string name="notification_icon_enabled">Senden von Benachrichtigungssymbolen aktiviert</string>
     <string name="notification_icon_disabled">Senden von Benachrichtigungssymbolen deaktiviert</string>
+    <string name="icon_corner_radius_setting">Symbol-Eckenradius-Einstellungen</string>
+    <string name="icon_corner_radius_desc">Passen Sie den Eckenradius der Symbole an, von 5% bis 50%</string>
+    <string name="current_corner_radius">Aktueller Radius: %d%%</string>
+    <string name="icon_corner_radius_changed">Symbol-Eckenradius auf %d%% eingestellt</string>
     
     <!-- Spracheinstellungen -->
     <string name="language_settings">Spracheinstellungen</string>

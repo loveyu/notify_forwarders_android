@@ -52,10 +52,14 @@
 
     <!-- Chaînes d\'icônes de notification -->
     <string name="notification_icon_settings">Paramètres d\'icônes de notification</string>
-    <string name="notification_icon_settings_desc">Lorsque activé, les informations d\'icônes d\'application seront envoyées au serveur. Les icônes sont mises en cache jusqu\'à 1 jour</string>
+    <string name="notification_icon_settings_desc">Lorsque activé, les informations d\'icônes d\'application seront envoyées au serveur. Les icônes de notification sont prioritaires, les icônes sont mises en cache jusqu\'à 1 jour</string>
     <string name="notification_icon_switch">Envoyer les icônes de notification</string>
     <string name="notification_icon_enabled">Envoi d\'icônes de notification activé</string>
     <string name="notification_icon_disabled">Envoi d\'icônes de notification désactivé</string>
+    <string name="icon_corner_radius_setting">Paramètres des coins arrondis</string>
+    <string name="icon_corner_radius_desc">Ajustez le rayon des coins arrondis des icônes, de 5% à 50%</string>
+    <string name="current_corner_radius">Rayon actuel : %d%%</string>
+    <string name="icon_corner_radius_changed">Rayon des coins des icônes défini à %d%%</string>
     
     <!-- Paramètres de langue -->
     <string name="language_settings">Paramètres de langue</string>

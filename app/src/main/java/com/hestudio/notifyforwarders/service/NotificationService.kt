@@ -9,6 +9,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.service.notification.NotificationListenerService
@@ -113,8 +117,10 @@ class NotificationService : NotificationListenerService() {
             // 优先使用通知中的图标
             val notificationIcon = getNotificationIcon(notification)
             if (notificationIcon != null) {
-                // 通知图标不缓存，直接处理
-                iconBase64 = IconCacheManager.bitmapToBase64(notificationIcon)
+                // 通知图标不缓存，直接处理并应用圆角
+                val cornerRadius = ServerPreferences.getIconCornerRadius(this)
+                val roundedIcon = applyRoundedCorners(notificationIcon, cornerRadius)
+                iconBase64 = IconCacheManager.bitmapToBase64(roundedIcon)
                 iconMd5 = IconCacheManager.calculateMd5(iconBase64)
                 Log.d(TAG, "使用通知图标: $packageName")
             } else {
@@ -254,6 +260,43 @@ class NotificationService : NotificationListenerService() {
             Log.w(TAG, "获取通知图标失败: ${e.message}")
         }
         return null
+    }
+
+    /**
+     * 应用圆角效果到通知图标
+     * @param bitmap 原始图片
+     * @param cornerRadiusPercent 圆角百分比 (5-50)
+     * @return 应用圆角后的图片
+     */
+    private fun applyRoundedCorners(bitmap: Bitmap, cornerRadiusPercent: Int): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        val size = minOf(width, height)
+
+        // 计算圆角半径，基于图片最小边的百分比
+        val cornerRadius = (size * cornerRadiusPercent / 100f)
+
+        // 创建输出bitmap
+        val output = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(output)
+
+        // 创建画笔
+        val paint = Paint().apply {
+            isAntiAlias = true
+            color = 0xff424242.toInt()
+        }
+
+        // 创建圆角矩形路径
+        val rect = RectF(0f, 0f, width.toFloat(), height.toFloat())
+        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
+
+        // 设置混合模式为SRC_IN，只保留重叠部分
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+
+        // 绘制原始图片
+        canvas.drawBitmap(bitmap, 0f, 0f, paint)
+
+        return output
     }
 
     /**

@@ -52,10 +52,14 @@
 
     <!-- Строки значков уведомлений -->
     <string name="notification_icon_settings">Настройки значков уведомлений</string>
-    <string name="notification_icon_settings_desc">При включении информация о значках приложений будет отправляться на сервер. Значки кэшируются до 1 дня</string>
+    <string name="notification_icon_settings_desc">При включении информация о значках приложений будет отправляться на сервер. Приоритет отдается значкам уведомлений, значки кэшируются до 1 дня</string>
     <string name="notification_icon_switch">Отправлять значки уведомлений</string>
     <string name="notification_icon_enabled">Отправка значков уведомлений включена</string>
     <string name="notification_icon_disabled">Отправка значков уведомлений отключена</string>
+    <string name="icon_corner_radius_setting">Настройка скругления значков</string>
+    <string name="icon_corner_radius_desc">Настройте радиус скругления значков от 5% до 50%</string>
+    <string name="current_corner_radius">Текущее скругление: %d%%</string>
+    <string name="icon_corner_radius_changed">Скругление значков установлено на %d%%</string>
     
     <!-- Настройки языка -->
     <string name="language_settings">Настройки языка</string>

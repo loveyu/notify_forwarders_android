@@ -52,10 +52,14 @@
 
     <!-- 通知アイコン関連文字列 -->
     <string name="notification_icon_settings">通知アイコン設定</string>
-    <string name="notification_icon_settings_desc">有効にすると、アプリアイコン情報がサーバーに送信されます。アイコンは最大1日間キャッシュされます</string>
+    <string name="notification_icon_settings_desc">有効にすると、アプリアイコン情報がサーバーに送信されます。通知アイコンが優先され、アイコンは最大1日間キャッシュされます</string>
     <string name="notification_icon_switch">通知アイコンを送信</string>
     <string name="notification_icon_enabled">通知アイコン送信が有効になりました</string>
     <string name="notification_icon_disabled">通知アイコン送信が無効になりました</string>
+    <string name="icon_corner_radius_setting">アイコン角丸設定</string>
+    <string name="icon_corner_radius_desc" formatted="false">アイコンの角丸サイズを調整します。範囲は5%から50%です</string>
+    <string name="current_corner_radius">現在の角丸: %d%%</string>
+    <string name="icon_corner_radius_changed">アイコン角丸を %d%% に設定しました</string>
     
     <!-- 言語設定 -->
     <string name="language_settings">言語設定</string>

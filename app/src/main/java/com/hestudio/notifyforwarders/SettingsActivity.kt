@@ -40,6 +40,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -52,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
@@ -640,6 +642,9 @@ fun NotificationIconSettingsCard() {
     var iconEnabled by remember {
         mutableStateOf(ServerPreferences.isNotificationIconEnabled(context))
     }
+    var cornerRadius by remember {
+        mutableStateOf(ServerPreferences.getIconCornerRadius(context))
+    }
 
     Card {
         Column(
@@ -660,6 +665,7 @@ fun NotificationIconSettingsCard() {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
+            // 图标开关
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -683,6 +689,67 @@ fun NotificationIconSettingsCard() {
                         }
                         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                     }
+                )
+            }
+
+            // 圆角设置（仅在图标开启时显示）
+            if (iconEnabled) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = stringResource(R.string.icon_corner_radius_setting),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                Text(
+                    text = stringResource(R.string.icon_corner_radius_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${ServerPreferences.getMinIconCornerRadius()}%",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.width(32.dp)
+                    )
+
+                    Slider(
+                        value = cornerRadius.toFloat(),
+                        onValueChange = { value ->
+                            cornerRadius = value.toInt()
+                        },
+                        onValueChangeFinished = {
+                            ServerPreferences.saveIconCornerRadius(context, cornerRadius)
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.icon_corner_radius_changed, cornerRadius),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        valueRange = ServerPreferences.getMinIconCornerRadius().toFloat()..ServerPreferences.getMaxIconCornerRadius().toFloat(),
+                        steps = ServerPreferences.getMaxIconCornerRadius() - ServerPreferences.getMinIconCornerRadius() - 1,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = "${ServerPreferences.getMaxIconCornerRadius()}%",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.width(32.dp),
+                        textAlign = TextAlign.End
+                    )
+                }
+
+                Text(
+                    text = stringResource(R.string.current_corner_radius, cornerRadius),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
         }

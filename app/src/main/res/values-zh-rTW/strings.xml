@@ -52,10 +52,14 @@
 
     <!-- 通知圖示相關字串 -->
     <string name="notification_icon_settings">通知圖示設定</string>
-    <string name="notification_icon_settings_desc">開啟後將發送應用程式圖示資訊到伺服器，圖示會被快取最多1天</string>
+    <string name="notification_icon_settings_desc">開啟後將發送應用程式圖示資訊到伺服器，優先使用通知圖示，圖示會被快取最多1天</string>
     <string name="notification_icon_switch">發送通知圖示</string>
     <string name="notification_icon_enabled">通知圖示發送已開啟</string>
     <string name="notification_icon_disabled">通知圖示發送已關閉</string>
+    <string name="icon_corner_radius_setting">圖示圓角設定</string>
+    <string name="icon_corner_radius_desc">調整圖示的圓角大小，範圍為5%到50%</string>
+    <string name="current_corner_radius">目前圓角: %d%%</string>
+    <string name="icon_corner_radius_changed">圖示圓角已設定為 %d%%</string>
     
     <!-- 語言設定 -->
     <string name="language_settings">語言設定</string>

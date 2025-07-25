@@ -4,6 +4,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Base64
@@ -199,9 +204,13 @@ object IconCacheManager {
             
             // 转换为Bitmap并调整尺寸
             val bitmap = drawableToBitmap(drawable, MAX_ICON_SIZE)
-            
+
+            // 应用圆角效果
+            val cornerRadius = ServerPreferences.getIconCornerRadius(context)
+            val roundedBitmap = applyRoundedCorners(bitmap, cornerRadius)
+
             // 转换为Base64
-            val iconBase64 = bitmapToBase64(bitmap)
+            val iconBase64 = bitmapToBase64(roundedBitmap)
             
             // 计算MD5
             val iconMd5 = calculateMd5(iconBase64)
@@ -248,16 +257,53 @@ object IconCacheManager {
     private fun resizeBitmap(bitmap: Bitmap, maxSize: Int): Bitmap {
         val width = bitmap.width
         val height = bitmap.height
-        
+
         if (width <= maxSize && height <= maxSize) {
             return bitmap
         }
-        
+
         val scale = minOf(maxSize.toFloat() / width, maxSize.toFloat() / height)
         val newWidth = (width * scale).toInt()
         val newHeight = (height * scale).toInt()
-        
+
         return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+    }
+
+    /**
+     * 应用圆角效果
+     * @param bitmap 原始图片
+     * @param cornerRadiusPercent 圆角百分比 (5-50)
+     * @return 应用圆角后的图片
+     */
+    private fun applyRoundedCorners(bitmap: Bitmap, cornerRadiusPercent: Int): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        val size = minOf(width, height)
+
+        // 计算圆角半径，基于图片最小边的百分比
+        val cornerRadius = (size * cornerRadiusPercent / 100f)
+
+        // 创建输出bitmap
+        val output = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(output)
+
+        // 创建画笔
+        val paint = Paint().apply {
+            isAntiAlias = true
+            color = 0xff424242.toInt()
+        }
+
+        // 创建圆角矩形路径
+        val rect = RectF(0f, 0f, width.toFloat(), height.toFloat())
+        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
+
+        // 设置混合模式为SRC_IN，只保留重叠部分
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+
+        // 绘制原始图片
+        canvas.drawBitmap(bitmap, 0f, 0f, paint)
+
+        return output
     }
     
     /**

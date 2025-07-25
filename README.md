@@ -19,7 +19,7 @@ A modern Android notification forwarding application that captures system notifi
 - 🚀 **Automated CI/CD**: Complete build and release automation
 - 🔐 **Android 13+ Ready**: Full support for modern notification permissions and APIs
 - 📋 **Smart Notification Management**: Updated notifications automatically move to the top of the list
-- 🎯 **Smart Icon Forwarding**: Intelligent icon handling with notification icons prioritized over app icons, featuring 5% rounded corners and optimized caching
+- 🎯 **Smart Icon Forwarding**: Intelligent icon handling with notification icons prioritized over app icons, featuring configurable rounded corners (5%-50%) and optimized caching
 
 ## 📥 Download & Installation
 
@@ -162,7 +162,7 @@ The app features an intelligent icon forwarding system that enhances notificatio
 
 ### Key Features
 - **🔄 Priority-based Icon Selection**: Notification icons are prioritized over application icons for better context
-- **🎨 Rounded Corner Design**: Icons display with subtle 5% rounded corners for modern aesthetics
+- **🎨 Configurable Rounded Corners**: Icons display with customizable rounded corners (5%-50%, default 10%) for modern aesthetics
 - **⚡ Optimized Caching**: Only application icons are cached (up to 1 day), notification icons are processed in real-time
 - **📦 Integrated Forwarding**: Icon data is sent directly with notifications, eliminating separate API calls
 - **🌍 Multi-language Support**: Icon settings are fully translated across all supported languages
@@ -175,13 +175,21 @@ The app features an intelligent icon forwarding system that enhances notificatio
 5. **Smart Caching**: Application icons are cached for 24 hours to reduce processing overhead
 
 ### Configuration
-Enable icon forwarding in **Settings → Notification Icon Settings → Send Notification Icons**
+1. Enable icon forwarding in **Settings → Notification Icon Settings → Send Notification Icons**
+2. Customize icon corner radius (5%-50%) using the slider in the same settings section
 
 ## 📋 Recent Updates
 
+### Version 1.3.1 - Enhanced Icon Customization
+- **🎨 Configurable Corner Radius**: Adjustable icon corner radius from 5% to 50% (default 10%)
+- **⚙️ Enhanced Settings UI**: Interactive slider for real-time corner radius adjustment
+- **🌍 Complete Translations**: Corner radius settings fully translated across all 7 supported languages
+- **🔧 Improved Icon Processing**: Better notification icon detection and processing
+- **📱 Real-time Preview**: Instant feedback when adjusting corner radius settings
+
 ### Version 1.3.0 - Smart Icon Forwarding
 - **🎯 Intelligent Icon Handling**: Prioritizes notification icons over app icons for better context
-- **🎨 Modern Icon Design**: 5% rounded corners replace circular icons for contemporary look
+- **🎨 Modern Icon Design**: Rounded corners replace circular icons for contemporary look
 - **⚡ Optimized Performance**: Notification icons processed in real-time, app icons cached efficiently
 - **📦 Streamlined Forwarding**: Icon data sent directly with notifications, no separate API calls
 - **🌍 Complete Translations**: Icon settings fully translated across all 7 supported languages

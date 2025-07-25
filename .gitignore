@@ -14,3 +14,9 @@
 .cxx
 local.properties
 .idea/
+
+# Keystore files
+keystore.properties
+*.keystore
+*.jks
+app/release.keystore

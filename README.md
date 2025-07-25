@@ -1,6 +1,6 @@
 # Notify Forwarders Android
 
-[![Build APK](https://github.com/YOUR_USERNAME/notify_forwarders_android/actions/workflows/build.yml/badge.svg)](https://github.com/YOUR_USERNAME/notify_forwarders_android/actions/workflows/build.yml)
+[![Build APK](https://github.com/loveyu/notify_forwarders_android/actions/workflows/build.yml/badge.svg)](https://github.com/loveyu/notify_forwarders_android/actions/workflows/build.yml)
 
 一个Android通知转发应用。
 
@@ -22,10 +22,10 @@
 ## 下载
 
 ### 最新Release版本
-前往 [Releases页面](https://github.com/YOUR_USERNAME/notify_forwarders_android/releases) 下载最新的正式版本。
+前往 [Releases页面](https://github.com/loveyu/notify_forwarders_android/releases) 下载最新的正式版本。
 
 ### 开发版本
-开发版本的APK可以在 [Actions页面](https://github.com/YOUR_USERNAME/notify_forwarders_android/actions) 的Artifacts中下载。
+开发版本的APK可以在 [Actions页面](https://github.com/loveyu/notify_forwarders_android/actions) 的Artifacts中下载。
 
 ## 本地构建
 

@@ -219,4 +219,10 @@
     <!-- 服务器验证 -->
     <string name="server_verification_title">请求与本机建立连接</string>
     <string name="server_verification_desc">请在手机输入以下验证码：%s</string>
+
+    <!-- 通知操作服务 -->
+    <string name="notification_action_channel_name">操作执行服务</string>
+    <string name="notification_action_channel_desc">执行剪贴板和图片发送操作时的前台服务通知</string>
+    <string name="notification_action_service_title">正在执行操作</string>
+    <string name="notification_action_service_content">正在发送剪贴板或图片内容</string>
 </resources>

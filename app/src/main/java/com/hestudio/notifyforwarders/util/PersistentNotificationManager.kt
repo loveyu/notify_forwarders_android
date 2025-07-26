@@ -97,7 +97,7 @@ object PersistentNotificationManager {
      * 添加操作按钮
      */
     private fun addActionButtons(context: Context, notificationBuilder: NotificationCompat.Builder) {
-        // 剪贴板按钮
+        // 剪贴板按钮 - 始终保持可用
         val clipboardIntent = Intent(context, NotificationActionService::class.java).apply {
             action = NotificationActionService.ACTION_SEND_CLIPBOARD
         }
@@ -108,7 +108,7 @@ object PersistentNotificationManager {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        // 图片按钮
+        // 图片按钮 - 始终保持可用
         val imageIntent = Intent(context, NotificationActionService::class.java).apply {
             action = NotificationActionService.ACTION_SEND_IMAGE
         }
@@ -119,16 +119,9 @@ object PersistentNotificationManager {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        // 根据当前状态设置按钮文本
-        val clipboardButtonText = when (currentState) {
-            SendingState.SENDING_CLIPBOARD -> context.getString(R.string.sending_clipboard_short)
-            else -> context.getString(R.string.action_send_clipboard)
-        }
-
-        val imageButtonText = when (currentState) {
-            SendingState.SENDING_IMAGE -> context.getString(R.string.sending_image_short)
-            else -> context.getString(R.string.action_send_image)
-        }
+        // 按钮文本保持不变，不显示发送状态
+        val clipboardButtonText = context.getString(R.string.action_send_clipboard)
+        val imageButtonText = context.getString(R.string.action_send_image)
 
         notificationBuilder
             .addAction(

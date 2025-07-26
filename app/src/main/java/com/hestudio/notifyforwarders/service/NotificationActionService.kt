@@ -1,8 +1,5 @@
 package com.hestudio.notifyforwarders.service
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -10,7 +7,6 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
 import com.hestudio.notifyforwarders.MainActivity
 import com.hestudio.notifyforwarders.R
 import com.hestudio.notifyforwarders.constants.ApiConstants
@@ -54,10 +50,6 @@ class NotificationActionService : Service() {
         // 任务超时时间（毫秒）
         private const val TASK_TIMEOUT_MS = 30000L // 30秒
 
-        // 前台服务通知相关常量
-        private const val FOREGROUND_NOTIFICATION_ID = 1001
-        private const val NOTIFICATION_CHANNEL_ID = "notification_action_service"
-
         /**
          * 发送剪贴板内容
          */
@@ -65,11 +57,7 @@ class NotificationActionService : Service() {
             val intent = Intent(context, NotificationActionService::class.java).apply {
                 action = ACTION_SEND_CLIPBOARD
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            context.startService(intent)
         }
 
         /**
@@ -79,11 +67,7 @@ class NotificationActionService : Service() {
             val intent = Intent(context, NotificationActionService::class.java).apply {
                 action = ACTION_SEND_IMAGE
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            context.startService(intent)
         }
     }
 
@@ -101,13 +85,9 @@ class NotificationActionService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        createNotificationChannel()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // 立即启动前台服务以避免ANR
-        startForegroundService()
-
         when (intent?.action) {
             ACTION_SEND_CLIPBOARD -> handleSendClipboard()
             ACTION_SEND_IMAGE -> handleSendImage()
@@ -130,63 +110,9 @@ class NotificationActionService : Service() {
 
         // 确保恢复持久化通知状态
         restoreNotificationStateToIdle()
-
-        // 停止前台服务
-        try {
-            stopForeground(true)
-        } catch (e: Exception) {
-            Log.e(TAG, "停止前台服务失败", e)
-        }
     }
 
-    /**
-     * 创建通知渠道
-     */
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID,
-                getString(R.string.notification_action_channel_name),
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = getString(R.string.notification_action_channel_desc)
-                setShowBadge(false)
-                setSound(null, null)
-            }
 
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    /**
-     * 启动前台服务
-     */
-    private fun startForegroundService() {
-        try {
-            val notification = createForegroundNotification()
-            startForeground(FOREGROUND_NOTIFICATION_ID, notification)
-            Log.d(TAG, "前台服务已启动")
-        } catch (e: Exception) {
-            Log.e(TAG, "启动前台服务失败", e)
-            // 即使启动前台服务失败，也要继续执行任务，避免服务被系统杀死
-        }
-    }
-
-    /**
-     * 创建前台服务通知
-     */
-    private fun createForegroundNotification(): Notification {
-        return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setContentTitle(getString(R.string.notification_action_service_title))
-            .setContentText(getString(R.string.notification_action_service_content))
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setOngoing(true)
-            .setAutoCancel(false)
-            .setShowWhen(false)
-            .build()
-    }
 
     /**
      * 启动MainActivity让应用进入前台
@@ -241,13 +167,10 @@ class NotificationActionService : Service() {
             val hasRunningTasks = isClipboardTaskRunning.get() || isImageTaskRunning.get()
 
             if (!hasRunningTasks) {
-                // 没有任务在运行，可以安全停止前台服务
-                stopForeground(true)
-                Log.d(TAG, "前台服务已停止")
+                Log.d(TAG, "没有任务在运行，停止服务")
+                // 停止服务
+                stopSelf()
             }
-
-            // 停止服务
-            stopSelf()
         } catch (e: Exception) {
             Log.e(TAG, "停止服务失败", e)
             // 即使出现异常，也要尝试停止服务

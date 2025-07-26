@@ -136,6 +136,33 @@
     <string name="foreground_service_title">Benachrichtigungs-Weiterleitungsdienst läuft</string>
     <string name="foreground_service_text">Tippen Sie, um Benachrichtigungs-Weiterleitungseinstellungen zu verwalten</string>
 
+    <!-- Dauerhafte Benachrichtigungsfunktionen -->
+    <string name="persistent_notification_settings">Dauerhafte Benachrichtigungseinstellungen</string>
+    <string name="persistent_notification_settings_desc">Aktivieren Sie die dauerhafte Benachrichtigung mit schnellen Zwischenablage- und Bildsendungsfunktionen</string>
+    <string name="persistent_notification_switch">Dauerhafte Benachrichtigung anzeigen</string>
+    <string name="persistent_notification_enabled">Dauerhafte Benachrichtigung aktiviert</string>
+    <string name="persistent_notification_disabled">Dauerhafte Benachrichtigung deaktiviert</string>
+    <string name="persistent_notification_title">Benachrichtigungs-Weiterleitungsdienst</string>
+    <string name="persistent_notification_text">Tippen Sie, um Einstellungen zu verwalten, verwenden Sie Schaltflächen zum schnellen Senden von Inhalten</string>
+    <string name="action_send_clipboard">Zwischenablage senden</string>
+    <string name="action_send_image">Bild senden</string>
+
+    <!-- Zwischenablage und Bildsendung -->
+    <string name="clipboard_permission_title">Zwischenablage-Zugriffsberechtigung</string>
+    <string name="clipboard_permission_desc">App benötigt Zugriff auf die Zwischenablage, um Zwischenablage-Inhalte zu lesen und zu senden</string>
+    <string name="media_permission_title">Medienzugriffsberechtigung</string>
+    <string name="media_permission_desc">App benötigt Zugriff auf Mediendateien, um die neuesten Bilder zu lesen und zu senden</string>
+    <string name="grant_media_permission">Medienzugriffsberechtigung gewähren</string>
+    <string name="clipboard_sent_success">Zwischenablage-Inhalt erfolgreich gesendet</string>
+    <string name="clipboard_sent_failed">Fehler beim Senden des Zwischenablage-Inhalts</string>
+    <string name="clipboard_empty">Zwischenablage ist leer</string>
+    <string name="image_sent_success">Bild erfolgreich gesendet</string>
+    <string name="image_sent_failed">Fehler beim Senden des Bildes</string>
+    <string name="no_images_found">Keine Bilder gefunden</string>
+    <string name="reading_clipboard">Zwischenablage wird gelesen...</string>
+    <string name="reading_latest_image">Neuestes Bild wird gelesen...</string>
+    <string name="sending_content">Inhalt wird gesendet...</string>
+
     <!-- Test-Benachrichtigungsinhalt -->
     <string name="test_notification_prefix">Test-Benachrichtigung - </string>
     <string-array name="test_notification_titles">

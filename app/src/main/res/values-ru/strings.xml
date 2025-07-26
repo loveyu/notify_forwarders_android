@@ -136,6 +136,33 @@
     <string name="foreground_service_title">Служба пересылки уведомлений работает</string>
     <string name="foreground_service_text">Нажмите для управления настройками пересылки уведомлений</string>
 
+    <!-- Функции постоянного уведомления -->
+    <string name="persistent_notification_settings">Настройки постоянного уведомления</string>
+    <string name="persistent_notification_settings_desc">Включить для отображения постоянного уведомления с быстрой отправкой буфера обмена и изображений</string>
+    <string name="persistent_notification_switch">Показать постоянное уведомление</string>
+    <string name="persistent_notification_enabled">Постоянное уведомление включено</string>
+    <string name="persistent_notification_disabled">Постоянное уведомление отключено</string>
+    <string name="persistent_notification_title">Служба пересылки уведомлений</string>
+    <string name="persistent_notification_text">Нажмите для управления настройками, используйте кнопки для быстрой отправки контента</string>
+    <string name="action_send_clipboard">Отправить буфер обмена</string>
+    <string name="action_send_image">Отправить изображение</string>
+
+    <!-- Отправка буфера обмена и изображений -->
+    <string name="clipboard_permission_title">Разрешение доступа к буферу обмена</string>
+    <string name="clipboard_permission_desc">Приложению нужен доступ к буферу обмена для чтения и отправки содержимого буфера обмена</string>
+    <string name="media_permission_title">Разрешение доступа к медиафайлам</string>
+    <string name="media_permission_desc">Приложению нужен доступ к медиафайлам для чтения и отправки последних изображений</string>
+    <string name="grant_media_permission">Предоставить разрешение доступа к медиафайлам</string>
+    <string name="clipboard_sent_success">Содержимое буфера обмена успешно отправлено</string>
+    <string name="clipboard_sent_failed">Не удалось отправить содержимое буфера обмена</string>
+    <string name="clipboard_empty">Буфер обмена пуст</string>
+    <string name="image_sent_success">Изображение успешно отправлено</string>
+    <string name="image_sent_failed">Не удалось отправить изображение</string>
+    <string name="no_images_found">Изображения не найдены</string>
+    <string name="reading_clipboard">Чтение буфера обмена...</string>
+    <string name="reading_latest_image">Чтение последнего изображения...</string>
+    <string name="sending_content">Отправка контента...</string>
+
     <!-- Содержимое тестовых уведомлений -->
     <string name="test_notification_prefix">Тестовое уведомление - </string>
     <string-array name="test_notification_titles">

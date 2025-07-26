@@ -20,6 +20,9 @@ A modern Android notification forwarding application that captures system notifi
 - 🔐 **Android 13+ Ready**: Full support for modern notification permissions and APIs
 - 📋 **Smart Notification Management**: Updated notifications automatically move to the top of the list
 - 🎯 **Smart Icon Forwarding**: Intelligent icon handling with notification icons prioritized over app icons in both forwarding and UI display, featuring configurable rounded corners (5%-50%) and optimized caching
+- 📌 **Persistent Notification**: Optional persistent notification with quick action buttons for clipboard and image sending
+- 📋 **Clipboard Integration**: Send clipboard content (text and images) with Base64 encoding via notification actions
+- 📸 **Image Gallery Access**: Send latest images from gallery with EXIF metadata extraction and transmission
 
 ## 📥 Download & Installation
 
@@ -70,6 +73,11 @@ Development APKs are available in [Actions artifacts](https://github.com/loveyu/
   - **Purpose**: Display foreground service notifications and status updates
   - **Setup**: Automatically requested on first launch
   - **Required**: Essential for service visibility and user feedback
+
+- **📸 READ_MEDIA_IMAGES** (Android 13+) / **READ_EXTERNAL_STORAGE** (Android 12-):
+  - **Purpose**: Access gallery images for the "Send Image" feature
+  - **Setup**: Automatically requested when using image sending features
+  - **Optional**: Only required for image sending functionality
 
 #### System Permissions
 - **🌐 INTERNET**:
@@ -180,7 +188,43 @@ The app features an intelligent icon forwarding system that enhances notificatio
 1. Enable icon forwarding in **Settings → Notification Icon Settings → Send Notification Icons**
 2. Customize icon corner radius (5%-50%) using the slider in the same settings section
 
+## 🚀 Persistent Notification & Quick Actions
+
+### Overview
+The app now features an optional persistent notification system that provides quick access to clipboard and image sending functionality directly from the notification panel.
+
+### Key Features
+- **📌 Persistent Notification**: Optional always-visible notification with action buttons
+- **📋 Clipboard Sending**: Send clipboard content (text or images) with one tap
+- **📸 Image Gallery Access**: Send the latest image from gallery with EXIF metadata
+- **🔧 Configurable**: Can be enabled/disabled in settings
+- **🌍 Multi-language Support**: All features fully translated across 7 languages
+
+### How It Works
+1. **Enable Persistent Notification**: Go to Settings → Persistent Notification Settings
+2. **Action Buttons**: The notification displays two action buttons:
+   - **Send Clipboard**: Reads current clipboard content and sends it (supports text and images)
+   - **Send Image**: Reads the latest image from gallery and sends it with EXIF data
+3. **API Endpoints**: Uses dedicated endpoints for different content types:
+   - `/api/clipboard/text` - For clipboard text content
+   - `/api/clipboard/image` - For clipboard image content
+   - `/api/image/raw` - For gallery images with EXIF headers
+
+### Technical Details
+- **Base64 Encoding**: All content is Base64 encoded for transmission
+- **EXIF Metadata**: Image EXIF data is extracted and sent via `X-EXIF` header
+- **Permission Handling**: Automatically requests media access permissions when needed
+- **Error Handling**: Comprehensive error handling with user feedback via Toast messages
+
 ## 📋 Recent Updates
+
+### Version 1.4.0 - Persistent Notification & Quick Actions
+- **📌 Persistent Notification**: Optional persistent notification with quick action buttons
+- **📋 Clipboard Integration**: Send clipboard content (text and images) directly from notification
+- **📸 Image Gallery Access**: Send latest images with EXIF metadata extraction
+- **🔧 New API Endpoints**: Dedicated endpoints for clipboard and image sending
+- **🌍 Complete Translations**: All new features translated across 7 supported languages
+- **⚡ Enhanced Permissions**: Added media access permissions for image functionality
 
 ### Version 1.3.2 - Optimized Icon Display Consistency
 - **🎯 Fixed Notification Icon Display**: Notification list now correctly displays the same icons that are forwarded to the server

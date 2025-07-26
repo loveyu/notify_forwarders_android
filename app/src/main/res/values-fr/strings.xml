@@ -136,6 +136,33 @@
     <string name="foreground_service_title">Le service de transfert de notifications est en cours d\'exécution</string>
     <string name="foreground_service_text">Appuyez pour gérer les paramètres de transfert de notifications</string>
 
+    <!-- Fonctionnalités de notification persistante -->
+    <string name="persistent_notification_settings">Paramètres de notification persistante</string>
+    <string name="persistent_notification_settings_desc">Activer pour afficher une notification persistante avec des fonctions rapides d\'envoi de presse-papiers et d\'images</string>
+    <string name="persistent_notification_switch">Afficher la notification persistante</string>
+    <string name="persistent_notification_enabled">Notification persistante activée</string>
+    <string name="persistent_notification_disabled">Notification persistante désactivée</string>
+    <string name="persistent_notification_title">Service de transfert de notifications</string>
+    <string name="persistent_notification_text">Appuyez pour gérer les paramètres, utilisez les boutons pour envoyer rapidement du contenu</string>
+    <string name="action_send_clipboard">Envoyer le presse-papiers</string>
+    <string name="action_send_image">Envoyer l\'image</string>
+
+    <!-- Envoi de presse-papiers et d\'images -->
+    <string name="clipboard_permission_title">Autorisation d\'accès au presse-papiers</string>
+    <string name="clipboard_permission_desc">L\'application a besoin d\'accéder au presse-papiers pour lire et envoyer le contenu du presse-papiers</string>
+    <string name="media_permission_title">Autorisation d\'accès aux médias</string>
+    <string name="media_permission_desc">L\'application a besoin d\'accéder aux fichiers multimédias pour lire et envoyer les dernières images</string>
+    <string name="grant_media_permission">Accorder l\'autorisation d\'accès aux médias</string>
+    <string name="clipboard_sent_success">Contenu du presse-papiers envoyé avec succès</string>
+    <string name="clipboard_sent_failed">Échec de l\'envoi du contenu du presse-papiers</string>
+    <string name="clipboard_empty">Le presse-papiers est vide</string>
+    <string name="image_sent_success">Image envoyée avec succès</string>
+    <string name="image_sent_failed">Échec de l\'envoi de l\'image</string>
+    <string name="no_images_found">Aucune image trouvée</string>
+    <string name="reading_clipboard">Lecture du presse-papiers...</string>
+    <string name="reading_latest_image">Lecture de la dernière image...</string>
+    <string name="sending_content">Envoi du contenu...</string>
+
     <!-- Contenu des notifications de test -->
     <string name="test_notification_prefix">Notification de test - </string>
     <string-array name="test_notification_titles">

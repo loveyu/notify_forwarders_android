@@ -136,6 +136,33 @@
     <string name="foreground_service_title">通知轉發服務正在執行</string>
     <string name="foreground_service_text">點擊管理通知轉發設定</string>
 
+    <!-- 常駐通知功能 -->
+    <string name="persistent_notification_settings">常駐通知設定</string>
+    <string name="persistent_notification_settings_desc">開啟後將顯示常駐通知，提供快捷傳送剪貼簿和圖片功能</string>
+    <string name="persistent_notification_switch">顯示常駐通知</string>
+    <string name="persistent_notification_enabled">常駐通知已開啟</string>
+    <string name="persistent_notification_disabled">常駐通知已關閉</string>
+    <string name="persistent_notification_title">通知轉發服務</string>
+    <string name="persistent_notification_text">點擊管理設定，使用按鈕快速傳送內容</string>
+    <string name="action_send_clipboard">傳送剪貼簿</string>
+    <string name="action_send_image">傳送圖片</string>
+
+    <!-- 剪貼簿和圖片傳送 -->
+    <string name="clipboard_permission_title">剪貼簿存取權限</string>
+    <string name="clipboard_permission_desc">應用程式需要存取剪貼簿來讀取和傳送剪貼簿內容</string>
+    <string name="media_permission_title">媒體存取權限</string>
+    <string name="media_permission_desc">應用程式需要存取媒體檔案來讀取和傳送最新圖片</string>
+    <string name="grant_media_permission">授予媒體存取權限</string>
+    <string name="clipboard_sent_success">剪貼簿內容傳送成功</string>
+    <string name="clipboard_sent_failed">剪貼簿內容傳送失敗</string>
+    <string name="clipboard_empty">剪貼簿為空</string>
+    <string name="image_sent_success">圖片傳送成功</string>
+    <string name="image_sent_failed">圖片傳送失敗</string>
+    <string name="no_images_found">未找到圖片</string>
+    <string name="reading_clipboard">正在讀取剪貼簿...</string>
+    <string name="reading_latest_image">正在讀取最新圖片...</string>
+    <string name="sending_content">正在傳送內容...</string>
+
     <!-- 測試通知內容 -->
     <string name="test_notification_prefix">測試通知 - </string>
     <string-array name="test_notification_titles">

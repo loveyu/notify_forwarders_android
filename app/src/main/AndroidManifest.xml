@@ -14,6 +14,10 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <!-- 添加通知权限（Android 13及以上需要） -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 添加读取媒体图片权限（Android 13及以上需要） -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <!-- 添加读取外部存储权限（Android 12及以下需要） -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 
     <application
         android:name=".NotifyForwardersApplication"
@@ -75,6 +79,11 @@
         <service
             android:name=".service.JobSchedulerService"
             android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="false" />
+
+        <!-- 添加通知操作服务 -->
+        <service
+            android:name=".service.NotificationActionService"
             android:exported="false" />
     </application>
 

@@ -14,6 +14,7 @@ object ServerPreferences {
     private const val KEY_NOTIFICATION_ICON_ENABLED = "notification_icon_enabled"
     private const val KEY_NOTIFICATION_LIST_ICON_ENABLED = "notification_list_icon_enabled"
     private const val KEY_ICON_CORNER_RADIUS = "icon_corner_radius"
+    private const val KEY_PERSISTENT_NOTIFICATION_ENABLED = "persistent_notification_enabled"
     private const val DEFAULT_PORT = 19283
     private const val MIN_NOTIFICATION_LIMIT = 1
     private const val DEFAULT_NOTIFICATION_LIMIT = 200
@@ -180,5 +181,17 @@ object ServerPreferences {
     // 检查是否需要处理图标（转发或列表显示任一开启）
     fun shouldProcessIcons(context: Context): Boolean {
         return isNotificationIconEnabled(context) || isNotificationListIconEnabled(context)
+    }
+
+    // 保存常驻通知开关状态
+    fun savePersistentNotificationEnabled(context: Context, enabled: Boolean) {
+        getPreferences(context).edit() {
+            putBoolean(KEY_PERSISTENT_NOTIFICATION_ENABLED, enabled)
+        }
+    }
+
+    // 获取常驻通知开关状态，默认为true
+    fun isPersistentNotificationEnabled(context: Context): Boolean {
+        return getPreferences(context).getBoolean(KEY_PERSISTENT_NOTIFICATION_ENABLED, true)
     }
 }

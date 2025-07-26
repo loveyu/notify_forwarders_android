@@ -484,16 +484,64 @@ class NotificationService : NotificationListenerService() {
         )
 
         // 构建通知
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.foreground_service_title))
-            .setContentText(getString(R.string.foreground_service_text))
+        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle(
+                if (ServerPreferences.isPersistentNotificationEnabled(this)) {
+                    getString(R.string.persistent_notification_title)
+                } else {
+                    getString(R.string.foreground_service_title)
+                }
+            )
+            .setContentText(
+                if (ServerPreferences.isPersistentNotificationEnabled(this)) {
+                    getString(R.string.persistent_notification_text)
+                } else {
+                    getString(R.string.foreground_service_text)
+                }
+            )
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setOngoing(true) // 设置为不可清除
-            .build()
+
+        // 如果启用了常驻通知，添加操作按钮
+        if (ServerPreferences.isPersistentNotificationEnabled(this)) {
+            // 发送剪贴板按钮
+            val clipboardIntent = Intent(this, NotificationActionService::class.java).apply {
+                action = NotificationActionService.ACTION_SEND_CLIPBOARD
+            }
+            val clipboardPendingIntent = PendingIntent.getService(
+                this,
+                1,
+                clipboardIntent,
+                PendingIntent.FLAG_IMMUTABLE
+            )
+
+            // 发送图片按钮
+            val imageIntent = Intent(this, NotificationActionService::class.java).apply {
+                action = NotificationActionService.ACTION_SEND_IMAGE
+            }
+            val imagePendingIntent = PendingIntent.getService(
+                this,
+                2,
+                imageIntent,
+                PendingIntent.FLAG_IMMUTABLE
+            )
+
+            notificationBuilder
+                .addAction(
+                    R.drawable.ic_launcher_foreground,
+                    getString(R.string.action_send_clipboard),
+                    clipboardPendingIntent
+                )
+                .addAction(
+                    R.drawable.ic_launcher_foreground,
+                    getString(R.string.action_send_image),
+                    imagePendingIntent
+                )
+        }
 
         // 启动前台服务
-        startForeground(FOREGROUND_SERVICE_ID, notification)
+        startForeground(FOREGROUND_SERVICE_ID, notificationBuilder.build())
     }
 }
 

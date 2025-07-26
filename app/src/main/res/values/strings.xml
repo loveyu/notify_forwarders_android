@@ -136,6 +136,33 @@
     <string name="foreground_service_title">通知转发服务正在运行</string>
     <string name="foreground_service_text">点击管理通知转发设置</string>
 
+    <!-- 常驻通知功能 -->
+    <string name="persistent_notification_settings">常驻通知设置</string>
+    <string name="persistent_notification_settings_desc">开启后将显示常驻通知，提供快捷发送剪贴板和图片功能</string>
+    <string name="persistent_notification_switch">显示常驻通知</string>
+    <string name="persistent_notification_enabled">常驻通知已开启</string>
+    <string name="persistent_notification_disabled">常驻通知已关闭</string>
+    <string name="persistent_notification_title">通知转发服务</string>
+    <string name="persistent_notification_text">点击管理设置，使用按钮快速发送内容</string>
+    <string name="action_send_clipboard">发送剪贴板</string>
+    <string name="action_send_image">发送图片</string>
+
+    <!-- 剪贴板和图片发送 -->
+    <string name="clipboard_permission_title">剪贴板访问权限</string>
+    <string name="clipboard_permission_desc">应用需要访问剪贴板来读取和发送剪贴板内容</string>
+    <string name="media_permission_title">媒体访问权限</string>
+    <string name="media_permission_desc">应用需要访问媒体文件来读取和发送最新图片</string>
+    <string name="grant_media_permission">授予媒体访问权限</string>
+    <string name="clipboard_sent_success">剪贴板内容发送成功</string>
+    <string name="clipboard_sent_failed">剪贴板内容发送失败</string>
+    <string name="clipboard_empty">剪贴板为空</string>
+    <string name="image_sent_success">图片发送成功</string>
+    <string name="image_sent_failed">图片发送失败</string>
+    <string name="no_images_found">未找到图片</string>
+    <string name="reading_clipboard">正在读取剪贴板...</string>
+    <string name="reading_latest_image">正在读取最新图片...</string>
+    <string name="sending_content">正在发送内容...</string>
+
     <!-- 测试通知内容 -->
     <string name="test_notification_prefix">测试通知 - </string>
     <string-array name="test_notification_titles">

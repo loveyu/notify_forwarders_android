@@ -136,6 +136,33 @@
     <string name="foreground_service_title">通知転送サービスが実行中です</string>
     <string name="foreground_service_text">タップして通知転送設定を管理</string>
 
+    <!-- 常駐通知機能 -->
+    <string name="persistent_notification_settings">常駐通知設定</string>
+    <string name="persistent_notification_settings_desc">有効にすると、クリップボードと画像の高速送信機能付きの常駐通知が表示されます</string>
+    <string name="persistent_notification_switch">常駐通知を表示</string>
+    <string name="persistent_notification_enabled">常駐通知が有効になりました</string>
+    <string name="persistent_notification_disabled">常駐通知が無効になりました</string>
+    <string name="persistent_notification_title">通知転送サービス</string>
+    <string name="persistent_notification_text">タップして設定を管理、ボタンを使用してコンテンツを素早く送信</string>
+    <string name="action_send_clipboard">クリップボードを送信</string>
+    <string name="action_send_image">画像を送信</string>
+
+    <!-- クリップボードと画像送信 -->
+    <string name="clipboard_permission_title">クリップボードアクセス権限</string>
+    <string name="clipboard_permission_desc">アプリはクリップボードの内容を読み取り、送信するためにクリップボードへのアクセスが必要です</string>
+    <string name="media_permission_title">メディアアクセス権限</string>
+    <string name="media_permission_desc">アプリは最新の画像を読み取り、送信するためにメディアファイルへのアクセスが必要です</string>
+    <string name="grant_media_permission">メディアアクセス権限を付与</string>
+    <string name="clipboard_sent_success">クリップボードの内容が正常に送信されました</string>
+    <string name="clipboard_sent_failed">クリップボードの内容の送信に失敗しました</string>
+    <string name="clipboard_empty">クリップボードが空です</string>
+    <string name="image_sent_success">画像が正常に送信されました</string>
+    <string name="image_sent_failed">画像の送信に失敗しました</string>
+    <string name="no_images_found">画像が見つかりません</string>
+    <string name="reading_clipboard">クリップボードを読み取り中...</string>
+    <string name="reading_latest_image">最新の画像を読み取り中...</string>
+    <string name="sending_content">コンテンツを送信中...</string>
+
     <!-- テスト通知コンテンツ -->
     <string name="test_notification_prefix">テスト通知 - </string>
     <string-array name="test_notification_titles">

@@ -31,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -713,6 +714,9 @@ fun SettingsScreen(
                 }
             }
 
+            // 常驻通知设置卡片
+            PersistentNotificationSettingsCard()
+
             // 通知图标设置卡片
             NotificationIconSettingsCard()
 
@@ -721,6 +725,77 @@ fun SettingsScreen(
 
             // 底部间距，确保最后一个元素下方有足够空间
             Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+fun PersistentNotificationSettingsCard() {
+    val context = LocalContext.current
+    var persistentNotificationEnabled by remember {
+        mutableStateOf(ServerPreferences.isPersistentNotificationEnabled(context))
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.persistent_notification_settings),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = stringResource(R.string.persistent_notification_settings_desc),
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 常驻通知开关
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.persistent_notification_switch),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Switch(
+                    checked = persistentNotificationEnabled,
+                    onCheckedChange = { enabled ->
+                        persistentNotificationEnabled = enabled
+                        ServerPreferences.savePersistentNotificationEnabled(context, enabled)
+
+                        val message = if (enabled) {
+                            context.getString(R.string.persistent_notification_enabled)
+                        } else {
+                            context.getString(R.string.persistent_notification_disabled)
+                        }
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+
+                        // 重启通知服务以应用新设置
+                        try {
+                            val serviceIntent = Intent(context, NotificationService::class.java)
+                            context.stopService(serviceIntent)
+                            context.startForegroundService(serviceIntent)
+                        } catch (e: Exception) {
+                            // 忽略错误，服务会自动重启
+                        }
+                    }
+                )
+            }
         }
     }
 }

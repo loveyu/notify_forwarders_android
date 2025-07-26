@@ -136,6 +136,33 @@
     <string name="foreground_service_title">Notification forwarding service is running</string>
     <string name="foreground_service_text">Tap to manage notification forwarding settings</string>
 
+    <!-- Persistent notification features -->
+    <string name="persistent_notification_settings">Persistent Notification Settings</string>
+    <string name="persistent_notification_settings_desc">Enable to show persistent notification with quick clipboard and image sending features</string>
+    <string name="persistent_notification_switch">Show Persistent Notification</string>
+    <string name="persistent_notification_enabled">Persistent notification enabled</string>
+    <string name="persistent_notification_disabled">Persistent notification disabled</string>
+    <string name="persistent_notification_title">Notification Forwarding Service</string>
+    <string name="persistent_notification_text">Tap to manage settings, use buttons to quickly send content</string>
+    <string name="action_send_clipboard">Send Clipboard</string>
+    <string name="action_send_image">Send Image</string>
+
+    <!-- Clipboard and image sending -->
+    <string name="clipboard_permission_title">Clipboard Access Permission</string>
+    <string name="clipboard_permission_desc">App needs to access clipboard to read and send clipboard content</string>
+    <string name="media_permission_title">Media Access Permission</string>
+    <string name="media_permission_desc">App needs to access media files to read and send latest images</string>
+    <string name="grant_media_permission">Grant Media Access Permission</string>
+    <string name="clipboard_sent_success">Clipboard content sent successfully</string>
+    <string name="clipboard_sent_failed">Failed to send clipboard content</string>
+    <string name="clipboard_empty">Clipboard is empty</string>
+    <string name="image_sent_success">Image sent successfully</string>
+    <string name="image_sent_failed">Failed to send image</string>
+    <string name="no_images_found">No images found</string>
+    <string name="reading_clipboard">Reading clipboard...</string>
+    <string name="reading_latest_image">Reading latest image...</string>
+    <string name="sending_content">Sending content...</string>
+
     <!-- Test notification content -->
     <string name="test_notification_prefix">Test Notification - </string>
     <string-array name="test_notification_titles">

@@ -4,12 +4,16 @@ import android.app.Application
 import android.content.Context
 import com.hestudio.notifyforwarders.util.LocaleHelper
 import com.hestudio.notifyforwarders.util.ServerPreferences
+import com.hestudio.notifyforwarders.util.AppStateManager
 
 class NotifyForwardersApplication : Application() {
     
     override fun onCreate() {
         super.onCreate()
-        
+
+        // 初始化应用状态管理器
+        AppStateManager.initialize()
+
         // 应用保存的语言设置
         applyLanguageSettings()
     }

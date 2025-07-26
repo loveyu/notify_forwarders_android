@@ -47,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -57,7 +58,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -695,22 +695,14 @@ fun QuickToggleSection() {
                 )
             }
 
-            // 快捷发送标题
-            Text(
-                text = stringResource(R.string.quick_send_section_title),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
-            )
-
-            // 快捷操作按钮区域
+            // 快捷操作按钮区域 - 移除标题，优化布局
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // 发送剪贴板按钮
+                // 发送剪贴板按钮 - 优化样式，减小内边距
                 Button(
                     onClick = {
                         val serverAddress = ServerPreferences.getServerAddress(context)
@@ -728,16 +720,19 @@ fun QuickToggleSection() {
                     elevation = ButtonDefaults.buttonElevation(
                         defaultElevation = 2.dp,
                         pressedElevation = 4.dp
-                    )
+                    ),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.send_clipboard_button),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
-                // 发送图片按钮
+                // 发送图片按钮 - 优化样式，减小内边距
                 Button(
                     onClick = {
                         val serverAddress = ServerPreferences.getServerAddress(context)
@@ -755,12 +750,15 @@ fun QuickToggleSection() {
                     elevation = ButtonDefaults.buttonElevation(
                         defaultElevation = 2.dp,
                         pressedElevation = 4.dp
-                    )
+                    ),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.send_image_button),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }

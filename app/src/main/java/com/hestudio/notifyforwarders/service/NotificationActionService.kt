@@ -11,6 +11,7 @@ import com.hestudio.notifyforwarders.util.ClipboardImageUtils
 import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.ErrorNotificationUtils
 import com.hestudio.notifyforwarders.util.MediaPermissionUtils
+import com.hestudio.notifyforwarders.util.AppStateManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,7 +73,7 @@ class NotificationActionService : IntentService("NotificationActionService") {
      * 处理发送剪贴板内容
      */
     private fun handleSendClipboard() {
-        Log.d(TAG, "开始处理剪贴板发送")
+        Log.d(TAG, "开始处理剪贴板发送，应用状态: ${AppStateManager.getStateDescription()}")
 
         try {
             // 检查服务器地址配置
@@ -126,6 +127,7 @@ class NotificationActionService : IntentService("NotificationActionService") {
 
                     if (success) {
                         showToast(getString(R.string.clipboard_sent_success))
+                        Log.d(TAG, "剪贴板发送成功，应用状态: ${AppStateManager.getStateDescription()}")
                     } else {
                         ErrorNotificationUtils.showClipboardSendError(
                             this@NotificationActionService,
@@ -155,7 +157,7 @@ class NotificationActionService : IntentService("NotificationActionService") {
      * 处理发送最新图片
      */
     private fun handleSendImage() {
-        Log.d(TAG, "开始处理图片发送")
+        Log.d(TAG, "开始处理图片发送，应用状态: ${AppStateManager.getStateDescription()}")
 
         try {
             // 检查服务器地址配置
@@ -194,6 +196,7 @@ class NotificationActionService : IntentService("NotificationActionService") {
 
                     if (success) {
                         showToast(getString(R.string.image_sent_success))
+                        Log.d(TAG, "图片发送成功，应用状态: ${AppStateManager.getStateDescription()}")
                     } else {
                         ErrorNotificationUtils.showImageSendError(
                             this@NotificationActionService,

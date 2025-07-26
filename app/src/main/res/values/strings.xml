@@ -162,8 +162,8 @@
     <string name="reading_clipboard">正在读取剪贴板...</string>
     <string name="reading_latest_image">正在读取最新图片...</string>
     <string name="sending_content">正在发送内容...</string>
-    <string name="send_clipboard_button">📋 发送剪贴板</string>
-    <string name="send_image_button">📸 发送图片</string>
+    <string name="send_clipboard_button">剪贴板</string>
+    <string name="send_image_button">发送图片</string>
     <string name="server_not_configured">请先配置服务器地址</string>
     <string name="quick_send_section_title">快捷发送</string>
     <string name="reading_image">正在读取图片...</string>

@@ -9,12 +9,12 @@ import android.widget.Toast
 import com.hestudio.notifyforwarders.R
 import com.hestudio.notifyforwarders.util.ClipboardImageUtils
 import com.hestudio.notifyforwarders.util.ServerPreferences
-import com.hestudio.notifyforwarders.util.PermissionUtils
 import com.hestudio.notifyforwarders.util.ErrorNotificationUtils
 import com.hestudio.notifyforwarders.util.MediaPermissionUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
@@ -74,49 +74,80 @@ class NotificationActionService : IntentService("NotificationActionService") {
     private fun handleSendClipboard() {
         Log.d(TAG, "开始处理剪贴板发送")
 
-        showToast(getString(R.string.reading_clipboard))
+        try {
+            // 检查服务器地址配置
+            val serverAddress = ServerPreferences.getServerAddress(this)
+            if (serverAddress.isEmpty()) {
+                Log.e(TAG, "服务器地址未配置")
+                ErrorNotificationUtils.showClipboardSendError(
+                    this,
+                    getString(R.string.server_not_configured)
+                )
+                return
+            }
 
-        serviceScope.launch {
-            try {
-                val clipboardContent = ClipboardImageUtils.readClipboardContent(this@NotificationActionService)
+            // 在前台线程读取剪贴板内容
+            showToast(getString(R.string.reading_clipboard))
 
-                if (clipboardContent.type == ClipboardImageUtils.ContentType.EMPTY) {
-                    showToast(getString(R.string.clipboard_empty))
-                    return@launch
-                }
-
-                showToast(getString(R.string.sending_content))
-
-                val success = when (clipboardContent.type) {
-                    ClipboardImageUtils.ContentType.TEXT -> {
-                        sendClipboardText(clipboardContent.content)
-                    }
-                    ClipboardImageUtils.ContentType.IMAGE -> {
-                        sendClipboardImage(clipboardContent.content)
-                    }
-                    else -> false
-                }
-
-                if (success) {
-                    showToast(getString(R.string.clipboard_sent_success))
-                } else {
-                    // 发送失败时显示详细错误通知
-                    ErrorNotificationUtils.showClipboardSendError(
-                        this@NotificationActionService,
-                        getString(R.string.server_connection_error_message)
-                    )
-                }
-
+            val clipboardContent = try {
+                ClipboardImageUtils.readClipboardContent(this@NotificationActionService)
             } catch (e: SecurityException) {
                 Log.e(TAG, "剪贴板权限不足", e)
                 ErrorNotificationUtils.showClipboardPermissionError(this@NotificationActionService)
+                return
             } catch (e: Exception) {
-                Log.e(TAG, "发送剪贴板内容失败", e)
+                Log.e(TAG, "读取剪贴板失败", e)
                 ErrorNotificationUtils.showClipboardSendError(
                     this@NotificationActionService,
                     e.message ?: getString(R.string.unknown_error)
                 )
+                return
             }
+
+            if (clipboardContent.type == ClipboardImageUtils.ContentType.EMPTY) {
+                showToast(getString(R.string.clipboard_empty))
+                return
+            }
+
+            // 在后台异步发送内容
+            serviceScope.launch {
+                try {
+                    showToast(getString(R.string.sending_content))
+
+                    val success = when (clipboardContent.type) {
+                        ClipboardImageUtils.ContentType.TEXT -> {
+                            sendClipboardText(clipboardContent.content)
+                        }
+                        ClipboardImageUtils.ContentType.IMAGE -> {
+                            sendClipboardImage(clipboardContent.content)
+                        }
+                        else -> false
+                    }
+
+                    if (success) {
+                        showToast(getString(R.string.clipboard_sent_success))
+                    } else {
+                        ErrorNotificationUtils.showClipboardSendError(
+                            this@NotificationActionService,
+                            getString(R.string.server_connection_error_message)
+                        )
+                    }
+
+                } catch (e: Exception) {
+                    Log.e(TAG, "发送剪贴板内容失败", e)
+                    ErrorNotificationUtils.showClipboardSendError(
+                        this@NotificationActionService,
+                        e.message ?: getString(R.string.unknown_error)
+                    )
+                }
+            }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "处理剪贴板发送时发生未知错误", e)
+            ErrorNotificationUtils.showClipboardSendError(
+                this,
+                e.message ?: getString(R.string.unknown_error)
+            )
         }
     }
 
@@ -126,48 +157,68 @@ class NotificationActionService : IntentService("NotificationActionService") {
     private fun handleSendImage() {
         Log.d(TAG, "开始处理图片发送")
 
-        // 检查媒体权限
-        if (!MediaPermissionUtils.hasMediaPermission(this)) {
-            Log.w(TAG, "媒体权限不足")
-            ErrorNotificationUtils.showMediaPermissionError(this)
-            return
-        }
+        try {
+            // 检查服务器地址配置
+            val serverAddress = ServerPreferences.getServerAddress(this)
+            if (serverAddress.isEmpty()) {
+                Log.e(TAG, "服务器地址未配置")
+                ErrorNotificationUtils.showImageSendError(
+                    this,
+                    getString(R.string.server_not_configured)
+                )
+                return
+            }
 
-        showToast(getString(R.string.reading_latest_image))
+            // 检查媒体权限
+            if (!MediaPermissionUtils.hasMediaPermission(this)) {
+                Log.w(TAG, "媒体权限不足")
+                ErrorNotificationUtils.showMediaPermissionError(this)
+                return
+            }
 
-        serviceScope.launch {
-            try {
-                val imageContent = ClipboardImageUtils.getLatestImage(this@NotificationActionService)
+            showToast(getString(R.string.reading_image))
 
-                if (imageContent == null) {
-                    showToast(getString(R.string.no_images_found))
-                    return@launch
-                }
+            // 在后台异步读取和发送图片
+            serviceScope.launch {
+                try {
+                    val imageContent = ClipboardImageUtils.getLatestImage(this@NotificationActionService)
 
-                showToast(getString(R.string.sending_content))
+                    if (imageContent == null) {
+                        showToast(getString(R.string.no_images_found))
+                        return@launch
+                    }
 
-                val success = sendImageRaw(imageContent)
+                    showToast(getString(R.string.sending_content))
 
-                if (success) {
-                    showToast(getString(R.string.image_sent_success))
-                } else {
-                    // 发送失败时显示详细错误通知
+                    val success = sendImageRaw(imageContent)
+
+                    if (success) {
+                        showToast(getString(R.string.image_sent_success))
+                    } else {
+                        ErrorNotificationUtils.showImageSendError(
+                            this@NotificationActionService,
+                            getString(R.string.server_connection_error_message)
+                        )
+                    }
+
+                } catch (e: SecurityException) {
+                    Log.e(TAG, "媒体权限不足", e)
+                    ErrorNotificationUtils.showMediaPermissionError(this@NotificationActionService)
+                } catch (e: Exception) {
+                    Log.e(TAG, "发送图片失败", e)
                     ErrorNotificationUtils.showImageSendError(
                         this@NotificationActionService,
-                        getString(R.string.server_connection_error_message)
+                        e.message ?: getString(R.string.unknown_error)
                     )
                 }
-
-            } catch (e: SecurityException) {
-                Log.e(TAG, "媒体权限不足", e)
-                ErrorNotificationUtils.showMediaPermissionError(this@NotificationActionService)
-            } catch (e: Exception) {
-                Log.e(TAG, "发送图片失败", e)
-                ErrorNotificationUtils.showImageSendError(
-                    this@NotificationActionService,
-                    e.message ?: getString(R.string.unknown_error)
-                )
             }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "处理图片发送时发生未知错误", e)
+            ErrorNotificationUtils.showImageSendError(
+                this,
+                e.message ?: getString(R.string.unknown_error)
+            )
         }
     }
 
@@ -179,6 +230,12 @@ class NotificationActionService : IntentService("NotificationActionService") {
             val serverAddress = ServerPreferences.getServerAddress(this)
             if (serverAddress.isEmpty()) {
                 Log.e(TAG, "服务器地址未配置")
+                withContext(Dispatchers.Main) {
+                    ErrorNotificationUtils.showClipboardSendError(
+                        this@NotificationActionService,
+                        getString(R.string.server_not_configured)
+                    )
+                }
                 return false
             }
 
@@ -224,6 +281,12 @@ class NotificationActionService : IntentService("NotificationActionService") {
             val serverAddress = ServerPreferences.getServerAddress(this)
             if (serverAddress.isEmpty()) {
                 Log.e(TAG, "服务器地址未配置")
+                withContext(Dispatchers.Main) {
+                    ErrorNotificationUtils.showClipboardSendError(
+                        this@NotificationActionService,
+                        getString(R.string.server_not_configured)
+                    )
+                }
                 return false
             }
 
@@ -269,6 +332,12 @@ class NotificationActionService : IntentService("NotificationActionService") {
             val serverAddress = ServerPreferences.getServerAddress(this)
             if (serverAddress.isEmpty()) {
                 Log.e(TAG, "服务器地址未配置")
+                withContext(Dispatchers.Main) {
+                    ErrorNotificationUtils.showImageSendError(
+                        this@NotificationActionService,
+                        getString(R.string.server_not_configured)
+                    )
+                }
                 return false
             }
 

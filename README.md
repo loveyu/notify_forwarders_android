@@ -232,7 +232,81 @@ The app now features an optional persistent notification system that provides qu
   - Separate error channels for different types of failures
 - **Optimized UI**: Compact main screen layout with improved quick access buttons
 
+##  API Endpoints Documentation
+
+The app communicates with a server using the following REST API endpoints:
+
+### Core Notification Forwarding
+- **`POST /api/notify`** - Forward captured notifications
+  - **Content-Type**: `application/json`
+  - **Body**:
+    ```json
+    {
+      "packageName": "com.example.app",
+      "appName": "Example App",
+      "title": "Notification Title",
+      "text": "Notification content",
+      "time": 1640995200000,
+      "devicename": "Android Device",
+      "icon": "base64_encoded_icon_data",
+      "iconMd5": "md5_hash_of_icon"
+    }
+    ```
+
+### Quick Send Features
+- **`POST /api/clipboard/text`** - Send clipboard text content
+  - **Content-Type**: `application/json`
+  - **Body**:
+    ```json
+    {
+      "content": "base64_encoded_text",
+      "devicename": "Android Device",
+      "type": "text"
+    }
+    ```
+
+- **`POST /api/clipboard/image`** - Send clipboard image content
+  - **Content-Type**: `application/json`
+  - **Body**:
+    ```json
+    {
+      "content": "base64_encoded_image_data",
+      "devicename": "Android Device",
+      "type": "image"
+    }
+    ```
+
+- **`POST /api/image/raw`** - Send gallery images with EXIF metadata
+  - **Content-Type**: `application/json`
+  - **Headers**:
+    - `X-EXIF`: EXIF metadata string (optional)
+  - **Body**:
+    ```json
+    {
+      "content": "base64_encoded_image_data",
+      "devicename": "Android Device",
+      "mimeType": "image/jpeg"
+    }
+    ```
+
+### Server Configuration
+- **Default Port**: 19283 (when not specified in server address)
+- **Protocol**: HTTP (HTTPS support depends on server implementation)
+- **Timeout Settings**:
+  - Connection timeout: 10 seconds
+  - Read timeout: 10 seconds (5 seconds for notifications)
+- **Device Name**: Automatically detected Android device name
+
 ## 📋 Recent Updates
+
+### Version 1.6.0 - Optimized Quick Send Logic & Enhanced UX
+- **📋 Enhanced Quick Send Buttons**: Beautiful emoji icons and improved styling with elevation effects
+- **⚡ Foreground Clipboard Reading**: Clipboard content now read in foreground for better responsiveness
+- **🔄 Async Background Processing**: All network operations fully asynchronous with proper error handling
+- **🛡️ Comprehensive Error Handling**: Server address validation, detailed error messages, and crash prevention
+- **🌍 Complete Multi-language Support**: All quick send features translated across 7 languages
+- **🧹 Code Cleanup**: Removed unused imports and functions, improved code maintainability
+- **📚 Enhanced Documentation**: Complete API endpoint documentation with request/response examples
 
 ### Version 1.5.0 - Enhanced Quick Actions & Smart Error Handling
 - **⚡ Enhanced Main Screen**: Compact quick toggle layout with dedicated send buttons for clipboard and image content

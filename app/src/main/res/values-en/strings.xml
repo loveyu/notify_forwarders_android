@@ -161,7 +161,12 @@
     <string name="no_images_found">No images found</string>
     <string name="reading_clipboard">Reading clipboard...</string>
     <string name="reading_latest_image">Reading latest image...</string>
+    <string name="reading_image">Reading image...</string>
     <string name="sending_content">Sending content...</string>
+    <string name="send_clipboard_button">📋 Send Clipboard</string>
+    <string name="send_image_button">📸 Send Image</string>
+    <string name="server_not_configured">Please configure server address first</string>
+    <string name="quick_send_section_title">Quick Send</string>
 
     <!-- Test notification content -->
     <string name="test_notification_prefix">Test Notification - </string>

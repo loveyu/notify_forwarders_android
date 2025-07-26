@@ -344,69 +344,6 @@ class NotificationService : NotificationListenerService() {
 
         return output
     }
-
-    /**
-     * 异步推送图标信息到服务器
-     */
-    private fun pushIconToServer(packageName: String, appName: String, iconMd5: String) {
-        // 检查是否可以推送（10分钟限制）
-        if (!IconCacheManager.canPushIcon(iconMd5)) {
-            Log.d(TAG, "图标推送受限制，跳过: $iconMd5")
-            return
-        }
-
-        serviceScope.launch {
-            try {
-                val iconData = IconCacheManager.getIconData(this@NotificationService, packageName, appName)
-                if (iconData == null) {
-                    Log.e(TAG, "无法获取图标数据: $packageName")
-                    return@launch
-                }
-
-                val serverAddress = ServerPreferences.getServerAddress(this@NotificationService)
-                val serverUrl = "http://$serverAddress/api/icon"
-                Log.d(TAG, "正在推送图标到 $serverUrl")
-
-                val url = URL(serverUrl)
-                val connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = "POST"
-                connection.setRequestProperty("Content-Type", "application/json")
-                connection.doOutput = true
-                connection.connectTimeout = 10000
-                connection.readTimeout = 10000
-
-                // 创建图标推送JSON数据
-                val jsonBody = JSONObject().apply {
-                    put("packageName", packageName)
-                    put("appName", appName)
-                    put("iconMd5", iconMd5)
-                    put("iconBase64", iconData.iconBase64)
-                    put("devicename", getDeviceName())
-                }
-
-                // 发送JSON数据
-                val outputStream = connection.outputStream
-                val writer = OutputStreamWriter(outputStream, "UTF-8")
-                writer.write(jsonBody.toString())
-                writer.flush()
-                writer.close()
-
-                // 获取响应
-                val responseCode = connection.responseCode
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    Log.d(TAG, "图标推送成功: $iconMd5")
-                    // 记录推送时间
-                    IconCacheManager.recordIconPush(iconMd5)
-                } else {
-                    Log.e(TAG, "图标推送失败: HTTP $responseCode")
-                }
-
-                connection.disconnect()
-            } catch (e: Exception) {
-                Log.e(TAG, "图标推送失败: $iconMd5", e)
-            }
-        }
-    }
     
     private fun forwardNotificationToServer(notification: NotificationData) {
         // 检查通知转发开关

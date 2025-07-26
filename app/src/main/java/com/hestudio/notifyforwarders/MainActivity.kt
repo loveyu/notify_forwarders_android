@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.widget.Toast
+import androidx.compose.ui.text.font.FontWeight
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -694,44 +695,72 @@ fun QuickToggleSection() {
                 )
             }
 
+            // 快捷发送标题
+            Text(
+                text = stringResource(R.string.quick_send_section_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+            )
+
             // 快捷操作按钮区域
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // 发送剪贴板按钮
                 Button(
                     onClick = {
-                        NotificationActionService.sendClipboard(context)
+                        val serverAddress = ServerPreferences.getServerAddress(context)
+                        if (serverAddress.isEmpty()) {
+                            Toast.makeText(context, context.getString(R.string.server_not_configured), Toast.LENGTH_SHORT).show()
+                        } else {
+                            NotificationActionService.sendClipboard(context)
+                        }
                     },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 2.dp,
+                        pressedElevation = 4.dp
                     )
                 ) {
                     Text(
                         text = stringResource(R.string.send_clipboard_button),
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
                     )
                 }
 
                 // 发送图片按钮
                 Button(
                     onClick = {
-                        NotificationActionService.sendLatestImage(context)
+                        val serverAddress = ServerPreferences.getServerAddress(context)
+                        if (serverAddress.isEmpty()) {
+                            Toast.makeText(context, context.getString(R.string.server_not_configured), Toast.LENGTH_SHORT).show()
+                        } else {
+                            NotificationActionService.sendLatestImage(context)
+                        }
                     },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 2.dp,
+                        pressedElevation = 4.dp
                     )
                 ) {
                     Text(
                         text = stringResource(R.string.send_image_button),
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }

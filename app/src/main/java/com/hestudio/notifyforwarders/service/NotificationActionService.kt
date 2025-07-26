@@ -113,6 +113,7 @@ class NotificationActionService : Service() {
             ACTION_SEND_IMAGE -> handleSendImage()
             else -> {
                 Log.w(TAG, "未知的操作: ${intent?.action}")
+                restoreNotificationStateToIdle()
                 stopSelfSafely()
             }
         }
@@ -126,6 +127,9 @@ class NotificationActionService : Service() {
         imageJob?.cancel()
         isClipboardTaskRunning.set(false)
         isImageTaskRunning.set(false)
+
+        // 确保恢复持久化通知状态
+        restoreNotificationStateToIdle()
 
         // 停止前台服务
         try {
@@ -214,6 +218,21 @@ class NotificationActionService : Service() {
     }
 
     /**
+     * 恢复持久化通知状态到空闲状态
+     */
+    private fun restoreNotificationStateToIdle() {
+        try {
+            PersistentNotificationManager.updateNotificationState(
+                this,
+                PersistentNotificationManager.SendingState.IDLE
+            )
+            Log.d(TAG, "持久化通知状态已恢复到空闲状态")
+        } catch (e: Exception) {
+            Log.e(TAG, "恢复持久化通知状态失败", e)
+        }
+    }
+
+    /**
      * 安全地停止服务
      */
     private fun stopSelfSafely() {
@@ -250,6 +269,7 @@ class NotificationActionService : Service() {
         if (isClipboardTaskRunning.get()) {
             Log.w(TAG, "剪贴板任务已在运行，忽略重复请求")
             ToastManager.showToast(this, getString(R.string.task_already_running_please_wait))
+            restoreNotificationStateToIdle()
             stopSelfSafely()
             return
         }
@@ -370,10 +390,7 @@ class NotificationActionService : Service() {
             isClipboardTaskRunning.set(false)
 
             // 恢复持久化通知状态
-            PersistentNotificationManager.updateNotificationState(
-                this@NotificationActionService,
-                PersistentNotificationManager.SendingState.IDLE
-            )
+            restoreNotificationStateToIdle()
 
             stopSelfSafely()
         }
@@ -389,6 +406,7 @@ class NotificationActionService : Service() {
         if (isImageTaskRunning.get()) {
             Log.w(TAG, "图片任务已在运行，忽略重复请求")
             ToastManager.showToast(this, getString(R.string.task_already_running_please_wait))
+            restoreNotificationStateToIdle()
             stopSelfSafely()
             return
         }
@@ -477,10 +495,7 @@ class NotificationActionService : Service() {
             isImageTaskRunning.set(false)
 
             // 恢复持久化通知状态
-            PersistentNotificationManager.updateNotificationState(
-                this@NotificationActionService,
-                PersistentNotificationManager.SendingState.IDLE
-            )
+            restoreNotificationStateToIdle()
 
             stopSelfSafely()
         }

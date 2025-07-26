@@ -201,20 +201,21 @@ object IconCacheManager {
             val packageManager = context.packageManager
             val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
             val drawable = packageManager.getApplicationIcon(applicationInfo)
-            
+
             // 转换为Bitmap并调整尺寸
             val bitmap = drawableToBitmap(drawable, MAX_ICON_SIZE)
+
+            // 先计算原始图标的MD5值（在裁剪和缩放后，但在圆角处理前）
+            val originalIconBase64 = bitmapToBase64(bitmap)
+            val iconMd5 = calculateMd5(originalIconBase64)
 
             // 应用圆角效果
             val cornerRadius = ServerPreferences.getIconCornerRadius(context)
             val roundedBitmap = applyRoundedCorners(bitmap, cornerRadius)
 
-            // 转换为Base64
+            // 转换为Base64（用于显示的最终版本）
             val iconBase64 = bitmapToBase64(roundedBitmap)
-            
-            // 计算MD5
-            val iconMd5 = calculateMd5(iconBase64)
-            
+
             return IconCacheData(
                 packageName = packageName,
                 appName = appName,

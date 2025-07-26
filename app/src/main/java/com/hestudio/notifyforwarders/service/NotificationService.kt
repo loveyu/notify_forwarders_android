@@ -31,6 +31,7 @@ import org.json.JSONObject
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
+import androidx.core.graphics.createBitmap
 
 class NotificationService : NotificationListenerService() {
     
@@ -117,11 +118,14 @@ class NotificationService : NotificationListenerService() {
             // 优先使用通知中的图标
             val notificationIcon = getNotificationIcon(notification)
             if (notificationIcon != null) {
-                // 通知图标不缓存，直接处理并应用圆角
+                // 先计算原始图标的MD5值
+                val originalIconBase64 = IconCacheManager.bitmapToBase64(notificationIcon)
+                iconMd5 = IconCacheManager.calculateMd5(originalIconBase64)
+
+                // 然后应用圆角效果
                 val cornerRadius = ServerPreferences.getIconCornerRadius(this)
                 val roundedIcon = applyRoundedCorners(notificationIcon, cornerRadius)
                 iconBase64 = IconCacheManager.bitmapToBase64(roundedIcon)
-                iconMd5 = IconCacheManager.calculateMd5(iconBase64)
                 Log.d(TAG, "使用通知图标: $packageName")
             } else {
                 // 使用应用图标（缓存）
@@ -186,11 +190,7 @@ class NotificationService : NotificationListenerService() {
         Log.d(TAG, "NotificationService onDestroy")
         // 尝试重启服务
         val intent = Intent(this, NotificationService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
-        }
+        startForegroundService(intent)
     }
     
     // 获取应用名称
@@ -211,22 +211,21 @@ class NotificationService : NotificationListenerService() {
 
     /**
      * 从通知中获取图标
-     * 优先使用 largeIcon，其次使用 smallIcon
+     * 优先使用 largeIcon，如果没有则尝试从extras中获取大图标
      */
     private fun getNotificationIcon(notification: Notification): Bitmap? {
         try {
-            // 优先使用 largeIcon
+            // 第一优先级：使用 largeIcon
             notification.getLargeIcon()?.let { icon ->
                 val drawable = icon.loadDrawable(this)
                 drawable?.let { d ->
-                    return when (d) {
+                    val bitmap = when (d) {
                         is BitmapDrawable -> d.bitmap
                         else -> {
                             // 转换其他类型的 Drawable 为 Bitmap
-                            val bitmap = Bitmap.createBitmap(
+                            val bitmap = createBitmap(
                                 d.intrinsicWidth.coerceAtLeast(1),
-                                d.intrinsicHeight.coerceAtLeast(1),
-                                Bitmap.Config.ARGB_8888
+                                d.intrinsicHeight.coerceAtLeast(1)
                             )
                             val canvas = Canvas(bitmap)
                             d.setBounds(0, 0, canvas.width, canvas.height)
@@ -234,28 +233,55 @@ class NotificationService : NotificationListenerService() {
                             bitmap
                         }
                     }
+                    Log.d(TAG, "成功获取通知largeIcon")
+                    return bitmap
                 }
             }
 
-            // 如果没有 largeIcon，尝试使用 smallIcon
-            notification.smallIcon?.let { iconRes ->
+            // 第二优先级：尝试从extras中获取EXTRA_LARGE_ICON
+            val extras = notification.extras
+            extras?.let { bundle ->
+                // 尝试获取 EXTRA_LARGE_ICON
                 try {
-                    val drawable = iconRes.loadDrawable(this)
-                    drawable?.let { d ->
-                        val bitmap = Bitmap.createBitmap(
-                            d.intrinsicWidth.coerceAtLeast(1),
-                            d.intrinsicHeight.coerceAtLeast(1),
-                            Bitmap.Config.ARGB_8888
-                        )
-                        val canvas = Canvas(bitmap)
-                        d.setBounds(0, 0, canvas.width, canvas.height)
-                        d.draw(canvas)
-                        return bitmap
+                    val largeIconBitmap = bundle.getParcelable<Bitmap>(Notification.EXTRA_LARGE_ICON)
+                    if (largeIconBitmap != null && !largeIconBitmap.isRecycled) {
+                        Log.d(TAG, "成功从extras获取EXTRA_LARGE_ICON")
+                        return largeIconBitmap
                     }
                 } catch (e: Exception) {
-                    Log.w(TAG, "无法获取 smallIcon: ${e.message}")
+                    Log.w(TAG, "从extras获取EXTRA_LARGE_ICON失败: ${e.message}")
+                }
+
+                // 尝试获取 EXTRA_LARGE_ICON_BIG
+                try {
+                    val largeIconBigBitmap = bundle.getParcelable<Bitmap>(Notification.EXTRA_LARGE_ICON + ".big")
+                    if (largeIconBigBitmap != null && !largeIconBigBitmap.isRecycled) {
+                        Log.d(TAG, "成功从extras获取EXTRA_LARGE_ICON_BIG")
+                        return largeIconBigBitmap
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "从extras获取EXTRA_LARGE_ICON_BIG失败: ${e.message}")
+                }
+
+                // 第三优先级：尝试获取 EXTRA_PICTURE（但要谨慎，这通常是BigPictureStyle的内容图片）
+                try {
+                    val pictureBitmap = bundle.getParcelable<Bitmap>(Notification.EXTRA_PICTURE)
+                    if (pictureBitmap != null && !pictureBitmap.isRecycled) {
+                        // 检查图片尺寸，如果太大可能不适合作为图标
+                        val maxIconSize = 512 // 最大图标尺寸
+                        if (pictureBitmap.width <= maxIconSize && pictureBitmap.height <= maxIconSize) {
+                            Log.d(TAG, "成功从extras获取EXTRA_PICTURE作为图标")
+                            return pictureBitmap
+                        } else {
+                            Log.d(TAG, "EXTRA_PICTURE尺寸过大(${pictureBitmap.width}x${pictureBitmap.height})，不适合作为图标")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "从extras获取EXTRA_PICTURE失败: ${e.message}")
                 }
             }
+
+            Log.d(TAG, "未能从通知中获取任何图标")
         } catch (e: Exception) {
             Log.w(TAG, "获取通知图标失败: ${e.message}")
         }
@@ -282,7 +308,7 @@ class NotificationService : NotificationListenerService() {
         val cornerRadius = (size * cornerRadiusPercent / 100f)
 
         // 创建输出bitmap
-        val output = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val output = createBitmap(width, height)
         val canvas = Canvas(output)
 
         // 创建画笔
@@ -438,18 +464,16 @@ class NotificationService : NotificationListenerService() {
     // 创建前台服务通知
     private fun startForeground() {
         // 创建通知渠道（Android 8.0+需要）
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                getString(R.string.foreground_service_channel),
-                NotificationManager.IMPORTANCE_LOW // 低优先级，不会打扰用户
-            ).apply {
-                description = getString(R.string.foreground_service_channel_desc)
-                setShowBadge(false) // 不在启动器图标上显示通知角标
-            }
-            notificationManager.createNotificationChannel(channel)
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            getString(R.string.foreground_service_channel),
+            NotificationManager.IMPORTANCE_LOW // 低优先级，不会打扰用户
+        ).apply {
+            description = getString(R.string.foreground_service_channel_desc)
+            setShowBadge(false) // 不在启动器图标上显示通知角标
         }
+        notificationManager.createNotificationChannel(channel)
 
         // 创建启动应用的PendingIntent
         val pendingIntent = PendingIntent.getActivity(

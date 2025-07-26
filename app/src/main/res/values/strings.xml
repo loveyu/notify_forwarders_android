@@ -239,4 +239,10 @@
     <string name="notification_action_channel_desc">执行剪贴板和图片发送操作时的前台服务通知</string>
     <string name="notification_action_service_title">正在执行操作</string>
     <string name="notification_action_service_content">正在发送剪贴板或图片内容</string>
+
+    <!-- 发送状态相关 -->
+    <string name="sending_clipboard">正在发送剪贴板...</string>
+    <string name="sending_image">正在发送图片...</string>
+    <string name="sending_clipboard_short">发送中...</string>
+    <string name="sending_image_short">发送中...</string>
 </resources>

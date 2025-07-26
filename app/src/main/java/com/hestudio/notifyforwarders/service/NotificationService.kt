@@ -25,6 +25,7 @@ import com.hestudio.notifyforwarders.R
 import com.hestudio.notifyforwarders.constants.ApiConstants
 import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.IconCacheManager
+import com.hestudio.notifyforwarders.util.PersistentNotificationManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

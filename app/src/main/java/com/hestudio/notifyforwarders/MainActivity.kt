@@ -85,6 +85,7 @@ import com.hestudio.notifyforwarders.util.ClipboardUtils
 import com.hestudio.notifyforwarders.util.AppLaunchUtils
 import com.hestudio.notifyforwarders.util.NotificationFormatUtils
 import com.hestudio.notifyforwarders.service.NotificationActionService
+import com.hestudio.notifyforwarders.util.ToastManager
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import java.text.SimpleDateFormat
@@ -113,9 +114,9 @@ class MainActivity : ComponentActivity() {
     ) { result ->
         val powerManager = getSystemService(POWER_SERVICE) as PowerManager
         if (powerManager.isIgnoringBatteryOptimizations(packageName)) {
-            Toast.makeText(this, getString(R.string.battery_optimization_granted), Toast.LENGTH_SHORT).show()
+            ToastManager.showToast(this, getString(R.string.battery_optimization_granted))
         } else {
-            Toast.makeText(this, getString(R.string.battery_optimization_warning), Toast.LENGTH_SHORT).show()
+            ToastManager.showToast(this, getString(R.string.battery_optimization_warning))
         }
     }
 
@@ -702,7 +703,7 @@ fun QuickToggleSection() {
                         } else {
                             context.getString(R.string.notification_receive_disabled)
                         }
-                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                        ToastManager.showToast(context, message)
                     }
                 )
             }
@@ -722,11 +723,10 @@ fun QuickToggleSection() {
                     onCheckedChange = { enabled ->
                         if (enabled && !ServerPreferences.canEnableNotificationForward(context)) {
                             // 如果没有配置服务器地址，显示提示
-                            Toast.makeText(
+                            ToastManager.showToast(
                                 context,
-                                context.getString(R.string.notification_forward_no_server),
-                                Toast.LENGTH_SHORT
-                            ).show()
+                                context.getString(R.string.notification_forward_no_server)
+                            )
                         } else {
                             notificationForwardEnabled = enabled
                             ServerPreferences.saveNotificationForwardEnabled(context, enabled)
@@ -736,11 +736,10 @@ fun QuickToggleSection() {
                                 showServerAddressDialog = true
                             } else {
                                 // 关闭时显示状态提示
-                                Toast.makeText(
+                                ToastManager.showToast(
                                     context,
-                                    context.getString(R.string.notification_forward_disabled),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                    context.getString(R.string.notification_forward_disabled)
+                                )
                             }
                         }
                     }
@@ -759,7 +758,7 @@ fun QuickToggleSection() {
                     onClick = {
                         val serverAddress = ServerPreferences.getServerAddress(context)
                         if (serverAddress.isEmpty()) {
-                            Toast.makeText(context, context.getString(R.string.server_not_configured), Toast.LENGTH_SHORT).show()
+                            ToastManager.showToast(context, context.getString(R.string.server_not_configured))
                         } else {
                             NotificationActionService.sendClipboard(context)
                         }
@@ -789,7 +788,7 @@ fun QuickToggleSection() {
                     onClick = {
                         val serverAddress = ServerPreferences.getServerAddress(context)
                         if (serverAddress.isEmpty()) {
-                            Toast.makeText(context, context.getString(R.string.server_not_configured), Toast.LENGTH_SHORT).show()
+                            ToastManager.showToast(context, context.getString(R.string.server_not_configured))
                         } else {
                             NotificationActionService.sendLatestImage(context)
                         }

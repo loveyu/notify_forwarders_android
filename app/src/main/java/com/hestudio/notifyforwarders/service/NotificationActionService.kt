@@ -19,6 +19,8 @@ import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.ErrorNotificationUtils
 import com.hestudio.notifyforwarders.util.MediaPermissionUtils
 import com.hestudio.notifyforwarders.util.AppStateManager
+import com.hestudio.notifyforwarders.util.ToastManager
+import com.hestudio.notifyforwarders.util.PersistentNotificationManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -198,6 +200,20 @@ class NotificationActionService : Service() {
     }
 
     /**
+     * 仅在需要时启动MainActivity让应用进入前台
+     * 减少不必要的页面闪烁
+     */
+    private fun bringAppToForegroundIfNeeded() {
+        // 检查应用是否在后台，只有在后台时才启动MainActivity
+        if (AppStateManager.isAppInBackground()) {
+            Log.d(TAG, "应用在后台，启动MainActivity")
+            bringAppToForeground()
+        } else {
+            Log.d(TAG, "应用已在前台，无需启动MainActivity")
+        }
+    }
+
+    /**
      * 安全地停止服务
      */
     private fun stopSelfSafely() {
@@ -233,13 +249,10 @@ class NotificationActionService : Service() {
         // 检查是否已有剪贴板任务在运行
         if (isClipboardTaskRunning.get()) {
             Log.w(TAG, "剪贴板任务已在运行，忽略重复请求")
-            showToast(getString(R.string.task_already_running_please_wait))
+            ToastManager.showToast(this, getString(R.string.task_already_running_please_wait))
             stopSelfSafely()
             return
         }
-
-        // 启动MainActivity让应用进入前台
-        bringAppToForeground()
 
         clipboardJob?.cancel()
         clipboardJob = serviceScope.launch {
@@ -248,6 +261,15 @@ class NotificationActionService : Service() {
                 try {
                     // 设置任务运行状态
                     isClipboardTaskRunning.set(true)
+
+                    // 更新持久化通知状态
+                    PersistentNotificationManager.updateNotificationState(
+                        this@NotificationActionService,
+                        PersistentNotificationManager.SendingState.SENDING_CLIPBOARD
+                    )
+
+                    // 启动MainActivity让应用进入前台（仅在需要时）
+                    bringAppToForegroundIfNeeded()
 
                     // 检查服务器地址配置
                     val serverAddress = ServerPreferences.getServerAddress(this@NotificationActionService)
@@ -311,7 +333,7 @@ class NotificationActionService : Service() {
                     when (networkResult) {
                         is NetworkResult.Success -> {
                             withContext(Dispatchers.Main) {
-                                showToast(getString(R.string.clipboard_sent_success))
+                                ToastManager.showToast(this@NotificationActionService, getString(R.string.clipboard_sent_success))
                             }
                             Log.d(TAG, "剪贴板发送成功，应用状态: ${AppStateManager.getStateDescription()}")
                             return@withTimeoutOrNull true
@@ -346,6 +368,13 @@ class NotificationActionService : Service() {
 
             // 清理任务状态
             isClipboardTaskRunning.set(false)
+
+            // 恢复持久化通知状态
+            PersistentNotificationManager.updateNotificationState(
+                this@NotificationActionService,
+                PersistentNotificationManager.SendingState.IDLE
+            )
+
             stopSelfSafely()
         }
     }
@@ -359,7 +388,7 @@ class NotificationActionService : Service() {
         // 检查是否已有图片任务在运行
         if (isImageTaskRunning.get()) {
             Log.w(TAG, "图片任务已在运行，忽略重复请求")
-            showToast(getString(R.string.task_already_running_please_wait))
+            ToastManager.showToast(this, getString(R.string.task_already_running_please_wait))
             stopSelfSafely()
             return
         }
@@ -371,6 +400,12 @@ class NotificationActionService : Service() {
                 try {
                     // 设置任务运行状态
                     isImageTaskRunning.set(true)
+
+                    // 更新持久化通知状态
+                    PersistentNotificationManager.updateNotificationState(
+                        this@NotificationActionService,
+                        PersistentNotificationManager.SendingState.SENDING_IMAGE
+                    )
 
                     // 检查服务器地址配置
                     val serverAddress = ServerPreferences.getServerAddress(this@NotificationActionService)
@@ -401,7 +436,7 @@ class NotificationActionService : Service() {
                     when (networkResult) {
                         is NetworkResult.Success -> {
                             withContext(Dispatchers.Main) {
-                                showToast(getString(R.string.image_sent_success))
+                                ToastManager.showToast(this@NotificationActionService, getString(R.string.image_sent_success))
                             }
                             Log.d(TAG, "图片发送成功，应用状态: ${AppStateManager.getStateDescription()}")
                             return@withTimeoutOrNull true
@@ -440,6 +475,13 @@ class NotificationActionService : Service() {
 
             // 清理任务状态
             isImageTaskRunning.set(false)
+
+            // 恢复持久化通知状态
+            PersistentNotificationManager.updateNotificationState(
+                this@NotificationActionService,
+                PersistentNotificationManager.SendingState.IDLE
+            )
+
             stopSelfSafely()
         }
     }
@@ -637,8 +679,6 @@ class NotificationActionService : Service() {
      * 显示Toast消息
      */
     private fun showToast(message: String) {
-        CoroutineScope(Dispatchers.Main).launch {
-            Toast.makeText(this@NotificationActionService, message, Toast.LENGTH_SHORT).show()
-        }
+        ToastManager.showToast(this, message)
     }
 }

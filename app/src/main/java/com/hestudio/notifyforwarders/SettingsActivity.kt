@@ -63,6 +63,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.IconCompat
+import com.hestudio.notifyforwarders.constants.ApiConstants
 import com.hestudio.notifyforwarders.service.NotificationService
 import com.hestudio.notifyforwarders.ui.theme.NotifyForwardersTheme
 import com.hestudio.notifyforwarders.util.NotificationUtils
@@ -1085,20 +1086,12 @@ fun generateRandomCode(): String {
 suspend fun checkServerVersion(serverAddress: String, context: Context): Boolean =
     withContext(Dispatchers.IO) {
         try {
-            // 格式化服务器地址，确保包含http://前缀
-            val formattedAddress =
-                if (!serverAddress.startsWith("http://") && !serverAddress.startsWith("https://")) {
-                    "http://$serverAddress"
-                } else {
-                    serverAddress
-                }
-
-            val versionUrl = "$formattedAddress/api/version"
+            val versionUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_VERSION)
             val url = URL(versionUrl)
             val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.connectTimeout = 5000
-            connection.readTimeout = 5000
+            connection.requestMethod = ApiConstants.METHOD_GET
+            connection.connectTimeout = ApiConstants.TIMEOUT_VERSION_CONNECT
+            connection.readTimeout = ApiConstants.TIMEOUT_VERSION_READ
 
             // 获取响应
             val responseCode = connection.responseCode
@@ -1112,7 +1105,7 @@ suspend fun checkServerVersion(serverAddress: String, context: Context): Boolean
                 // 解析JSON响应
                 try {
                     val jsonObject = JSONObject(response)
-                    val version = jsonObject.optString("version", "")
+                    val version = jsonObject.optString(ApiConstants.FIELD_VERSION, "")
 
                     // 从资源文件中获取所需的版本号
                     val requiredVersion = context.getString(R.string.server_version_required)
@@ -1140,36 +1133,27 @@ suspend fun checkServerVersion(serverAddress: String, context: Context): Boolean
 suspend fun sendVerificationCode(serverAddress: String, code: String, context: Context): Boolean =
     withContext(Dispatchers.IO) {
         try {
-            // 格式化服务器地址，确保包含http://前缀
-            val formattedAddress =
-                if (!serverAddress.startsWith("http://") && !serverAddress.startsWith("https://")) {
-                    "http://$serverAddress"
-                } else {
-                    serverAddress
-                }
-
-            val serverUrl = "$formattedAddress/api/notify"
+            val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_NOTIFY)
             val url = URL(serverUrl)
             val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "POST"
-            connection.setRequestProperty("Content-Type", "application/json")
+            connection.requestMethod = ApiConstants.METHOD_POST
+            connection.setRequestProperty("Content-Type", ApiConstants.CONTENT_TYPE_JSON)
             connection.doOutput = true
-            connection.connectTimeout = 5000
-            connection.readTimeout = 5000
+            connection.connectTimeout = ApiConstants.TIMEOUT_NOTIFY_CONNECT
+            connection.readTimeout = ApiConstants.TIMEOUT_NOTIFY_READ
 
             // 创建JSON数据
             val deviceName = Build.MODEL
-            val appName = "NotifyForwarders"
             val jsonBody = JSONObject().apply {
-                put("devicename", deviceName)
-                put("appname", appName)
-                put("title", context.getString(R.string.server_verification_title))
-                put("description", context.getString(R.string.server_verification_desc, code))
+                put(ApiConstants.FIELD_DEVICE_NAME, deviceName)
+                put(ApiConstants.FIELD_APP_NAME, ApiConstants.APP_NAME)
+                put(ApiConstants.FIELD_TITLE, context.getString(R.string.server_verification_title))
+                put(ApiConstants.FIELD_DESCRIPTION, context.getString(R.string.server_verification_desc, code))
             }
 
             // 发送JSON数据
             val outputStream = connection.outputStream
-            val writer = OutputStreamWriter(outputStream, "UTF-8")
+            val writer = OutputStreamWriter(outputStream, ApiConstants.CHARSET_UTF8)
             writer.write(jsonBody.toString())
             writer.flush()
             writer.close()

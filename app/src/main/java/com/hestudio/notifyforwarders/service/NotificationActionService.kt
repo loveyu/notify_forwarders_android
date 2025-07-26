@@ -7,6 +7,7 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import com.hestudio.notifyforwarders.R
+import com.hestudio.notifyforwarders.constants.ApiConstants
 import com.hestudio.notifyforwarders.util.ClipboardImageUtils
 import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.ErrorNotificationUtils
@@ -242,24 +243,24 @@ class NotificationActionService : IntentService("NotificationActionService") {
                 return false
             }
 
-            val serverUrl = "http://$serverAddress/api/clipboard/text"
+            val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_CLIPBOARD_TEXT)
             val url = URL(serverUrl)
             val connection = url.openConnection() as HttpURLConnection
-            
-            connection.requestMethod = "POST"
-            connection.setRequestProperty("Content-Type", "application/json")
+
+            connection.requestMethod = ApiConstants.METHOD_POST
+            connection.setRequestProperty("Content-Type", ApiConstants.CONTENT_TYPE_JSON)
             connection.doOutput = true
-            connection.connectTimeout = 10000
-            connection.readTimeout = 10000
+            connection.connectTimeout = ApiConstants.TIMEOUT_CLIPBOARD_CONNECT
+            connection.readTimeout = ApiConstants.TIMEOUT_CLIPBOARD_READ
 
             val jsonBody = JSONObject().apply {
-                put("content", base64Content)
-                put("devicename", getDeviceName())
-                put("type", "text")
+                put(ApiConstants.FIELD_CONTENT, base64Content)
+                put(ApiConstants.FIELD_DEVICE_NAME, getDeviceName())
+                put(ApiConstants.FIELD_TYPE, ApiConstants.CONTENT_TYPE_TEXT)
             }
 
             val outputStream = connection.outputStream
-            val writer = OutputStreamWriter(outputStream, "UTF-8")
+            val writer = OutputStreamWriter(outputStream, ApiConstants.CHARSET_UTF8)
             writer.write(jsonBody.toString())
             writer.flush()
             writer.close()
@@ -293,24 +294,24 @@ class NotificationActionService : IntentService("NotificationActionService") {
                 return false
             }
 
-            val serverUrl = "http://$serverAddress/api/clipboard/image"
+            val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_CLIPBOARD_IMAGE)
             val url = URL(serverUrl)
             val connection = url.openConnection() as HttpURLConnection
-            
-            connection.requestMethod = "POST"
-            connection.setRequestProperty("Content-Type", "application/json")
+
+            connection.requestMethod = ApiConstants.METHOD_POST
+            connection.setRequestProperty("Content-Type", ApiConstants.CONTENT_TYPE_JSON)
             connection.doOutput = true
-            connection.connectTimeout = 10000
-            connection.readTimeout = 10000
+            connection.connectTimeout = ApiConstants.TIMEOUT_CLIPBOARD_CONNECT
+            connection.readTimeout = ApiConstants.TIMEOUT_CLIPBOARD_READ
 
             val jsonBody = JSONObject().apply {
-                put("content", base64Content)
-                put("devicename", getDeviceName())
-                put("type", "image")
+                put(ApiConstants.FIELD_CONTENT, base64Content)
+                put(ApiConstants.FIELD_DEVICE_NAME, getDeviceName())
+                put(ApiConstants.FIELD_TYPE, ApiConstants.CONTENT_TYPE_IMAGE)
             }
 
             val outputStream = connection.outputStream
-            val writer = OutputStreamWriter(outputStream, "UTF-8")
+            val writer = OutputStreamWriter(outputStream, ApiConstants.CHARSET_UTF8)
             writer.write(jsonBody.toString())
             writer.flush()
             writer.close()
@@ -344,29 +345,29 @@ class NotificationActionService : IntentService("NotificationActionService") {
                 return false
             }
 
-            val serverUrl = "http://$serverAddress/api/image/raw"
+            val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_IMAGE_RAW)
             val url = URL(serverUrl)
             val connection = url.openConnection() as HttpURLConnection
-            
-            connection.requestMethod = "POST"
-            connection.setRequestProperty("Content-Type", "application/json")
+
+            connection.requestMethod = ApiConstants.METHOD_POST
+            connection.setRequestProperty("Content-Type", ApiConstants.CONTENT_TYPE_JSON)
             connection.doOutput = true
-            connection.connectTimeout = 10000
-            connection.readTimeout = 10000
+            connection.connectTimeout = ApiConstants.TIMEOUT_IMAGE_CONNECT
+            connection.readTimeout = ApiConstants.TIMEOUT_IMAGE_READ
 
             // 添加EXIF信息到header
             imageContent.exifData?.let { exifData ->
-                connection.setRequestProperty("X-EXIF", exifData)
+                connection.setRequestProperty(ApiConstants.HEADER_EXIF, exifData)
             }
 
             val jsonBody = JSONObject().apply {
-                put("content", imageContent.content)
-                put("devicename", getDeviceName())
-                put("mimeType", imageContent.mimeType)
+                put(ApiConstants.FIELD_CONTENT, imageContent.content)
+                put(ApiConstants.FIELD_DEVICE_NAME, getDeviceName())
+                put(ApiConstants.FIELD_MIME_TYPE, imageContent.mimeType)
             }
 
             val outputStream = connection.outputStream
-            val writer = OutputStreamWriter(outputStream, "UTF-8")
+            val writer = OutputStreamWriter(outputStream, ApiConstants.CHARSET_UTF8)
             writer.write(jsonBody.toString())
             writer.flush()
             writer.close()

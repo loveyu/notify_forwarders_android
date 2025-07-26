@@ -220,9 +220,9 @@ The app now features an optional persistent notification system that provides qu
    - **Send Clipboard**: Reads current clipboard content and sends it (supports text and images)
    - **Send Image**: Reads the latest image from gallery and sends it with EXIF data
 4. **API Endpoints**: Uses dedicated endpoints for different content types:
-   - `/api/clipboard/text` - For clipboard text content
-   - `/api/clipboard/image` - For clipboard image content
-   - `/api/image/raw` - For gallery images with EXIF headers
+   - `/api/notify/clipboard/text` - For clipboard text content
+   - `/api/notify/clipboard/image` - For clipboard image content
+   - `/api/notify/image/raw` - For gallery images with EXIF headers
 
 ### Technical Details
 - **Base64 Encoding**: All content is Base64 encoded for transmission
@@ -243,9 +243,10 @@ This application communicates with a remote server using the following REST API 
 
 ### Core APIs
 1. **`POST /api/notify`** - Forward captured notifications to server
-2. **`POST /api/clipboard/text`** - Send clipboard text content
-3. **`POST /api/clipboard/image`** - Send clipboard image content
-4. **`POST /api/image/raw`** - Send gallery images with EXIF metadata
+2. **`POST /api/notify/clipboard/text`** - Send clipboard text content
+3. **`POST /api/notify/clipboard/image`** - Send clipboard image content
+4. **`POST /api/notify/image/raw`** - Send gallery images with EXIF metadata
+5. **`GET /api/version`** - Check server version compatibility
 
 ### Server Configuration
 - **Default Port**: 19283 (automatically appended if not specified)
@@ -259,9 +260,10 @@ This application communicates with a remote server using the following REST API 
 | Endpoint | Purpose | Content Type |
 |----------|---------|--------------|
 | `POST /api/notify` | Forward notifications | JSON |
-| `POST /api/clipboard/text` | Send clipboard text | JSON + Base64 |
-| `POST /api/clipboard/image` | Send clipboard images | JSON + Base64 |
-| `POST /api/image/raw` | Send gallery images + EXIF | JSON + Base64 + Headers |
+| `POST /api/notify/clipboard/text` | Send clipboard text | JSON + Base64 |
+| `POST /api/notify/clipboard/image` | Send clipboard images | JSON + Base64 |
+| `POST /api/notify/image/raw` | Send gallery images + EXIF | JSON + Base64 + Headers |
+| `GET /api/version` | Check server version | JSON Response |
 
 For detailed API specifications, request/response examples, and implementation details, see **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)**.
 

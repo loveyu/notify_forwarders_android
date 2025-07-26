@@ -6,22 +6,42 @@ This document provides comprehensive documentation for all remote APIs used by t
 
 The NotifyForwarders app communicates with a remote server using HTTP REST APIs to forward notifications and send content. All endpoints use JSON format for data exchange and require a configured server address.
 
+All API constants, endpoints, timeouts, and field names are centrally managed in the `ApiConstants.kt` file for consistency and maintainability.
+
 ## Base Configuration
 
-- **Protocol**: HTTP
+- **Protocol**: HTTP (with HTTPS support)
 - **Default Port**: 19283 (automatically appended if not specified in server address)
 - **Content-Type**: `application/json` (for all requests)
 - **Character Encoding**: UTF-8
 - **Base URL Format**: `http://[server_address]:[port]`
+
+## Constants File Reference
+
+All API-related constants are defined in:
+```
+app/src/main/java/com/hestudio/notifyforwarders/constants/ApiConstants.kt
+```
+
+This file contains:
+- **Base Configuration**: Protocols, ports, content types, encoding
+- **API Endpoints**: All endpoint paths
+- **HTTP Methods**: GET and POST method constants
+- **Timeout Settings**: Connection and read timeouts for each endpoint type
+- **JSON Field Names**: Standardized field names for all API requests
+- **HTTP Headers**: Custom headers like X-EXIF
+- **Content Types**: Text and image content type identifiers
+- **Utility Methods**: URL building and server address formatting
 
 ## Timeout Settings
 
 | Endpoint | Connection Timeout | Read Timeout |
 |----------|-------------------|--------------|
 | `/api/notify` | 5 seconds | 5 seconds |
-| `/api/clipboard/text` | 10 seconds | 10 seconds |
-| `/api/clipboard/image` | 10 seconds | 10 seconds |
-| `/api/image/raw` | 10 seconds | 10 seconds |
+| `/api/notify/clipboard/text` | 10 seconds | 10 seconds |
+| `/api/notify/clipboard/image` | 10 seconds | 10 seconds |
+| `/api/notify/image/raw` | 10 seconds | 10 seconds |
+| `/api/version` | 5 seconds | 5 seconds |
 
 ## Authentication
 
@@ -84,11 +104,11 @@ All API requests include the following common fields:
 
 ---
 
-### 2. POST /api/clipboard/text
+### 2. POST /api/notify/clipboard/text
 
 **Purpose**: Send clipboard text content to the server
 
-**URL**: `http://[server_address]:[port]/api/clipboard/text`
+**URL**: `http://[server_address]:[port]/api/notify/clipboard/text`
 
 **Method**: POST
 
@@ -122,11 +142,11 @@ All API requests include the following common fields:
 
 ---
 
-### 3. POST /api/clipboard/image
+### 3. POST /api/notify/clipboard/image
 
 **Purpose**: Send clipboard image content to the server
 
-**URL**: `http://[server_address]:[port]/api/clipboard/image`
+**URL**: `http://[server_address]:[port]/api/notify/clipboard/image`
 
 **Method**: POST
 
@@ -161,11 +181,11 @@ All API requests include the following common fields:
 
 ---
 
-### 4. POST /api/image/raw
+### 4. POST /api/notify/image/raw
 
 **Purpose**: Send gallery images with EXIF metadata to the server
 
-**URL**: `http://[server_address]:[port]/api/image/raw`
+**URL**: `http://[server_address]:[port]/api/notify/image/raw`
 
 **Method**: POST
 
@@ -205,6 +225,44 @@ X-EXIF: eyJEYXRlVGltZSI6IjIwMjM6MTI6MzEgMTQ6MzA6MDAiLCJDYW1lcmEiOiJTYW1zdW5nIEdh
 - Triggered by "Send Image" action to send the latest gallery image
 - EXIF metadata is included in the `X-EXIF` header when available
 - EXIF data contains camera information, GPS coordinates, timestamps, etc.
+
+---
+
+### 5. GET /api/version
+
+**Purpose**: Check server version compatibility
+
+**URL**: `http://[server_address]:[port]/api/version`
+
+**Method**: GET
+
+**Content-Type**: Not applicable (GET request)
+
+**Request Body**: None
+
+**Response**:
+```json
+{
+  "version": "string"           // Server version string (e.g., "1.0.1")
+}
+```
+
+**Response Example**:
+```json
+{
+  "version": "1.0.1"
+}
+```
+
+**Response Codes**:
+- **200 OK**: Version information successfully retrieved
+- **4xx/5xx**: Error occurred or server doesn't support version checking
+
+**Notes**:
+- Used during server configuration to verify compatibility
+- Required server version is defined in app strings as `server_version_required`
+- If server version doesn't match, user receives compatibility warning
+- This endpoint helps ensure the app works correctly with the configured server
 
 ## Error Handling
 
@@ -274,20 +332,21 @@ The app includes a server verification feature that sends a test notification to
 }
 ```
 
-This helps users confirm their server is properly configured and reachable.
+This helps users confirm their server is properly configured and reachable. The app name constant `ApiConstants.APP_NAME` is used for the `appname` field in verification requests.
 
 ## Summary
 
 ### Complete API Endpoint List
 
-The NotifyForwarders Android application uses exactly **4 remote API endpoints**:
+The NotifyForwarders Android application uses exactly **5 remote API endpoints**:
 
 | Endpoint | Method | Purpose | Timeout |
 |----------|--------|---------|---------|
 | `/api/notify` | POST | Forward captured notifications | 5s |
-| `/api/clipboard/text` | POST | Send clipboard text content | 10s |
-| `/api/clipboard/image` | POST | Send clipboard image content | 10s |
-| `/api/image/raw` | POST | Send gallery images with EXIF | 10s |
+| `/api/notify/clipboard/text` | POST | Send clipboard text content | 10s |
+| `/api/notify/clipboard/image` | POST | Send clipboard image content | 10s |
+| `/api/notify/image/raw` | POST | Send gallery images with EXIF | 10s |
+| `/api/version` | GET | Check server version compatibility | 5s |
 
 ### Network Configuration Summary
 
@@ -310,10 +369,27 @@ The NotifyForwarders Android application uses exactly **4 remote API endpoints**
 ### Server Requirements
 
 To implement a compatible server, you need to support:
-- HTTP POST requests with JSON payloads
+- HTTP POST requests with JSON payloads for data endpoints
+- HTTP GET requests for version checking
 - Base64 decoding for content and images
-- Optional EXIF metadata handling via custom headers
+- Optional EXIF metadata handling via custom headers (`X-EXIF`)
 - Device identification via `devicename` field
+- Version compatibility checking via `/api/version` endpoint
 - Standard HTTP response codes (200 for success)
+
+### Constants Reference
+
+All API constants used in this documentation are defined in:
+```
+app/src/main/java/com/hestudio/notifyforwarders/constants/ApiConstants.kt
+```
+
+Key constant categories:
+- **Endpoints**: `ENDPOINT_NOTIFY`, `ENDPOINT_CLIPBOARD_TEXT`, `ENDPOINT_CLIPBOARD_IMAGE`, `ENDPOINT_IMAGE_RAW`, `ENDPOINT_VERSION`
+- **Timeouts**: `TIMEOUT_*_CONNECT` and `TIMEOUT_*_READ` for each endpoint type
+- **Field Names**: `FIELD_DEVICE_NAME`, `FIELD_APP_NAME`, `FIELD_CONTENT`, etc.
+- **Headers**: `HEADER_EXIF` for EXIF metadata
+- **Content Types**: `CONTENT_TYPE_TEXT`, `CONTENT_TYPE_IMAGE`
+- **Utility Methods**: `buildApiUrl()`, `formatServerAddress()`
 
 This documentation covers all remote API interactions in the NotifyForwarders Android application.

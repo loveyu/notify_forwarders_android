@@ -3,6 +3,7 @@ package com.hestudio.notifyforwarders.util
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.hestudio.notifyforwarders.constants.ApiConstants
 
 object ServerPreferences {
     private const val PREF_NAME = "server_preferences"
@@ -15,7 +16,6 @@ object ServerPreferences {
     private const val KEY_NOTIFICATION_LIST_ICON_ENABLED = "notification_list_icon_enabled"
     private const val KEY_ICON_CORNER_RADIUS = "icon_corner_radius"
     private const val KEY_PERSISTENT_NOTIFICATION_ENABLED = "persistent_notification_enabled"
-    private const val DEFAULT_PORT = 19283
     private const val MIN_NOTIFICATION_LIMIT = 1
     private const val DEFAULT_NOTIFICATION_LIMIT = 200
     private const val MAX_NOTIFICATION_LIMIT = 10000
@@ -39,15 +39,7 @@ object ServerPreferences {
     
     // 确保服务器地址格式正确，如果没有指定端口则添加默认端口
     fun formatServerAddress(address: String): String {
-        if (address.isBlank()) return ""
-        
-        // 如果地址已经包含端口号（例如 192.168.1.1:8080），则直接返回
-        if (address.contains(":")) {
-            return address.trim()
-        }
-        
-        // 否则添加默认端口号
-        return "${address.trim()}:$DEFAULT_PORT"
+        return ApiConstants.formatServerAddress(address)
     }
     
     // 判断是否配置了有效的服务器地址

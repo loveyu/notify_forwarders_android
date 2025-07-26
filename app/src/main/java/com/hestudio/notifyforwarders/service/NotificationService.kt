@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.core.app.NotificationCompat
 import com.hestudio.notifyforwarders.MainActivity
 import com.hestudio.notifyforwarders.R
+import com.hestudio.notifyforwarders.constants.ApiConstants
 import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.IconCacheManager
 import kotlinx.coroutines.CoroutineScope
@@ -361,38 +362,38 @@ class NotificationService : NotificationListenerService() {
         
         serviceScope.launch {
             try {
-                val serverUrl = "http://$serverAddress/api/notify"
+                val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_NOTIFY)
                 Log.d(TAG, "正在转发通知到 $serverUrl")
-                
+
                 val url = URL(serverUrl)
                 val connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = "POST"
-                connection.setRequestProperty("Content-Type", "application/json")
+                connection.requestMethod = ApiConstants.METHOD_POST
+                connection.setRequestProperty("Content-Type", ApiConstants.CONTENT_TYPE_JSON)
                 connection.doOutput = true
-                connection.connectTimeout = 5000
-                connection.readTimeout = 5000
-                
+                connection.connectTimeout = ApiConstants.TIMEOUT_NOTIFY_CONNECT
+                connection.readTimeout = ApiConstants.TIMEOUT_NOTIFY_READ
+
                 // 创建JSON数据，使用指定的参数名
                 val jsonBody = JSONObject().apply {
-                    put("appname", notification.appName) // 改用appName而不是packageName
-                    put("title", notification.title)
-                    put("description", notification.content)
-                    put("devicename", getDeviceName()) // 添加设备名称参数
-                    put("uniqueId", notification.uniqueId) // 添加唯一标识字段
-                    put("id", notification.id) // 这个包的记录ID
+                    put(ApiConstants.FIELD_APP_NAME, notification.appName) // 改用appName而不是packageName
+                    put(ApiConstants.FIELD_TITLE, notification.title)
+                    put(ApiConstants.FIELD_DESCRIPTION, notification.content)
+                    put(ApiConstants.FIELD_DEVICE_NAME, getDeviceName()) // 添加设备名称参数
+                    put(ApiConstants.FIELD_UNIQUE_ID, notification.uniqueId) // 添加唯一标识字段
+                    put(ApiConstants.FIELD_ID, notification.id) // 这个包的记录ID
 
                     // 如果有图标信息，直接添加到请求中
                     notification.iconMd5?.let { iconMd5 ->
-                        put("iconMd5", iconMd5)
+                        put(ApiConstants.FIELD_ICON_MD5, iconMd5)
                         notification.iconBase64?.let { iconBase64 ->
-                            put("iconBase64", iconBase64)
+                            put(ApiConstants.FIELD_ICON_BASE64, iconBase64)
                         }
                     }
                 }
-                
+
                 // 发送JSON数据
                 val outputStream = connection.outputStream
-                val writer = OutputStreamWriter(outputStream, "UTF-8")
+                val writer = OutputStreamWriter(outputStream, ApiConstants.CHARSET_UTF8)
                 writer.write(jsonBody.toString())
                 writer.flush()
                 writer.close()

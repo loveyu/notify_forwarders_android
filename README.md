@@ -269,22 +269,16 @@ For detailed API specifications, request/response examples, and implementation d
 
 ## 📋 Recent Updates
 
-### Version 1.6.0 - Optimized Quick Send Logic & Enhanced UX
-- **📋 Enhanced Quick Send Buttons**: Beautiful emoji icons and improved styling with elevation effects
-- **⚡ Foreground Clipboard Reading**: Clipboard content now read in foreground for better responsiveness
-- **🔄 Async Background Processing**: All network operations fully asynchronous with proper error handling
-- **🛡️ Comprehensive Error Handling**: Server address validation, detailed error messages, and crash prevention
-- **🌍 Complete Multi-language Support**: All quick send features translated across 7 languages
-- **🧹 Code Cleanup**: Removed unused imports and functions, improved code maintainability
-- **📚 Enhanced Documentation**: Complete API endpoint documentation with request/response examples
-
-### Version 1.5.0 - Enhanced Quick Actions & Smart Error Handling
-- **⚡ Enhanced Main Screen**: Compact quick toggle layout with dedicated send buttons for clipboard and image content
-- **🔐 Smart Permission Management**: Automatic permission checks with user-friendly error notifications and authorization guidance
+### Version 1.5.0 - Persistent Notification & Enhanced Quick Actions
+- **📌 Persistent Notification System**: Added persistent notification with quick action buttons for clipboard and image sending
+- **📋 Enhanced Clipboard Integration**: Send clipboard content (text and images) with Base64 encoding via notification actions
+- **📸 Image Gallery Access**: Send latest images from gallery with EXIF metadata extraction and transmission
 - **🔔 Intelligent Error Notifications**: 20-second auto-dismissing error notifications with detailed failure reasons
-- **📌 Improved Persistent Notification**: Enhanced notification recovery mechanism to prevent manual cancellation issues
-- **🎨 Optimized UI Layout**: More compact and efficient main screen design with better button placement
-- **🌍 Complete Translations**: All new features and error messages translated across 7 supported languages
+- **🎯 Smart Icon Forwarding**: Copy notification icons as PNG images to clipboard with transparency support
+- **🔐 Smart Permission Handling**: Automatic permission checks with user-friendly error notifications for clipboard and media access
+- **⚡ Enhanced Quick Actions**: Compact main screen layout with dedicated send buttons for clipboard and image content
+- **🎨 Icon & Visual Enhancements**: Optimized icon corner radius settings and notification list icon display toggle
+- **📚 Comprehensive Documentation**: Complete API documentation with REST API specifications and implementation details
 
 ### Version 1.4.0 - Persistent Notification & Quick Actions
 - **📌 Persistent Notification**: Optional persistent notification with quick action buttons

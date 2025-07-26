@@ -1,8 +1,5 @@
 package com.hestudio.notifyforwarders.service
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -10,7 +7,6 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
-import androidx.core.app.NotificationCompat
 import com.hestudio.notifyforwarders.R
 import com.hestudio.notifyforwarders.constants.ApiConstants
 import com.hestudio.notifyforwarders.util.ClipboardImageUtils
@@ -43,8 +39,6 @@ class NotificationActionService : Service() {
 
     companion object {
         private const val TAG = "NotificationActionService"
-        private const val NOTIFICATION_ID = 1001
-        private const val CHANNEL_ID = "notification_action_service"
         const val ACTION_SEND_CLIPBOARD = "com.hestudio.notifyforwarders.SEND_CLIPBOARD"
         const val ACTION_SEND_IMAGE = "com.hestudio.notifyforwarders.SEND_IMAGE"
 
@@ -55,11 +49,7 @@ class NotificationActionService : Service() {
             val intent = Intent(context, NotificationActionService::class.java).apply {
                 action = ACTION_SEND_CLIPBOARD
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            context.startService(intent)
         }
 
         /**
@@ -69,11 +59,7 @@ class NotificationActionService : Service() {
             val intent = Intent(context, NotificationActionService::class.java).apply {
                 action = ACTION_SEND_IMAGE
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            context.startService(intent)
         }
     }
 
@@ -84,13 +70,9 @@ class NotificationActionService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        createNotificationChannel()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // 启动前台服务
-        startForeground(NOTIFICATION_ID, createNotification("正在处理请求..."))
-
         when (intent?.action) {
             ACTION_SEND_CLIPBOARD -> handleSendClipboard()
             ACTION_SEND_IMAGE -> handleSendImage()
@@ -104,45 +86,7 @@ class NotificationActionService : Service() {
         currentJob?.cancel()
     }
 
-    /**
-     * 创建通知渠道
-     */
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "快捷操作服务",
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "处理快捷发送操作"
-                setShowBadge(false)
-            }
 
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    /**
-     * 创建前台服务通知
-     */
-    private fun createNotification(content: String): Notification {
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("快捷发送")
-            .setContentText(content)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setOngoing(true)
-            .build()
-    }
-
-    /**
-     * 更新前台服务通知
-     */
-    private fun updateNotification(content: String) {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(NOTIFICATION_ID, createNotification(content))
-    }
 
     /**
      * 处理发送剪贴板内容
@@ -173,10 +117,6 @@ class NotificationActionService : Service() {
                     return@launch
                 }
 
-                withContext(Dispatchers.Main) {
-                    showToast(getString(R.string.reading_clipboard))
-                }
-
                 val clipboardContent = try {
                     withContext(Dispatchers.Main) {
                         ClipboardImageUtils.readClipboardContent(this@NotificationActionService)
@@ -197,15 +137,8 @@ class NotificationActionService : Service() {
                 }
 
                 if (clipboardContent.type == ClipboardImageUtils.ContentType.EMPTY) {
-                    withContext(Dispatchers.Main) {
-                        showToast(getString(R.string.clipboard_empty))
-                    }
                     stopSelf()
                     return@launch
-                }
-
-                withContext(Dispatchers.Main) {
-                    showToast(getString(R.string.sending_content))
                 }
 
                 val result = when (clipboardContent.type) {
@@ -274,22 +207,11 @@ class NotificationActionService : Service() {
                     return@launch
                 }
 
-                withContext(Dispatchers.Main) {
-                    showToast(getString(R.string.reading_image))
-                }
-
                 val imageContent = ClipboardImageUtils.getLatestImage(this@NotificationActionService)
 
                 if (imageContent == null) {
-                    withContext(Dispatchers.Main) {
-                        showToast(getString(R.string.no_images_found))
-                    }
                     stopSelf()
                     return@launch
-                }
-
-                withContext(Dispatchers.Main) {
-                    showToast(getString(R.string.sending_content))
                 }
 
                 val result = sendImageRaw(imageContent)

@@ -110,10 +110,10 @@ class NotificationService : NotificationListenerService() {
         // 使用包名+通知ID作为唯一标识
         val uniqueId = "$packageName:${sbn.id}"
 
-        // 获取图标信息（如果开启了图标功能）
+        // 获取图标信息（如果开启了图标转发或列表显示功能）
         var iconMd5: String? = null
         var iconBase64: String? = null
-        if (ServerPreferences.isNotificationIconEnabled(this)) {
+        if (ServerPreferences.shouldProcessIcons(this)) {
             // 优先使用通知中的图标
             val notificationIcon = getNotificationIcon(notification)
             if (notificationIcon != null) {
@@ -265,10 +265,15 @@ class NotificationService : NotificationListenerService() {
     /**
      * 应用圆角效果到通知图标
      * @param bitmap 原始图片
-     * @param cornerRadiusPercent 圆角百分比 (5-50)
+     * @param cornerRadiusPercent 圆角百分比 (0-50)，0为方形图标
      * @return 应用圆角后的图片
      */
     private fun applyRoundedCorners(bitmap: Bitmap, cornerRadiusPercent: Int): Bitmap {
+        // 如果圆角为0，直接返回原图
+        if (cornerRadiusPercent == 0) {
+            return bitmap
+        }
+
         val width = bitmap.width
         val height = bitmap.height
         val size = minOf(width, height)

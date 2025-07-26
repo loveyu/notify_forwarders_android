@@ -727,6 +727,9 @@ fun NotificationIconSettingsCard() {
     var iconEnabled by remember {
         mutableStateOf(ServerPreferences.isNotificationIconEnabled(context))
     }
+    var listIconEnabled by remember {
+        mutableStateOf(ServerPreferences.isNotificationListIconEnabled(context))
+    }
     var cornerRadius by remember {
         mutableStateOf(ServerPreferences.getIconCornerRadius(context))
     }
@@ -750,7 +753,7 @@ fun NotificationIconSettingsCard() {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // 图标开关
+            // 图标转发开关
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -777,8 +780,37 @@ fun NotificationIconSettingsCard() {
                 )
             }
 
-            // 圆角设置（仅在图标开启时显示）
-            if (iconEnabled) {
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // 通知列表图标显示开关
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.notification_list_icon_switch),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Switch(
+                    checked = listIconEnabled,
+                    onCheckedChange = { enabled ->
+                        listIconEnabled = enabled
+                        ServerPreferences.saveNotificationListIconEnabled(context, enabled)
+
+                        val message = if (enabled) {
+                            context.getString(R.string.notification_list_icon_enabled)
+                        } else {
+                            context.getString(R.string.notification_list_icon_disabled)
+                        }
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+
+            // 圆角设置（仅在任一图标功能开启时显示）
+            if (iconEnabled || listIconEnabled) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(

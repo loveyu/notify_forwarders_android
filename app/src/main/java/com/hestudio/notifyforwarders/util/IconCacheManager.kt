@@ -272,10 +272,15 @@ object IconCacheManager {
     /**
      * 应用圆角效果
      * @param bitmap 原始图片
-     * @param cornerRadiusPercent 圆角百分比 (5-50)
+     * @param cornerRadiusPercent 圆角百分比 (0-50)，0为方形图标
      * @return 应用圆角后的图片
      */
     private fun applyRoundedCorners(bitmap: Bitmap, cornerRadiusPercent: Int): Bitmap {
+        // 如果圆角为0，直接返回原图
+        if (cornerRadiusPercent == 0) {
+            return bitmap
+        }
+
         val width = bitmap.width
         val height = bitmap.height
         val size = minOf(width, height)

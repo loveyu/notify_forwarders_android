@@ -56,8 +56,11 @@
     <string name="notification_icon_switch">发送通知图标</string>
     <string name="notification_icon_enabled">通知图标发送已开启</string>
     <string name="notification_icon_disabled">通知图标发送已关闭</string>
+    <string name="notification_list_icon_switch">通知列表显示图标</string>
+    <string name="notification_list_icon_enabled">通知列表图标显示已开启</string>
+    <string name="notification_list_icon_disabled">通知列表图标显示已关闭</string>
     <string name="icon_corner_radius_setting">图标圆角设置</string>
-    <string name="icon_corner_radius_desc">调整图标的圆角大小，范围为5%到50%</string>
+    <string name="icon_corner_radius_desc" formatted="false">调整图标的圆角大小，范围为0%到50%，0%为方形图标</string>
     <string name="current_corner_radius">当前圆角: %d%%</string>
     <string name="icon_corner_radius_changed">图标圆角已设置为 %d%%</string>
 

@@ -427,8 +427,10 @@ fun AppIcon(
 
 @Composable
 fun NotificationItem(notification: NotificationData) {
+    val context = LocalContext.current
     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
     val timeString = dateFormat.format(Date(notification.time))
+    val showIcon = ServerPreferences.isNotificationListIconEnabled(context)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -440,13 +442,15 @@ fun NotificationItem(notification: NotificationData) {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 应用图标，优先显示通知图标
-            AppIcon(
-                packageName = notification.packageName,
-                appName = notification.appName,
-                iconBase64 = notification.iconBase64,
-                size = 48.dp
-            )
+            // 应用图标，根据设置决定是否显示
+            if (showIcon) {
+                AppIcon(
+                    packageName = notification.packageName,
+                    appName = notification.appName,
+                    iconBase64 = notification.iconBase64,
+                    size = 48.dp
+                )
+            }
 
             // 通知内容
             Column(

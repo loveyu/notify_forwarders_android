@@ -53,6 +53,9 @@
     <string name="copied_to_clipboard">已复制到剪贴板</string>
     <string name="copy_failed">复制失败</string>
     <string name="no_icon_to_copy">没有图标可复制</string>
+    <string name="icon_copied_to_clipboard">图标已复制到剪贴板</string>
+    <string name="icon_copy_failed">图标复制失败</string>
+    <string name="icon_decode_failed">图标解码失败</string>
 
     <!-- 应用启动相关字符串 -->
     <string name="launching_app">正在启动 %s</string>

@@ -29,6 +29,14 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
+ * 网络请求结果
+ */
+sealed class NetworkResult {
+    object Success : NetworkResult()
+    data class Error(val message: String) : NetworkResult()
+}
+
+/**
  * 处理通知操作的服务
  */
 class NotificationActionService : Service() {
@@ -166,7 +174,6 @@ class NotificationActionService : Service() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    updateNotification("正在读取剪贴板...")
                     showToast(getString(R.string.reading_clipboard))
                 }
 
@@ -198,30 +205,32 @@ class NotificationActionService : Service() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    updateNotification("正在发送内容...")
                     showToast(getString(R.string.sending_content))
                 }
 
-                val success = when (clipboardContent.type) {
+                val result = when (clipboardContent.type) {
                     ClipboardImageUtils.ContentType.TEXT -> {
                         sendClipboardText(clipboardContent.content)
                     }
                     ClipboardImageUtils.ContentType.IMAGE -> {
                         sendClipboardImage(clipboardContent.content)
                     }
-                    else -> false
+                    else -> NetworkResult.Error(getString(R.string.unknown_error))
                 }
 
-                if (success) {
-                    withContext(Dispatchers.Main) {
-                        showToast(getString(R.string.clipboard_sent_success))
+                when (result) {
+                    is NetworkResult.Success -> {
+                        withContext(Dispatchers.Main) {
+                            showToast(getString(R.string.clipboard_sent_success))
+                        }
+                        Log.d(TAG, "剪贴板发送成功，应用状态: ${AppStateManager.getStateDescription()}")
                     }
-                    Log.d(TAG, "剪贴板发送成功，应用状态: ${AppStateManager.getStateDescription()}")
-                } else {
-                    ErrorNotificationUtils.showClipboardSendError(
-                        this@NotificationActionService,
-                        getString(R.string.server_connection_error_message)
-                    )
+                    is NetworkResult.Error -> {
+                        ErrorNotificationUtils.showClipboardSendError(
+                            this@NotificationActionService,
+                            result.message
+                        )
+                    }
                 }
 
             } catch (e: Exception) {
@@ -266,7 +275,6 @@ class NotificationActionService : Service() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    updateNotification("正在读取图片...")
                     showToast(getString(R.string.reading_image))
                 }
 
@@ -281,22 +289,24 @@ class NotificationActionService : Service() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    updateNotification("正在发送图片...")
                     showToast(getString(R.string.sending_content))
                 }
 
-                val success = sendImageRaw(imageContent)
+                val result = sendImageRaw(imageContent)
 
-                if (success) {
-                    withContext(Dispatchers.Main) {
-                        showToast(getString(R.string.image_sent_success))
+                when (result) {
+                    is NetworkResult.Success -> {
+                        withContext(Dispatchers.Main) {
+                            showToast(getString(R.string.image_sent_success))
+                        }
+                        Log.d(TAG, "图片发送成功，应用状态: ${AppStateManager.getStateDescription()}")
                     }
-                    Log.d(TAG, "图片发送成功，应用状态: ${AppStateManager.getStateDescription()}")
-                } else {
-                    ErrorNotificationUtils.showImageSendError(
-                        this@NotificationActionService,
-                        getString(R.string.server_connection_error_message)
-                    )
+                    is NetworkResult.Error -> {
+                        ErrorNotificationUtils.showImageSendError(
+                            this@NotificationActionService,
+                            result.message
+                        )
+                    }
                 }
 
             } catch (e: SecurityException) {
@@ -317,18 +327,12 @@ class NotificationActionService : Service() {
     /**
      * 发送剪贴板文本内容
      */
-    private suspend fun sendClipboardText(base64Content: String): Boolean {
+    private suspend fun sendClipboardText(base64Content: String): NetworkResult {
         return try {
             val serverAddress = ServerPreferences.getServerAddress(this)
             if (serverAddress.isEmpty()) {
                 Log.e(TAG, "服务器地址未配置")
-                withContext(Dispatchers.Main) {
-                    ErrorNotificationUtils.showClipboardSendError(
-                        this@NotificationActionService,
-                        getString(R.string.server_not_configured)
-                    )
-                }
-                return false
+                return NetworkResult.Error(getString(R.string.server_not_configured))
             }
 
             val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_CLIPBOARD_TEXT)
@@ -355,31 +359,39 @@ class NotificationActionService : Service() {
 
             val responseCode = connection.responseCode
             connection.disconnect()
-            
-            Log.d(TAG, "剪贴板文本发送响应: $responseCode")
-            responseCode == HttpURLConnection.HTTP_OK
 
+            Log.d(TAG, "剪贴板文本发送响应: $responseCode")
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                NetworkResult.Success
+            } else {
+                NetworkResult.Error(getString(R.string.network_error_with_code, responseCode))
+            }
+
+        } catch (e: java.net.ConnectException) {
+            Log.e(TAG, "连接服务器失败", e)
+            NetworkResult.Error(getString(R.string.network_connection_failed))
+        } catch (e: java.net.SocketTimeoutException) {
+            Log.e(TAG, "网络请求超时", e)
+            NetworkResult.Error(getString(R.string.network_timeout))
+        } catch (e: java.net.UnknownHostException) {
+            Log.e(TAG, "无法解析服务器地址", e)
+            NetworkResult.Error(getString(R.string.network_host_unknown))
         } catch (e: Exception) {
             Log.e(TAG, "发送剪贴板文本失败", e)
-            false
+            NetworkResult.Error(e.message ?: getString(R.string.unknown_error))
         }
     }
 
     /**
      * 发送剪贴板图片内容
      */
-    private suspend fun sendClipboardImage(base64Content: String): Boolean {
+    private suspend fun sendClipboardImage(base64Content: String): NetworkResult {
         return try {
             val serverAddress = ServerPreferences.getServerAddress(this)
             if (serverAddress.isEmpty()) {
                 Log.e(TAG, "服务器地址未配置")
-                withContext(Dispatchers.Main) {
-                    ErrorNotificationUtils.showClipboardSendError(
-                        this@NotificationActionService,
-                        getString(R.string.server_not_configured)
-                    )
-                }
-                return false
+                return NetworkResult.Error(getString(R.string.server_not_configured))
             }
 
             val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_CLIPBOARD_IMAGE)
@@ -406,31 +418,39 @@ class NotificationActionService : Service() {
 
             val responseCode = connection.responseCode
             connection.disconnect()
-            
-            Log.d(TAG, "剪贴板图片发送响应: $responseCode")
-            responseCode == HttpURLConnection.HTTP_OK
 
+            Log.d(TAG, "剪贴板图片发送响应: $responseCode")
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                NetworkResult.Success
+            } else {
+                NetworkResult.Error(getString(R.string.network_error_with_code, responseCode))
+            }
+
+        } catch (e: java.net.ConnectException) {
+            Log.e(TAG, "连接服务器失败", e)
+            NetworkResult.Error(getString(R.string.network_connection_failed))
+        } catch (e: java.net.SocketTimeoutException) {
+            Log.e(TAG, "网络请求超时", e)
+            NetworkResult.Error(getString(R.string.network_timeout))
+        } catch (e: java.net.UnknownHostException) {
+            Log.e(TAG, "无法解析服务器地址", e)
+            NetworkResult.Error(getString(R.string.network_host_unknown))
         } catch (e: Exception) {
             Log.e(TAG, "发送剪贴板图片失败", e)
-            false
+            NetworkResult.Error(e.message ?: getString(R.string.unknown_error))
         }
     }
 
     /**
      * 发送图片RAW内容
      */
-    private suspend fun sendImageRaw(imageContent: ClipboardImageUtils.ImageContent): Boolean {
+    private suspend fun sendImageRaw(imageContent: ClipboardImageUtils.ImageContent): NetworkResult {
         return try {
             val serverAddress = ServerPreferences.getServerAddress(this)
             if (serverAddress.isEmpty()) {
                 Log.e(TAG, "服务器地址未配置")
-                withContext(Dispatchers.Main) {
-                    ErrorNotificationUtils.showImageSendError(
-                        this@NotificationActionService,
-                        getString(R.string.server_not_configured)
-                    )
-                }
-                return false
+                return NetworkResult.Error(getString(R.string.server_not_configured))
             }
 
             val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_IMAGE_RAW)
@@ -462,13 +482,27 @@ class NotificationActionService : Service() {
 
             val responseCode = connection.responseCode
             connection.disconnect()
-            
-            Log.d(TAG, "图片RAW发送响应: $responseCode")
-            responseCode == HttpURLConnection.HTTP_OK
 
+            Log.d(TAG, "图片RAW发送响应: $responseCode")
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                NetworkResult.Success
+            } else {
+                NetworkResult.Error(getString(R.string.network_error_with_code, responseCode))
+            }
+
+        } catch (e: java.net.ConnectException) {
+            Log.e(TAG, "连接服务器失败", e)
+            NetworkResult.Error(getString(R.string.network_connection_failed))
+        } catch (e: java.net.SocketTimeoutException) {
+            Log.e(TAG, "网络请求超时", e)
+            NetworkResult.Error(getString(R.string.network_timeout))
+        } catch (e: java.net.UnknownHostException) {
+            Log.e(TAG, "无法解析服务器地址", e)
+            NetworkResult.Error(getString(R.string.network_host_unknown))
         } catch (e: Exception) {
             Log.e(TAG, "发送图片RAW失败", e)
-            false
+            NetworkResult.Error(e.message ?: getString(R.string.unknown_error))
         }
     }
 

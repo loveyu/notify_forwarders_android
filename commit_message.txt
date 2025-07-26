@@ -1,14 +1,17 @@
-feat: Optimize quick send logic with enhanced UX and comprehensive error handling
+fix: Improve quick send logic with enhanced error handling and UX
 
-- Enhanced quick send buttons with emoji icons and improved styling
-- Implemented foreground clipboard reading for better responsiveness
-- Added comprehensive server address validation with user-friendly error messages
-- Improved async background processing for all network operations
-- Enhanced multi-language support for all quick send features
-- Added comprehensive try-catch blocks to prevent app crashes
-- Cleaned up unused imports and functions for better code maintainability
-- Updated README with complete API endpoint documentation
-- Added new string resources for better user feedback
+- Remove intermediate status notifications during send process, use toast only
+- Show error notifications only when send operations fail
+- Add detailed network error handling with HTTP status codes
+- Implement NetworkResult sealed class for better error management
+- Add specific error messages for different network failure types:
+  - Connection failures
+  - Timeout errors
+  - Host resolution errors
+  - HTTP status code errors
+- Enhanced error reporting for clipboard and image send operations
+- Maintain foreground service notification without frequent updates
+- Improved user experience with cleaner notification management
 
 Technical improvements:
 - Clipboard content now read in foreground thread for immediate feedback

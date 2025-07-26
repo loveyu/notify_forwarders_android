@@ -172,7 +172,7 @@
     <string name="error_notification_channel">错误通知</string>
     <string name="error_notification_channel_desc">显示操作失败的错误信息</string>
     <string name="clipboard_permission_error_title">剪贴板权限不足</string>
-    <string name="clipboard_permission_error_message">无法访问剪贴板，请在设置中授予相关权限</string>
+    <string name="clipboard_permission_error_message">无法访问剪贴板。Android 10+ 要求应用在前台才能访问剪贴板，请确保应用在前台时使用此功能</string>
     <string name="media_permission_error_title">媒体权限不足</string>
     <string name="media_permission_error_message">无法访问图片，请在设置中授予媒体访问权限</string>
     <string name="clipboard_send_error_title">剪贴板发送失败</string>

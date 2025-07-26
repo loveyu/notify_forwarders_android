@@ -84,6 +84,7 @@
         <!-- 添加通知操作服务 -->
         <service
             android:name=".service.NotificationActionService"
+            android:foregroundServiceType="dataSync"
             android:exported="false" />
     </application>
 

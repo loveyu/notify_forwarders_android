@@ -116,9 +116,9 @@
 | 端点 | 方法 | 用途 | 超时时间 |
 |------|------|------|----------|
 | `/api/notify` | POST | 转发通知到服务器 | 5秒 |
-| `/api/notify/clipboard/text` | POST | 发送剪贴板文本内容 | 10秒 |
-| `/api/notify/clipboard/image` | POST | 发送剪贴板图片内容 | 10秒 |
-| `/api/notify/image/raw` | POST | 发送相册图片及EXIF数据 | 10秒 |
+| `/api/clipboard/text` | POST | 发送剪贴板文本内容 | 10秒 |
+| `/api/clipboard/image` | POST | 发送剪贴板图片内容 | 10秒 |
+| `/api/image/raw` | POST | 发送相册图片及EXIF数据 | 10秒 |
 | `/api/version` | GET | 检查服务器版本兼容性 | 5秒 |
 
 ## 测试结果

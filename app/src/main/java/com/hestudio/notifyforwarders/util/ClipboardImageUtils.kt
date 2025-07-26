@@ -45,10 +45,34 @@ object ClipboardImageUtils {
     }
 
     /**
+     * 检查是否可以访问剪贴板
+     */
+    fun canAccessClipboard(context: Context): Boolean {
+        return try {
+            val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            // 尝试访问剪贴板，如果抛出异常说明没有权限
+            clipboardManager.primaryClip
+            true
+        } catch (e: SecurityException) {
+            Log.w(TAG, "剪贴板访问权限不足", e)
+            false
+        } catch (e: Exception) {
+            Log.w(TAG, "剪贴板访问检查失败", e)
+            false
+        }
+    }
+
+    /**
      * 读取剪贴板内容
      */
     fun readClipboardContent(context: Context): ClipboardContent {
         try {
+            // 首先检查是否可以访问剪贴板
+            if (!canAccessClipboard(context)) {
+                Log.w(TAG, "无法访问剪贴板，可能是权限不足或应用在后台")
+                throw SecurityException("剪贴板访问权限不足")
+            }
+
             val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clipData = clipboardManager.primaryClip
 
@@ -81,9 +105,12 @@ object ClipboardImageUtils {
             Log.d(TAG, "剪贴板内容无法识别")
             return ClipboardContent(ContentType.EMPTY, "")
 
+        } catch (e: SecurityException) {
+            Log.e(TAG, "剪贴板权限不足", e)
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "读取剪贴板失败", e)
-            return ClipboardContent(ContentType.EMPTY, "")
+            throw e
         }
     }
 

@@ -245,4 +245,13 @@
     <string name="sending_image">正在发送图片...</string>
     <string name="sending_clipboard_short">发送中...</string>
     <string name="sending_image_short">发送中...</string>
+
+    <!-- 应用退出功能 -->
+    <string name="app_exit_settings">应用退出</string>
+    <string name="app_exit_settings_desc">完全退出应用并停止所有后台服务</string>
+    <string name="exit_app">退出应用</string>
+    <string name="exit_app_confirm_title">确认退出</string>
+    <string name="exit_app_confirm_message">确定要退出应用并停止所有后台服务吗？这将停止通知转发功能。</string>
+    <string name="app_exiting">正在退出应用...</string>
+    <string name="app_restart_required">设置已更改，应用将重启以应用新设置</string>
 </resources>

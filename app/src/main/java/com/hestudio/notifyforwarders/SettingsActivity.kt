@@ -10,6 +10,8 @@ import android.graphics.Paint
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -31,6 +33,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -81,6 +84,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.random.Random
+import com.hestudio.notifyforwarders.util.AppExitManager
 
 class SettingsActivity : ComponentActivity() {
     private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
@@ -725,6 +729,9 @@ fun SettingsScreen(
             // 语言设置卡片
             LanguageSettingsCard()
 
+            // 应用退出设置卡片
+            AppExitSettingsCard()
+
             // 底部间距，确保最后一个元素下方有足够空间
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -739,9 +746,7 @@ fun PersistentNotificationSettingsCard() {
     }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -780,27 +785,13 @@ fun PersistentNotificationSettingsCard() {
                         persistentNotificationEnabled = enabled
                         ServerPreferences.savePersistentNotificationEnabled(context, enabled)
 
-                        val message = if (enabled) {
-                            context.getString(R.string.persistent_notification_enabled)
-                        } else {
-                            context.getString(R.string.persistent_notification_disabled)
-                        }
-                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                        // 显示重启提示
+                        Toast.makeText(context, context.getString(R.string.app_restart_required), Toast.LENGTH_LONG).show()
 
-                        // 刷新前台通知以应用新设置
-                        try {
-                            NotificationService.refreshForegroundNotification(context)
-                        } catch (e: Exception) {
-                            Log.w("SettingsActivity", "刷新前台通知失败，尝试重启服务", e)
-                            // 如果刷新失败，尝试重启服务
-                            try {
-                                val serviceIntent = Intent(context, NotificationService::class.java)
-                                context.stopService(serviceIntent)
-                                context.startForegroundService(serviceIntent)
-                            } catch (e2: Exception) {
-                                Log.e("SettingsActivity", "重启服务失败", e2)
-                            }
-                        }
+                        // 延迟重启应用以应用新设置
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            AppExitManager.restartApp(context)
+                        }, 1500) // 1.5秒后重启，给用户时间看到提示
                     }
                 )
             }
@@ -1168,3 +1159,81 @@ suspend fun sendVerificationCode(serverAddress: String, code: String, context: C
             return@withContext false
         }
     }
+
+@Composable
+fun AppExitSettingsCard() {
+    val context = LocalContext.current
+    var showExitDialog by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.app_exit_settings),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = stringResource(R.string.app_exit_settings_desc),
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 退出应用按钮
+            Button(
+                onClick = { showExitDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                )
+            ) {
+                Text(text = stringResource(R.string.exit_app))
+            }
+        }
+    }
+
+    // 退出确认对话框
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            title = {
+                Text(text = stringResource(R.string.exit_app_confirm_title))
+            },
+            text = {
+                Text(text = stringResource(R.string.exit_app_confirm_message))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExitDialog = false
+                        Toast.makeText(context, context.getString(R.string.app_exiting), Toast.LENGTH_SHORT).show()
+
+                        // 延迟一下再退出，让用户看到提示
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            AppExitManager.exitApp(context)
+                        }, 1000)
+                    }
+                ) {
+                    Text(text = stringResource(R.string.confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showExitDialog = false }
+                ) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+}

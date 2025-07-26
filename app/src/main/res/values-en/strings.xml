@@ -198,4 +198,13 @@
     <!-- Server verification -->
     <string name="server_verification_title">Request to establish connection with this device</string>
     <string name="server_verification_desc">Please enter the following verification code on your phone: %s</string>
+
+    <!-- App exit functionality -->
+    <string name="app_exit_settings">App Exit</string>
+    <string name="app_exit_settings_desc">Completely exit the app and stop all background services</string>
+    <string name="exit_app">Exit App</string>
+    <string name="exit_app_confirm_title">Confirm Exit</string>
+    <string name="exit_app_confirm_message">Are you sure you want to exit the app and stop all background services? This will stop notification forwarding.</string>
+    <string name="app_exiting">Exiting app...</string>
+    <string name="app_restart_required">Settings changed, app will restart to apply new settings</string>
 </resources>

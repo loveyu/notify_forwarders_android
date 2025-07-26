@@ -211,8 +211,14 @@ class NotificationActionService : Service() {
                         PersistentNotificationManager.SendingState.SENDING_CLIPBOARD
                     )
 
-                    // 启动MainActivity让应用进入前台（仅在需要时）
-                    bringAppToForegroundIfNeeded()
+                    // 根据常驻通知设置决定是否启动MainActivity
+                    if (ServerPreferences.isPersistentNotificationEnabled(this@NotificationActionService)) {
+                        // 如果开启了常驻通知，让应用进入前台
+                        bringAppToForegroundIfNeeded()
+                    } else {
+                        // 如果没有开启常驻通知，让应用在后台运行
+                        Log.d(TAG, "常驻通知未开启，应用将在后台运行")
+                    }
 
                     // 检查服务器地址配置
                     val serverAddress = ServerPreferences.getServerAddress(this@NotificationActionService)

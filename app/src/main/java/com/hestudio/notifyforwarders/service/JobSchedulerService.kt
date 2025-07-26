@@ -46,6 +46,19 @@ class JobSchedulerService : JobService() {
                 Log.e(TAG, "Job scheduling error: ${e.message}")
             }
         }
+
+        /**
+         * 取消JobScheduler任务
+         */
+        fun cancelJob(context: Context) {
+            try {
+                val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+                jobScheduler.cancel(JOB_ID)
+                Log.d(TAG, "JobScheduler任务已取消")
+            } catch (e: Exception) {
+                Log.e(TAG, "取消JobScheduler任务失败: ${e.message}")
+            }
+        }
     }
 
     override fun onStartJob(params: JobParameters?): Boolean {

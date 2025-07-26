@@ -186,6 +186,8 @@
     <string name="network_timeout">网络请求超时</string>
     <string name="network_host_unknown">无法解析服务器地址</string>
     <string name="unknown_error">未知错误</string>
+    <string name="task_already_running_please_wait">任务正在进行中，请稍后再试</string>
+    <string name="task_timeout">任务执行超时</string>
 
     <!-- 测试通知内容 -->
     <string name="test_notification_prefix">测试通知 - </string>

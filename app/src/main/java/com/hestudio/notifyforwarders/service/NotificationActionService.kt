@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
+import com.hestudio.notifyforwarders.MainActivity
 import com.hestudio.notifyforwarders.R
 import com.hestudio.notifyforwarders.constants.ApiConstants
 import com.hestudio.notifyforwarders.util.ClipboardImageUtils
@@ -19,10 +20,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONObject
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 网络请求结果
@@ -42,6 +45,9 @@ class NotificationActionService : Service() {
         const val ACTION_SEND_CLIPBOARD = "com.hestudio.notifyforwarders.SEND_CLIPBOARD"
         const val ACTION_SEND_IMAGE = "com.hestudio.notifyforwarders.SEND_IMAGE"
 
+        // 任务超时时间（毫秒）
+        private const val TASK_TIMEOUT_MS = 30000L // 30秒
+
         /**
          * 发送剪贴板内容
          */
@@ -49,7 +55,11 @@ class NotificationActionService : Service() {
             val intent = Intent(context, NotificationActionService::class.java).apply {
                 action = ACTION_SEND_CLIPBOARD
             }
-            context.startService(intent)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
         }
 
         /**
@@ -59,12 +69,23 @@ class NotificationActionService : Service() {
             val intent = Intent(context, NotificationActionService::class.java).apply {
                 action = ACTION_SEND_IMAGE
             }
-            context.startService(intent)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
         }
     }
 
     private val serviceScope = CoroutineScope(Dispatchers.IO)
-    private var currentJob: Job? = null
+
+    // 分别管理剪贴板和图片任务
+    private var clipboardJob: Job? = null
+    private var imageJob: Job? = null
+
+    // 任务运行状态标志
+    private val isClipboardTaskRunning = AtomicBoolean(false)
+    private val isImageTaskRunning = AtomicBoolean(false)
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -83,10 +104,28 @@ class NotificationActionService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        currentJob?.cancel()
+        clipboardJob?.cancel()
+        imageJob?.cancel()
+        isClipboardTaskRunning.set(false)
+        isImageTaskRunning.set(false)
     }
 
 
+
+    /**
+     * 启动MainActivity让应用进入前台
+     */
+    private fun bringAppToForeground() {
+        try {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            startActivity(intent)
+            Log.d(TAG, "已启动MainActivity，让应用进入前台")
+        } catch (e: Exception) {
+            Log.e(TAG, "启动MainActivity失败", e)
+        }
+    }
 
     /**
      * 处理发送剪贴板内容
@@ -94,87 +133,123 @@ class NotificationActionService : Service() {
     private fun handleSendClipboard() {
         Log.d(TAG, "开始处理剪贴板发送，应用状态: ${AppStateManager.getStateDescription()}")
 
-        currentJob?.cancel()
-        currentJob = serviceScope.launch {
-            try {
-                // 检查服务器地址配置
-                val serverAddress = ServerPreferences.getServerAddress(this@NotificationActionService)
-                if (serverAddress.isEmpty()) {
-                    Log.e(TAG, "服务器地址未配置")
-                    ErrorNotificationUtils.showClipboardSendError(
-                        this@NotificationActionService,
-                        getString(R.string.server_not_configured)
-                    )
-                    stopSelf()
-                    return@launch
-                }
+        // 检查是否已有剪贴板任务在运行
+        if (isClipboardTaskRunning.get()) {
+            Log.w(TAG, "剪贴板任务已在运行，忽略重复请求")
+            showToast(getString(R.string.task_already_running_please_wait))
+            stopSelf()
+            return
+        }
 
-                // 检查应用是否在前台，剪贴板访问需要前台权限
-                if (AppStateManager.isAppInBackground()) {
-                    Log.w(TAG, "应用在后台，无法访问剪贴板")
-                    ErrorNotificationUtils.showClipboardPermissionError(this@NotificationActionService)
-                    stopSelf()
-                    return@launch
-                }
+        // 启动MainActivity让应用进入前台
+        bringAppToForeground()
 
-                val clipboardContent = try {
-                    withContext(Dispatchers.Main) {
-                        ClipboardImageUtils.readClipboardContent(this@NotificationActionService)
+        clipboardJob?.cancel()
+        clipboardJob = serviceScope.launch {
+            // 使用超时机制包装整个任务
+            val result = withTimeoutOrNull(TASK_TIMEOUT_MS) {
+                try {
+                    // 设置任务运行状态
+                    isClipboardTaskRunning.set(true)
+
+                    // 检查服务器地址配置
+                    val serverAddress = ServerPreferences.getServerAddress(this@NotificationActionService)
+                    if (serverAddress.isEmpty()) {
+                        Log.e(TAG, "服务器地址未配置")
+                        ErrorNotificationUtils.showClipboardSendError(
+                            this@NotificationActionService,
+                            getString(R.string.server_not_configured)
+                        )
+                        return@withTimeoutOrNull false
                     }
-                } catch (e: SecurityException) {
-                    Log.e(TAG, "剪贴板权限不足", e)
-                    ErrorNotificationUtils.showClipboardPermissionError(this@NotificationActionService)
-                    stopSelf()
-                    return@launch
+
+                    // 等待一小段时间让应用进入前台
+                    kotlinx.coroutines.delay(500)
+
+                    // 再次检查应用状态，如果仍在后台则尝试使用ActivityManager检查
+                    val isInBackground = if (AppStateManager.isAppInBackground()) {
+                        // 使用ActivityManager作为备用检查
+                        !AppStateManager.isAppInForegroundByActivityManager(this@NotificationActionService)
+                    } else {
+                        false
+                    }
+
+                    if (isInBackground) {
+                        Log.w(TAG, "应用仍在后台，无法访问剪贴板")
+                        ErrorNotificationUtils.showClipboardPermissionError(this@NotificationActionService)
+                        return@withTimeoutOrNull false
+                    }
+
+                    val clipboardContent = try {
+                        withContext(Dispatchers.Main) {
+                            ClipboardImageUtils.readClipboardContent(this@NotificationActionService)
+                        }
+                    } catch (e: SecurityException) {
+                        Log.e(TAG, "剪贴板权限不足", e)
+                        ErrorNotificationUtils.showClipboardPermissionError(this@NotificationActionService)
+                        return@withTimeoutOrNull false
+                    } catch (e: Exception) {
+                        Log.e(TAG, "读取剪贴板失败", e)
+                        ErrorNotificationUtils.showClipboardSendError(
+                            this@NotificationActionService,
+                            e.message ?: getString(R.string.unknown_error)
+                        )
+                        return@withTimeoutOrNull false
+                    }
+
+                    if (clipboardContent.type == ClipboardImageUtils.ContentType.EMPTY) {
+                        return@withTimeoutOrNull false
+                    }
+
+                    val networkResult = when (clipboardContent.type) {
+                        ClipboardImageUtils.ContentType.TEXT -> {
+                            sendClipboardText(clipboardContent.content)
+                        }
+                        ClipboardImageUtils.ContentType.IMAGE -> {
+                            sendClipboardImage(clipboardContent.content)
+                        }
+                        else -> NetworkResult.Error(getString(R.string.unknown_error))
+                    }
+
+                    when (networkResult) {
+                        is NetworkResult.Success -> {
+                            withContext(Dispatchers.Main) {
+                                showToast(getString(R.string.clipboard_sent_success))
+                            }
+                            Log.d(TAG, "剪贴板发送成功，应用状态: ${AppStateManager.getStateDescription()}")
+                            return@withTimeoutOrNull true
+                        }
+                        is NetworkResult.Error -> {
+                            ErrorNotificationUtils.showClipboardSendError(
+                                this@NotificationActionService,
+                                networkResult.message
+                            )
+                            return@withTimeoutOrNull false
+                        }
+                    }
+
                 } catch (e: Exception) {
-                    Log.e(TAG, "读取剪贴板失败", e)
+                    Log.e(TAG, "处理剪贴板发送时发生未知错误", e)
                     ErrorNotificationUtils.showClipboardSendError(
                         this@NotificationActionService,
                         e.message ?: getString(R.string.unknown_error)
                     )
-                    stopSelf()
-                    return@launch
+                    return@withTimeoutOrNull false
                 }
+            }
 
-                if (clipboardContent.type == ClipboardImageUtils.ContentType.EMPTY) {
-                    stopSelf()
-                    return@launch
-                }
-
-                val result = when (clipboardContent.type) {
-                    ClipboardImageUtils.ContentType.TEXT -> {
-                        sendClipboardText(clipboardContent.content)
-                    }
-                    ClipboardImageUtils.ContentType.IMAGE -> {
-                        sendClipboardImage(clipboardContent.content)
-                    }
-                    else -> NetworkResult.Error(getString(R.string.unknown_error))
-                }
-
-                when (result) {
-                    is NetworkResult.Success -> {
-                        withContext(Dispatchers.Main) {
-                            showToast(getString(R.string.clipboard_sent_success))
-                        }
-                        Log.d(TAG, "剪贴板发送成功，应用状态: ${AppStateManager.getStateDescription()}")
-                    }
-                    is NetworkResult.Error -> {
-                        ErrorNotificationUtils.showClipboardSendError(
-                            this@NotificationActionService,
-                            result.message
-                        )
-                    }
-                }
-
-            } catch (e: Exception) {
-                Log.e(TAG, "处理剪贴板发送时发生未知错误", e)
+            // 处理超时情况
+            if (result == null) {
+                Log.e(TAG, "剪贴板发送任务超时")
                 ErrorNotificationUtils.showClipboardSendError(
                     this@NotificationActionService,
-                    e.message ?: getString(R.string.unknown_error)
+                    getString(R.string.task_timeout)
                 )
-            } finally {
-                stopSelf()
             }
+
+            // 清理任务状态
+            isClipboardTaskRunning.set(false)
+            stopSelf()
         }
     }
 
@@ -184,65 +259,91 @@ class NotificationActionService : Service() {
     private fun handleSendImage() {
         Log.d(TAG, "开始处理图片发送，应用状态: ${AppStateManager.getStateDescription()}")
 
-        currentJob?.cancel()
-        currentJob = serviceScope.launch {
-            try {
-                // 检查服务器地址配置
-                val serverAddress = ServerPreferences.getServerAddress(this@NotificationActionService)
-                if (serverAddress.isEmpty()) {
-                    Log.e(TAG, "服务器地址未配置")
-                    ErrorNotificationUtils.showImageSendError(
-                        this@NotificationActionService,
-                        getString(R.string.server_not_configured)
-                    )
-                    stopSelf()
-                    return@launch
-                }
+        // 检查是否已有图片任务在运行
+        if (isImageTaskRunning.get()) {
+            Log.w(TAG, "图片任务已在运行，忽略重复请求")
+            showToast(getString(R.string.task_already_running_please_wait))
+            stopSelf()
+            return
+        }
 
-                // 检查媒体权限
-                if (!MediaPermissionUtils.hasMediaPermission(this@NotificationActionService)) {
-                    Log.w(TAG, "媒体权限不足")
-                    ErrorNotificationUtils.showMediaPermissionError(this@NotificationActionService)
-                    stopSelf()
-                    return@launch
-                }
+        imageJob?.cancel()
+        imageJob = serviceScope.launch {
+            // 使用超时机制包装整个任务
+            val result = withTimeoutOrNull(TASK_TIMEOUT_MS) {
+                try {
+                    // 设置任务运行状态
+                    isImageTaskRunning.set(true)
 
-                val imageContent = ClipboardImageUtils.getLatestImage(this@NotificationActionService)
-
-                if (imageContent == null) {
-                    stopSelf()
-                    return@launch
-                }
-
-                val result = sendImageRaw(imageContent)
-
-                when (result) {
-                    is NetworkResult.Success -> {
-                        withContext(Dispatchers.Main) {
-                            showToast(getString(R.string.image_sent_success))
-                        }
-                        Log.d(TAG, "图片发送成功，应用状态: ${AppStateManager.getStateDescription()}")
-                    }
-                    is NetworkResult.Error -> {
+                    // 检查服务器地址配置
+                    val serverAddress = ServerPreferences.getServerAddress(this@NotificationActionService)
+                    if (serverAddress.isEmpty()) {
+                        Log.e(TAG, "服务器地址未配置")
                         ErrorNotificationUtils.showImageSendError(
                             this@NotificationActionService,
-                            result.message
+                            getString(R.string.server_not_configured)
                         )
+                        return@withTimeoutOrNull false
                     }
-                }
 
-            } catch (e: SecurityException) {
-                Log.e(TAG, "媒体权限不足", e)
-                ErrorNotificationUtils.showMediaPermissionError(this@NotificationActionService)
-            } catch (e: Exception) {
-                Log.e(TAG, "处理图片发送时发生未知错误", e)
+                    // 检查媒体权限
+                    if (!MediaPermissionUtils.hasMediaPermission(this@NotificationActionService)) {
+                        Log.w(TAG, "媒体权限不足")
+                        ErrorNotificationUtils.showMediaPermissionError(this@NotificationActionService)
+                        return@withTimeoutOrNull false
+                    }
+
+                    val imageContent = ClipboardImageUtils.getLatestImage(this@NotificationActionService)
+
+                    if (imageContent == null) {
+                        return@withTimeoutOrNull false
+                    }
+
+                    val networkResult = sendImageRaw(imageContent)
+
+                    when (networkResult) {
+                        is NetworkResult.Success -> {
+                            withContext(Dispatchers.Main) {
+                                showToast(getString(R.string.image_sent_success))
+                            }
+                            Log.d(TAG, "图片发送成功，应用状态: ${AppStateManager.getStateDescription()}")
+                            return@withTimeoutOrNull true
+                        }
+                        is NetworkResult.Error -> {
+                            ErrorNotificationUtils.showImageSendError(
+                                this@NotificationActionService,
+                                networkResult.message
+                            )
+                            return@withTimeoutOrNull false
+                        }
+                    }
+
+                } catch (e: SecurityException) {
+                    Log.e(TAG, "媒体权限不足", e)
+                    ErrorNotificationUtils.showMediaPermissionError(this@NotificationActionService)
+                    return@withTimeoutOrNull false
+                } catch (e: Exception) {
+                    Log.e(TAG, "处理图片发送时发生未知错误", e)
+                    ErrorNotificationUtils.showImageSendError(
+                        this@NotificationActionService,
+                        e.message ?: getString(R.string.unknown_error)
+                    )
+                    return@withTimeoutOrNull false
+                }
+            }
+
+            // 处理超时情况
+            if (result == null) {
+                Log.e(TAG, "图片发送任务超时")
                 ErrorNotificationUtils.showImageSendError(
                     this@NotificationActionService,
-                    e.message ?: getString(R.string.unknown_error)
+                    getString(R.string.task_timeout)
                 )
-            } finally {
-                stopSelf()
             }
+
+            // 清理任务状态
+            isImageTaskRunning.set(false)
+            stopSelf()
         }
     }
 

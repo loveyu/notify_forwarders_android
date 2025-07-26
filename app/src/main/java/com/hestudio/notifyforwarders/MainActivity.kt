@@ -13,6 +13,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -78,6 +81,9 @@ import com.hestudio.notifyforwarders.util.LocaleHelper
 import com.hestudio.notifyforwarders.util.IconCacheManager
 import com.hestudio.notifyforwarders.util.PermissionUtils
 import com.hestudio.notifyforwarders.util.SettingsStateManager
+import com.hestudio.notifyforwarders.util.ClipboardUtils
+import com.hestudio.notifyforwarders.util.AppLaunchUtils
+import com.hestudio.notifyforwarders.util.NotificationFormatUtils
 import com.hestudio.notifyforwarders.service.NotificationActionService
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -438,11 +444,18 @@ fun AppIcon(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NotificationItem(notification: NotificationData, showIcon: Boolean = true) {
     val context = LocalContext.current
     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
     val timeString = dateFormat.format(Date(notification.time))
+
+    // 处理空白符移除
+    val trimmedTitle = NotificationFormatUtils.trimWhitespace(notification.title)
+    val trimmedContent = NotificationFormatUtils.trimWhitespace(notification.content)
+    val hasTitle = !NotificationFormatUtils.isTextEmpty(trimmedTitle)
+    val hasContent = !NotificationFormatUtils.isTextEmpty(trimmedContent)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -451,7 +464,14 @@ fun NotificationItem(notification: NotificationData, showIcon: Boolean = true) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(16.dp)
+                .combinedClickable(
+                    onClick = { /* 单击事件在子组件中处理 */ },
+                    onDoubleClick = {
+                        // 双击整个通知：启动对应的APP
+                        AppLaunchUtils.launchApp(context, notification.packageName, notification.appName)
+                    }
+                ),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // 应用图标，根据设置决定是否显示
@@ -460,7 +480,11 @@ fun NotificationItem(notification: NotificationData, showIcon: Boolean = true) {
                     packageName = notification.packageName,
                     appName = notification.appName,
                     iconBase64 = notification.iconBase64,
-                    size = 48.dp
+                    size = 48.dp,
+                    modifier = Modifier.clickable {
+                        // 点击图标：复制图标的Base64数据到剪贴板
+                        ClipboardUtils.copyNotificationIcon(context, notification.iconBase64)
+                    }
                 )
             }
 
@@ -477,31 +501,59 @@ fun NotificationItem(notification: NotificationData, showIcon: Boolean = true) {
                         style = MaterialTheme.typography.labelMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                // 点击应用名称：启动对应的APP
+                                AppLaunchUtils.launchApp(context, notification.packageName, notification.appName)
+                            }
                     )
                     Text(
                         text = timeString,
-                        style = MaterialTheme.typography.labelSmall
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.clickable {
+                            // 点击时间：将整个通知内容生成JSON字符串并复制
+                            val jsonString = NotificationFormatUtils.toJsonString(notification)
+                            ClipboardUtils.copyNotificationJson(context, jsonString)
+                        }
                     )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = notification.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                // 只有在标题不为空时才显示
+                if (hasTitle) {
+                    Text(
+                        text = trimmedTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.clickable {
+                            // 点击标题：将通知纯文本格式化后复制
+                            val plainText = NotificationFormatUtils.toPlainText(notification)
+                            ClipboardUtils.copyNotificationText(context, plainText)
+                        }
+                    )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                    if (hasContent) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+                }
 
-                Text(
-                    text = notification.content,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+                // 只有在内容不为空时才显示
+                if (hasContent) {
+                    Text(
+                        text = trimmedContent,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.clickable {
+                            // 点击内容：将通知纯文本格式化后复制
+                            val plainText = NotificationFormatUtils.toPlainText(notification)
+                            ClipboardUtils.copyNotificationText(context, plainText)
+                        }
+                    )
+                }
             }
         }
     }

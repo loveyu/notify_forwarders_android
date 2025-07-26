@@ -48,6 +48,17 @@
     <string name="notification_forward_enabled">通知转发已开启</string>
     <string name="notification_forward_disabled">通知转发已关闭</string>
     <string name="notification_forward_no_server">请先配置服务器地址</string>
+
+    <!-- 剪贴板相关字符串 -->
+    <string name="copied_to_clipboard">已复制到剪贴板</string>
+    <string name="copy_failed">复制失败</string>
+    <string name="no_icon_to_copy">没有图标可复制</string>
+
+    <!-- 应用启动相关字符串 -->
+    <string name="launching_app">正在启动 %s</string>
+    <string name="app_not_found">未找到应用 %s</string>
+    <string name="no_permission_to_launch">没有权限启动 %s</string>
+    <string name="launch_app_failed">启动 %s 失败</string>
     <string name="current_server_address">当前转发地址: %s</string>
 
     <!-- 通知图标相关字符串 -->

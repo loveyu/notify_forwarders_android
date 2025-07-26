@@ -27,6 +27,11 @@ A modern Android notification forwarding application that captures system notifi
 - ⚡ **Enhanced Quick Actions**: Compact main screen layout with dedicated send buttons for clipboard and image content
 - 🔔 **Intelligent Error Notifications**: 20-second auto-dismissing error notifications with detailed failure reasons
 
+## 📖 Documentation
+
+- **[API Documentation](API_DOCUMENTATION.md)** - Complete REST API specifications and implementation details
+- **[Icon Feature Documentation](ICON_FEATURE_README.md)** - Detailed guide for notification icon functionality
+
 ## 📥 Download & Installation
 
 ### Latest Release
@@ -232,70 +237,33 @@ The app now features an optional persistent notification system that provides qu
   - Separate error channels for different types of failures
 - **Optimized UI**: Compact main screen layout with improved quick access buttons
 
-##  API Endpoints Documentation
+## 🌐 Remote APIs Used
 
-The app communicates with a server using the following REST API endpoints:
+This application communicates with a remote server using the following REST API endpoints:
 
-### Core Notification Forwarding
-- **`POST /api/notify`** - Forward captured notifications
-  - **Content-Type**: `application/json`
-  - **Body**:
-    ```json
-    {
-      "packageName": "com.example.app",
-      "appName": "Example App",
-      "title": "Notification Title",
-      "text": "Notification content",
-      "time": 1640995200000,
-      "devicename": "Android Device",
-      "icon": "base64_encoded_icon_data",
-      "iconMd5": "md5_hash_of_icon"
-    }
-    ```
-
-### Quick Send Features
-- **`POST /api/clipboard/text`** - Send clipboard text content
-  - **Content-Type**: `application/json`
-  - **Body**:
-    ```json
-    {
-      "content": "base64_encoded_text",
-      "devicename": "Android Device",
-      "type": "text"
-    }
-    ```
-
-- **`POST /api/clipboard/image`** - Send clipboard image content
-  - **Content-Type**: `application/json`
-  - **Body**:
-    ```json
-    {
-      "content": "base64_encoded_image_data",
-      "devicename": "Android Device",
-      "type": "image"
-    }
-    ```
-
-- **`POST /api/image/raw`** - Send gallery images with EXIF metadata
-  - **Content-Type**: `application/json`
-  - **Headers**:
-    - `X-EXIF`: EXIF metadata string (optional)
-  - **Body**:
-    ```json
-    {
-      "content": "base64_encoded_image_data",
-      "devicename": "Android Device",
-      "mimeType": "image/jpeg"
-    }
-    ```
+### Core APIs
+1. **`POST /api/notify`** - Forward captured notifications to server
+2. **`POST /api/clipboard/text`** - Send clipboard text content
+3. **`POST /api/clipboard/image`** - Send clipboard image content
+4. **`POST /api/image/raw`** - Send gallery images with EXIF metadata
 
 ### Server Configuration
-- **Default Port**: 19283 (when not specified in server address)
+- **Default Port**: 19283 (automatically appended if not specified)
 - **Protocol**: HTTP (HTTPS support depends on server implementation)
-- **Timeout Settings**:
-  - Connection timeout: 10 seconds
-  - Read timeout: 10 seconds (5 seconds for notifications)
-- **Device Name**: Automatically detected Android device name
+- **Base URL Format**: `http://[server_address]:[port]`
+- **Content-Type**: `application/json` for all endpoints
+- **Device Identification**: Automatically includes Android device name in requests
+
+### Quick Reference
+
+| Endpoint | Purpose | Content Type |
+|----------|---------|--------------|
+| `POST /api/notify` | Forward notifications | JSON |
+| `POST /api/clipboard/text` | Send clipboard text | JSON + Base64 |
+| `POST /api/clipboard/image` | Send clipboard images | JSON + Base64 |
+| `POST /api/image/raw` | Send gallery images + EXIF | JSON + Base64 + Headers |
+
+For detailed API specifications, request/response examples, and implementation details, see **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)**.
 
 ## 📋 Recent Updates
 

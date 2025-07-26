@@ -11,6 +11,7 @@ import com.hestudio.notifyforwarders.util.ClipboardImageUtils
 import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.PermissionUtils
 import com.hestudio.notifyforwarders.util.ErrorNotificationUtils
+import com.hestudio.notifyforwarders.util.MediaPermissionUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,13 +73,13 @@ class NotificationActionService : IntentService("NotificationActionService") {
      */
     private fun handleSendClipboard() {
         Log.d(TAG, "开始处理剪贴板发送")
-        
+
         showToast(getString(R.string.reading_clipboard))
-        
+
         serviceScope.launch {
             try {
                 val clipboardContent = ClipboardImageUtils.readClipboardContent(this@NotificationActionService)
-                
+
                 if (clipboardContent.type == ClipboardImageUtils.ContentType.EMPTY) {
                     showToast(getString(R.string.clipboard_empty))
                     return@launch
@@ -99,12 +100,22 @@ class NotificationActionService : IntentService("NotificationActionService") {
                 if (success) {
                     showToast(getString(R.string.clipboard_sent_success))
                 } else {
-                    showToast(getString(R.string.clipboard_sent_failed))
+                    // 发送失败时显示详细错误通知
+                    ErrorNotificationUtils.showClipboardSendError(
+                        this@NotificationActionService,
+                        getString(R.string.server_connection_error_message)
+                    )
                 }
 
+            } catch (e: SecurityException) {
+                Log.e(TAG, "剪贴板权限不足", e)
+                ErrorNotificationUtils.showClipboardPermissionError(this@NotificationActionService)
             } catch (e: Exception) {
                 Log.e(TAG, "发送剪贴板内容失败", e)
-                showToast(getString(R.string.clipboard_sent_failed))
+                ErrorNotificationUtils.showClipboardSendError(
+                    this@NotificationActionService,
+                    e.message ?: getString(R.string.unknown_error)
+                )
             }
         }
     }
@@ -114,13 +125,20 @@ class NotificationActionService : IntentService("NotificationActionService") {
      */
     private fun handleSendImage() {
         Log.d(TAG, "开始处理图片发送")
-        
+
+        // 检查媒体权限
+        if (!MediaPermissionUtils.hasMediaPermission(this)) {
+            Log.w(TAG, "媒体权限不足")
+            ErrorNotificationUtils.showMediaPermissionError(this)
+            return
+        }
+
         showToast(getString(R.string.reading_latest_image))
-        
+
         serviceScope.launch {
             try {
                 val imageContent = ClipboardImageUtils.getLatestImage(this@NotificationActionService)
-                
+
                 if (imageContent == null) {
                     showToast(getString(R.string.no_images_found))
                     return@launch
@@ -133,12 +151,22 @@ class NotificationActionService : IntentService("NotificationActionService") {
                 if (success) {
                     showToast(getString(R.string.image_sent_success))
                 } else {
-                    showToast(getString(R.string.image_sent_failed))
+                    // 发送失败时显示详细错误通知
+                    ErrorNotificationUtils.showImageSendError(
+                        this@NotificationActionService,
+                        getString(R.string.server_connection_error_message)
+                    )
                 }
 
+            } catch (e: SecurityException) {
+                Log.e(TAG, "媒体权限不足", e)
+                ErrorNotificationUtils.showMediaPermissionError(this@NotificationActionService)
             } catch (e: Exception) {
                 Log.e(TAG, "发送图片失败", e)
-                showToast(getString(R.string.image_sent_failed))
+                ErrorNotificationUtils.showImageSendError(
+                    this@NotificationActionService,
+                    e.message ?: getString(R.string.unknown_error)
+                )
             }
         }
     }

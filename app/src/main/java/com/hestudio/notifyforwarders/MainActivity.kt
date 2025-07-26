@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -76,6 +77,7 @@ import com.hestudio.notifyforwarders.util.LocaleHelper
 import com.hestudio.notifyforwarders.util.IconCacheManager
 import com.hestudio.notifyforwarders.util.PermissionUtils
 import com.hestudio.notifyforwarders.util.SettingsStateManager
+import com.hestudio.notifyforwarders.service.NotificationActionService
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import java.text.SimpleDateFormat
@@ -622,8 +624,8 @@ fun QuickToggleSection() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // 通知接收开关
             Row(
@@ -633,7 +635,7 @@ fun QuickToggleSection() {
             ) {
                 Text(
                     text = stringResource(R.string.notification_receive_switch),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyMedium
                 )
                 Switch(
                     checked = notificationReceiveEnabled,
@@ -660,7 +662,7 @@ fun QuickToggleSection() {
             ) {
                 Text(
                     text = stringResource(R.string.notification_forward_switch),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyMedium
                 )
                 Switch(
                     checked = notificationForwardEnabled,
@@ -690,6 +692,48 @@ fun QuickToggleSection() {
                         }
                     }
                 )
+            }
+
+            // 快捷操作按钮区域
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // 发送剪贴板按钮
+                Button(
+                    onClick = {
+                        NotificationActionService.sendClipboard(context)
+                    },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.send_clipboard_button),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
+                // 发送图片按钮
+                Button(
+                    onClick = {
+                        NotificationActionService.sendLatestImage(context)
+                    },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.send_image_button),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
         }
     }

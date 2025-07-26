@@ -21,8 +21,11 @@ A modern Android notification forwarding application that captures system notifi
 - 📋 **Smart Notification Management**: Updated notifications automatically move to the top of the list
 - 🎯 **Smart Icon Forwarding**: Intelligent icon handling with notification icons prioritized over app icons in both forwarding and UI display, featuring configurable rounded corners (5%-50%) and optimized caching
 - 📌 **Persistent Notification**: Optional persistent notification with quick action buttons for clipboard and image sending
-- 📋 **Clipboard Integration**: Send clipboard content (text and images) with Base64 encoding via notification actions
+- 📋 **Clipboard Integration**: Send clipboard content (text and images) with Base64 encoding via notification actions and main screen buttons
 - 📸 **Image Gallery Access**: Send latest images from gallery with EXIF metadata extraction and transmission
+- 🔐 **Smart Permission Handling**: Automatic permission checks with user-friendly error notifications for clipboard and media access
+- ⚡ **Enhanced Quick Actions**: Compact main screen layout with dedicated send buttons for clipboard and image content
+- 🔔 **Intelligent Error Notifications**: 20-second auto-dismissing error notifications with detailed failure reasons
 
 ## 📥 Download & Installation
 
@@ -195,17 +198,23 @@ The app now features an optional persistent notification system that provides qu
 
 ### Key Features
 - **📌 Persistent Notification**: Optional always-visible notification with action buttons
-- **📋 Clipboard Sending**: Send clipboard content (text or images) with one tap
+- **📋 Clipboard Sending**: Send clipboard content (text or images) with one tap from notification or main screen
 - **📸 Image Gallery Access**: Send the latest image from gallery with EXIF metadata
 - **🔧 Configurable**: Can be enabled/disabled in settings
 - **🌍 Multi-language Support**: All features fully translated across 7 languages
+- **🔐 Smart Permission Management**: Automatic permission checks with guided authorization flows
+- **⚡ Enhanced Main Screen**: Compact quick toggle layout with dedicated send buttons
+- **🔔 Intelligent Error Handling**: Auto-dismissing error notifications with detailed failure reasons
 
 ### How It Works
 1. **Enable Persistent Notification**: Go to Settings → Persistent Notification Settings
-2. **Action Buttons**: The notification displays two action buttons:
+2. **Multiple Access Points**: Send content via:
+   - **Persistent Notification**: Two action buttons in the always-visible notification
+   - **Main Screen Buttons**: Dedicated send buttons below the quick toggle switches
+3. **Action Buttons**: Both locations provide:
    - **Send Clipboard**: Reads current clipboard content and sends it (supports text and images)
    - **Send Image**: Reads the latest image from gallery and sends it with EXIF data
-3. **API Endpoints**: Uses dedicated endpoints for different content types:
+4. **API Endpoints**: Uses dedicated endpoints for different content types:
    - `/api/clipboard/text` - For clipboard text content
    - `/api/clipboard/image` - For clipboard image content
    - `/api/image/raw` - For gallery images with EXIF headers
@@ -213,10 +222,25 @@ The app now features an optional persistent notification system that provides qu
 ### Technical Details
 - **Base64 Encoding**: All content is Base64 encoded for transmission
 - **EXIF Metadata**: Image EXIF data is extracted and sent via `X-EXIF` header
-- **Permission Handling**: Automatically requests media access permissions when needed
-- **Error Handling**: Comprehensive error handling with user feedback via Toast messages
+- **Smart Permission Handling**:
+  - Automatic permission checks before accessing clipboard or media
+  - User-friendly error notifications with authorization guidance
+  - Graceful fallback when permissions are denied
+- **Enhanced Error Handling**:
+  - Detailed error notifications with specific failure reasons
+  - 20-second auto-dismissing notifications to avoid clutter
+  - Separate error channels for different types of failures
+- **Optimized UI**: Compact main screen layout with improved quick access buttons
 
 ## 📋 Recent Updates
+
+### Version 1.5.0 - Enhanced Quick Actions & Smart Error Handling
+- **⚡ Enhanced Main Screen**: Compact quick toggle layout with dedicated send buttons for clipboard and image content
+- **🔐 Smart Permission Management**: Automatic permission checks with user-friendly error notifications and authorization guidance
+- **🔔 Intelligent Error Notifications**: 20-second auto-dismissing error notifications with detailed failure reasons
+- **📌 Improved Persistent Notification**: Enhanced notification recovery mechanism to prevent manual cancellation issues
+- **🎨 Optimized UI Layout**: More compact and efficient main screen design with better button placement
+- **🌍 Complete Translations**: All new features and error messages translated across 7 supported languages
 
 ### Version 1.4.0 - Persistent Notification & Quick Actions
 - **📌 Persistent Notification**: Optional persistent notification with quick action buttons

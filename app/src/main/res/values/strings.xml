@@ -178,6 +178,7 @@
     <string name="image_send_error_message">发送失败原因: %s</string>
     <string name="server_connection_error_title">服务器连接失败</string>
     <string name="server_connection_error_message">无法连接到服务器，请检查网络连接和服务器配置</string>
+    <string name="unknown_error">未知错误</string>
 
     <!-- 测试通知内容 -->
     <string name="test_notification_prefix">测试通知 - </string>

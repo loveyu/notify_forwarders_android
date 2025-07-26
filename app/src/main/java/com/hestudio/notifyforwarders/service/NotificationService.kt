@@ -476,11 +476,7 @@ class NotificationService : NotificationListenerService() {
         }
     }
 
-    // 更新前台服务通知（用于持久化通知设置变更时）
-    fun updateForegroundNotification() {
-        Log.d(TAG, "更新前台服务通知")
-        startForeground()
-    }
+
 
     // 创建前台服务通知
     private fun startForeground() {
@@ -563,6 +559,17 @@ class NotificationService : NotificationListenerService() {
 
         // 启动前台服务
         startForeground(FOREGROUND_SERVICE_ID, notificationBuilder.build())
+    }
+
+    /**
+     * 更新前台通知（用于持久化通知设置变更时）
+     */
+    fun updateForegroundNotification() {
+        try {
+            startForeground()
+        } catch (e: Exception) {
+            Log.e(TAG, "更新前台通知失败", e)
+        }
     }
 }
 

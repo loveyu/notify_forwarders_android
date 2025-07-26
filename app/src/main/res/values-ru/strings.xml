@@ -56,8 +56,11 @@
     <string name="notification_icon_switch">Отправлять значки уведомлений</string>
     <string name="notification_icon_enabled">Отправка значков уведомлений включена</string>
     <string name="notification_icon_disabled">Отправка значков уведомлений отключена</string>
+    <string name="notification_list_icon_switch">Показывать значки в списке уведомлений</string>
+    <string name="notification_list_icon_enabled">Отображение значков списка уведомлений включено</string>
+    <string name="notification_list_icon_disabled">Отображение значков списка уведомлений отключено</string>
     <string name="icon_corner_radius_setting">Настройка скругления значков</string>
-    <string name="icon_corner_radius_desc">Настройте радиус скругления значков от 5% до 50%</string>
+    <string name="icon_corner_radius_desc" formatted="false">Настройте радиус скругления значков от 0% до 50%, 0% для квадратных значков</string>
     <string name="current_corner_radius">Текущее скругление: %d%%</string>
     <string name="icon_corner_radius_changed">Скругление значков установлено на %d%%</string>
     

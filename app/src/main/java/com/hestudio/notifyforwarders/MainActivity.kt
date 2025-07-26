@@ -46,6 +46,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,6 +75,9 @@ import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.LocaleHelper
 import com.hestudio.notifyforwarders.util.IconCacheManager
 import com.hestudio.notifyforwarders.util.PermissionUtils
+import com.hestudio.notifyforwarders.util.SettingsStateManager
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -118,6 +122,9 @@ class MainActivity : ComponentActivity() {
         // 初始化权限状态
         hasNotificationPermission.value = NotificationUtils.isNotificationListenerEnabled(this)
         hasPostNotificationsPermission.value = PermissionUtils.hasPostNotificationsPermission(this)
+
+        // 初始化设置状态管理器
+        SettingsStateManager.initialize(this)
 
         enableEdgeToEdge()
         updateUI()
@@ -311,6 +318,9 @@ fun NotificationList(
     notifications: List<NotificationData>,
     modifier: Modifier = Modifier
 ) {
+    // 使用全局状态管理器获取图标显示状态
+    val showIcon by SettingsStateManager.getNotificationListIconEnabledState()
+
     if (notifications.isEmpty()) {
         Box(
             modifier = modifier.fillMaxSize(),
@@ -325,7 +335,7 @@ fun NotificationList(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(notifications) { notification ->
-                NotificationItem(notification = notification)
+                NotificationItem(notification = notification, showIcon = showIcon)
             }
         }
     }
@@ -426,11 +436,10 @@ fun AppIcon(
 }
 
 @Composable
-fun NotificationItem(notification: NotificationData) {
+fun NotificationItem(notification: NotificationData, showIcon: Boolean = true) {
     val context = LocalContext.current
     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
     val timeString = dateFormat.format(Date(notification.time))
-    val showIcon = ServerPreferences.isNotificationListIconEnabled(context)
 
     Card(
         modifier = Modifier.fillMaxWidth(),

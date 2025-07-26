@@ -56,8 +56,11 @@
     <string name="notification_icon_switch">Send Notification Icons</string>
     <string name="notification_icon_enabled">Notification icon sending enabled</string>
     <string name="notification_icon_disabled">Notification icon sending disabled</string>
+    <string name="notification_list_icon_switch">Show Icons in Notification List</string>
+    <string name="notification_list_icon_enabled">Notification list icon display enabled</string>
+    <string name="notification_list_icon_disabled">Notification list icon display disabled</string>
     <string name="icon_corner_radius_setting">Icon Corner Radius</string>
-    <string name="icon_corner_radius_desc">Adjust the corner radius of icons, ranging from 5% to 50%</string>
+    <string name="icon_corner_radius_desc" formatted="false">Adjust the corner radius of icons, ranging from 0% to 50%, 0% for square icons</string>
     <string name="current_corner_radius">Current radius: %d%%</string>
     <string name="icon_corner_radius_changed">Icon corner radius set to %d%%</string>
     

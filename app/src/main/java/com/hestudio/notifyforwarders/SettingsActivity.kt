@@ -66,6 +66,7 @@ import com.hestudio.notifyforwarders.ui.theme.NotifyForwardersTheme
 import com.hestudio.notifyforwarders.util.NotificationUtils
 import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.LocaleHelper
+import com.hestudio.notifyforwarders.util.SettingsStateManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -95,6 +96,9 @@ class SettingsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         createNotificationChannels()
         enableEdgeToEdge()
+
+        // 初始化设置状态管理器
+        SettingsStateManager.initialize(this)
 
         setContent {
             NotifyForwardersTheme {
@@ -797,7 +801,8 @@ fun NotificationIconSettingsCard() {
                     checked = listIconEnabled,
                     onCheckedChange = { enabled ->
                         listIconEnabled = enabled
-                        ServerPreferences.saveNotificationListIconEnabled(context, enabled)
+                        // 使用状态管理器更新设置，这会立即触发UI更新
+                        SettingsStateManager.updateNotificationListIconEnabled(context, enabled)
 
                         val message = if (enabled) {
                             context.getString(R.string.notification_list_icon_enabled)

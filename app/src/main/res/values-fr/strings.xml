@@ -56,8 +56,11 @@
     <string name="notification_icon_switch">Envoyer les icônes de notification</string>
     <string name="notification_icon_enabled">Envoi d\'icônes de notification activé</string>
     <string name="notification_icon_disabled">Envoi d\'icônes de notification désactivé</string>
+    <string name="notification_list_icon_switch">Afficher les icônes dans la liste des notifications</string>
+    <string name="notification_list_icon_enabled">Affichage des icônes de liste de notifications activé</string>
+    <string name="notification_list_icon_disabled">Affichage des icônes de liste de notifications désactivé</string>
     <string name="icon_corner_radius_setting">Paramètres des coins arrondis</string>
-    <string name="icon_corner_radius_desc">Ajustez le rayon des coins arrondis des icônes, de 5% à 50%</string>
+    <string name="icon_corner_radius_desc" formatted="false">Ajustez le rayon des coins arrondis des icônes, de 0% à 50%, 0% pour des icônes carrées</string>
     <string name="current_corner_radius">Rayon actuel : %d%%</string>
     <string name="icon_corner_radius_changed">Rayon des coins des icônes défini à %d%%</string>
     

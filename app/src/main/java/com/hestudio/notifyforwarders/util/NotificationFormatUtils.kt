@@ -30,14 +30,14 @@ object NotificationFormatUtils {
     }
 
     /**
-     * 将通知数据转换为JSON字符串
+     * 将通知数据转换为JSON字符串（包含图标信息）
      * @param notification 通知数据
      * @return JSON字符串
      */
     fun toJsonString(notification: NotificationData): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val timeString = dateFormat.format(Date(notification.time))
-        
+
         return JSONObject().apply {
             put("id", notification.id)
             put("packageName", notification.packageName)
@@ -47,7 +47,7 @@ object NotificationFormatUtils {
             put("time", notification.time)
             put("timeFormatted", timeString)
             put("uniqueId", notification.uniqueId)
-            
+
             // 只有在图标数据存在时才添加
             notification.iconMd5?.let { iconMd5 ->
                 put("iconMd5", iconMd5)
@@ -55,6 +55,28 @@ object NotificationFormatUtils {
             notification.iconBase64?.let { iconBase64 ->
                 put("iconBase64", iconBase64)
             }
+        }.toString(2) // 使用缩进格式化JSON
+    }
+
+    /**
+     * 将通知数据转换为JSON字符串（不包含图标信息）
+     * @param notification 通知数据
+     * @return JSON字符串
+     */
+    fun toJsonStringWithoutIcon(notification: NotificationData): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val timeString = dateFormat.format(Date(notification.time))
+
+        return JSONObject().apply {
+            put("id", notification.id)
+            put("packageName", notification.packageName)
+            put("appName", notification.appName)
+            put("title", notification.title)
+            put("content", notification.content)
+            put("time", notification.time)
+            put("timeFormatted", timeString)
+            put("uniqueId", notification.uniqueId)
+            // 不包含图标信息：iconMd5 和 iconBase64
         }.toString(2) // 使用缩进格式化JSON
     }
 

@@ -3,16 +3,11 @@ package com.hestudio.notifyforwarders.util
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import com.hestudio.notifyforwarders.R
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
 
 /**
  * 剪贴板工具类
@@ -61,7 +56,7 @@ object ClipboardUtils {
     }
 
     /**
-     * 复制通知图标到剪贴板（PNG格式，带透明）
+     * 复制通知图标到剪贴板（Data URI格式）
      * @param context 上下文
      * @param iconBase64 图标的Base64数据
      */
@@ -76,7 +71,7 @@ object ClipboardUtils {
         }
 
         try {
-            // 将Base64字符串转换为Bitmap
+            // 验证Base64数据是否有效
             val imageBytes = Base64.decode(iconBase64, Base64.DEFAULT)
             val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
 
@@ -90,25 +85,16 @@ object ClipboardUtils {
                 return
             }
 
-            // 创建临时文件保存PNG图片
-            val cacheDir = File(context.cacheDir, "clipboard_icons")
-            if (!cacheDir.exists()) {
-                cacheDir.mkdirs()
-            }
+            // 创建Data URI格式的字符串
+            val dataUri = "data:image/png;base64,$iconBase64"
 
-            val tempFile = File(cacheDir, "icon_${System.currentTimeMillis()}.png")
-
-            // 将Bitmap保存为PNG格式（保持透明度）
-            FileOutputStream(tempFile).use { fos ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
-            }
-
-            // 创建URI并复制到剪贴板
-            val uri = Uri.fromFile(tempFile)
-            val clipData = ClipData.newUri(context.contentResolver, "Notification Icon", uri)
-
-            val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            clipboardManager.setPrimaryClip(clipData)
+            // 复制Data URI字符串到剪贴板
+            copyToClipboard(
+                context = context,
+                text = dataUri,
+                label = "Notification Icon Data URI",
+                showToast = false // 我们会显示自定义的Toast消息
+            )
 
             Toast.makeText(
                 context,
@@ -116,10 +102,7 @@ object ClipboardUtils {
                 Toast.LENGTH_SHORT
             ).show()
 
-            Log.d(TAG, "图标已复制到剪贴板: ${tempFile.absolutePath}")
-
-            // 清理旧的临时文件（保留最近的5个文件）
-            cleanupOldTempFiles(cacheDir)
+            Log.d(TAG, "图标Data URI已复制到剪贴板")
 
         } catch (e: Exception) {
             Log.e(TAG, "复制图标到剪贴板失败", e)
@@ -159,27 +142,5 @@ object ClipboardUtils {
         )
     }
 
-    /**
-     * 清理旧的临时文件，保留最近的5个文件
-     * @param cacheDir 缓存目录
-     */
-    private fun cleanupOldTempFiles(cacheDir: File) {
-        try {
-            val files = cacheDir.listFiles { file ->
-                file.name.startsWith("icon_") && file.name.endsWith(".png")
-            } ?: return
 
-            // 按修改时间排序，保留最新的5个文件
-            val sortedFiles = files.sortedByDescending { it.lastModified() }
-            if (sortedFiles.size > 5) {
-                sortedFiles.drop(5).forEach { file ->
-                    if (file.delete()) {
-                        Log.d(TAG, "已删除旧的临时文件: ${file.name}")
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "清理临时文件失败", e)
-        }
-    }
 }

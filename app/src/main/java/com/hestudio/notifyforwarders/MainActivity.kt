@@ -513,8 +513,8 @@ fun NotificationItem(notification: NotificationData, showIcon: Boolean = true) {
                         text = timeString,
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier.clickable {
-                            // 点击时间：将整个通知内容生成JSON字符串并复制
-                            val jsonString = NotificationFormatUtils.toJsonString(notification)
+                            // 点击时间：将整个通知内容生成JSON字符串并复制（不包含图标信息）
+                            val jsonString = NotificationFormatUtils.toJsonStringWithoutIcon(notification)
                             ClipboardUtils.copyNotificationJson(context, jsonString)
                         }
                     )

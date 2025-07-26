@@ -12,8 +12,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 object PermissionUtils {
-    
+
     const val REQUEST_POST_NOTIFICATIONS = 1001
+    const val REQUEST_READ_MEDIA_IMAGES = 1002
+    const val REQUEST_READ_EXTERNAL_STORAGE = 1003
     
     /**
      * 检查是否有POST_NOTIFICATIONS权限
@@ -93,5 +95,58 @@ object PermissionUtils {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    /**
+     * 检查是否有媒体访问权限
+     */
+    fun hasMediaPermission(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_MEDIA_IMAGES
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    /**
+     * 请求媒体访问权限
+     */
+    fun requestMediaPermission(activity: Activity) {
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
+        val requestCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            REQUEST_READ_MEDIA_IMAGES
+        } else {
+            REQUEST_READ_EXTERNAL_STORAGE
+        }
+
+        ActivityCompat.requestPermissions(
+            activity,
+            arrayOf(permission),
+            requestCode
+        )
+    }
+
+    /**
+     * 检查是否应该显示媒体权限说明
+     */
+    fun shouldShowMediaPermissionRationale(activity: Activity): Boolean {
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
+        return ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
     }
 }

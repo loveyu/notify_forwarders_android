@@ -39,15 +39,18 @@ class NotificationService : NotificationListenerService() {
         const val TAG = "NotificationService"
         private const val FOREGROUND_SERVICE_ID = 1001
         private const val CHANNEL_ID = "notifyforwarders_service_channel"
-        
+
         // 存储收到的通知，使用可观察的列表以便UI自动更新
         private val notifications = mutableStateListOf<NotificationData>()
-        
+
+        // 存储服务实例引用，用于外部调用
+        private var serviceInstance: NotificationService? = null
+
         // 获取所有通知
         fun getNotifications(): List<NotificationData> {
             return notifications
         }
-        
+
         // 清除通知列表
         fun clearNotifications() {
             notifications.clear()
@@ -63,6 +66,11 @@ class NotificationService : NotificationListenerService() {
         fun getNotificationCount(): Int {
             return notifications.size
         }
+
+        // 刷新前台通知（用于持久化通知设置变更时）
+        fun refreshForegroundNotification(context: Context) {
+            serviceInstance?.updateForegroundNotification()
+        }
     }
     
     private val serviceScope = CoroutineScope(Dispatchers.IO)
@@ -70,6 +78,9 @@ class NotificationService : NotificationListenerService() {
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "NotificationService onCreate")
+
+        // 保存服务实例引用
+        serviceInstance = this
 
         // 启动时清空图标缓存
         IconCacheManager.clearAllCache(this)
@@ -188,6 +199,10 @@ class NotificationService : NotificationListenerService() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "NotificationService onDestroy")
+
+        // 清除服务实例引用
+        serviceInstance = null
+
         // 尝试重启服务
         val intent = Intent(this, NotificationService::class.java)
         startForegroundService(intent)
@@ -459,6 +474,12 @@ class NotificationService : NotificationListenerService() {
                 Log.e(TAG, "通知转发失败", e)
             }
         }
+    }
+
+    // 更新前台服务通知（用于持久化通知设置变更时）
+    fun updateForegroundNotification() {
+        Log.d(TAG, "更新前台服务通知")
+        startForeground()
     }
 
     // 创建前台服务通知

@@ -162,6 +162,22 @@
     <string name="reading_clipboard">正在读取剪贴板...</string>
     <string name="reading_latest_image">正在读取最新图片...</string>
     <string name="sending_content">正在发送内容...</string>
+    <string name="send_clipboard_button">发送剪贴板</string>
+    <string name="send_image_button">发送图片</string>
+
+    <!-- 错误通知 -->
+    <string name="error_notification_channel">错误通知</string>
+    <string name="error_notification_channel_desc">显示操作失败的错误信息</string>
+    <string name="clipboard_permission_error_title">剪贴板权限不足</string>
+    <string name="clipboard_permission_error_message">无法访问剪贴板，请在设置中授予相关权限</string>
+    <string name="media_permission_error_title">媒体权限不足</string>
+    <string name="media_permission_error_message">无法访问图片，请在设置中授予媒体访问权限</string>
+    <string name="clipboard_send_error_title">剪贴板发送失败</string>
+    <string name="clipboard_send_error_message">发送失败原因: %s</string>
+    <string name="image_send_error_title">图片发送失败</string>
+    <string name="image_send_error_message">发送失败原因: %s</string>
+    <string name="server_connection_error_title">服务器连接失败</string>
+    <string name="server_connection_error_message">无法连接到服务器，请检查网络连接和服务器配置</string>
 
     <!-- 测试通知内容 -->
     <string name="test_notification_prefix">测试通知 - </string>

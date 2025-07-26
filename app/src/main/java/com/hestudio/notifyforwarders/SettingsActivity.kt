@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -785,13 +786,19 @@ fun PersistentNotificationSettingsCard() {
                         }
                         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 
-                        // 重启通知服务以应用新设置
+                        // 刷新前台通知以应用新设置
                         try {
-                            val serviceIntent = Intent(context, NotificationService::class.java)
-                            context.stopService(serviceIntent)
-                            context.startForegroundService(serviceIntent)
+                            NotificationService.refreshForegroundNotification(context)
                         } catch (e: Exception) {
-                            // 忽略错误，服务会自动重启
+                            Log.w("SettingsActivity", "刷新前台通知失败，尝试重启服务", e)
+                            // 如果刷新失败，尝试重启服务
+                            try {
+                                val serviceIntent = Intent(context, NotificationService::class.java)
+                                context.stopService(serviceIntent)
+                                context.startForegroundService(serviceIntent)
+                            } catch (e2: Exception) {
+                                Log.e("SettingsActivity", "重启服务失败", e2)
+                            }
                         }
                     }
                 )

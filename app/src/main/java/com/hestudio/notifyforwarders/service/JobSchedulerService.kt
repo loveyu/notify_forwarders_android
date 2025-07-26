@@ -1,5 +1,6 @@
 package com.hestudio.notifyforwarders.service
 
+import android.app.NotificationManager
 import android.app.job.JobInfo
 import android.app.job.JobParameters
 import android.app.job.JobScheduler
@@ -10,6 +11,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import com.hestudio.notifyforwarders.util.NotificationUtils
+import com.hestudio.notifyforwarders.util.ServerPreferences
 
 /**
  * JobScheduler保活服务，定期检查通知服务是否存活，如果不存在则重启
@@ -69,6 +71,9 @@ class JobSchedulerService : JobService() {
             Log.e(TAG, "启动服务失败: ${e.message}")
         }
 
+        // 检查并恢复持久化通知（如果被系统取消）
+        checkAndRestorePersistentNotification()
+
         // 任务完成，返回false表示系统可以回收资源
         jobFinished(params, false)
         return false
@@ -78,5 +83,42 @@ class JobSchedulerService : JobService() {
         Log.d(TAG, "JobScheduler服务被系统停止")
         // 返回true表示如果服务被系统杀死，需要重新调度
         return true
+    }
+
+    /**
+     * 检查并恢复持久化通知
+     * 如果用户开启了持久化通知但通知被系统取消，则尝试恢复
+     */
+    private fun checkAndRestorePersistentNotification() {
+        try {
+            // 检查是否开启了持久化通知
+            if (!ServerPreferences.isPersistentNotificationEnabled(this)) {
+                Log.d(TAG, "持久化通知未开启，跳过检查")
+                return
+            }
+
+            // 检查前台服务通知是否存在
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val activeNotifications = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                notificationManager.activeNotifications
+            } else {
+                emptyArray()
+            }
+
+            val foregroundNotificationExists = activeNotifications.any {
+                it.id == 1001 && it.packageName == packageName
+            }
+
+            if (!foregroundNotificationExists) {
+                Log.d(TAG, "前台服务通知不存在，尝试恢复持久化通知")
+                // 刷新前台通知
+                NotificationService.refreshForegroundNotification(this)
+            } else {
+                Log.d(TAG, "前台服务通知正常存在")
+            }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "检查持久化通知失败: ${e.message}")
+        }
     }
 }

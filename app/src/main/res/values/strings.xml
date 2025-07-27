@@ -167,6 +167,16 @@
     <string name="media_permission_title">媒体访问权限</string>
     <string name="media_permission_desc">应用需要访问媒体文件来读取和发送最新图片</string>
     <string name="grant_media_permission">授予媒体访问权限</string>
+
+    <!-- 媒体权限引导页面 -->
+    <string name="media_permission_request_title">需要访问您的图片</string>
+    <string name="media_permission_request_description">为了发送最新图片，应用需要访问您设备上的照片和媒体文件。这将帮助您快速分享图片内容。</string>
+    <string name="media_permission_needed">权限未授予</string>
+    <string name="media_permission_explanation">点击下方按钮授予媒体访问权限，以便应用能够读取和发送您的最新图片。</string>
+    <string name="media_permission_permanently_denied_title">权限被永久拒绝</string>
+    <string name="media_permission_permanently_denied_description">您已拒绝媒体访问权限。请在应用设置中手动开启"照片和媒体"或"存储"权限。</string>
+    <string name="open_app_settings">打开应用设置</string>
+    <string name="media_permission_granted">媒体权限已授予</string>
     <string name="clipboard_sent_success">剪贴板内容发送成功</string>
     <string name="clipboard_sent_failed">剪贴板内容发送失败</string>
     <string name="clipboard_empty">剪贴板为空</string>
@@ -188,7 +198,8 @@
     <string name="clipboard_permission_error_title">剪贴板权限不足</string>
     <string name="clipboard_permission_error_message">无法访问剪贴板。Android 10+ 要求应用在前台才能访问剪贴板，请确保应用在前台时使用此功能</string>
     <string name="media_permission_error_title">媒体权限不足</string>
-    <string name="media_permission_error_message">无法访问图片，请在设置中授予媒体访问权限</string>
+    <string name="media_permission_error_message">无法访问图片。请点击此通知前往设置页面，在"权限"中找到"照片和媒体"或"存储"权限并开启</string>
+    <string name="media_permission_error_message_improved">无法访问图片。点击此通知可打开权限引导页面，快速授予媒体访问权限</string>
     <string name="clipboard_send_error_title">剪贴板发送失败</string>
     <string name="clipboard_send_error_message">发送失败原因: %s</string>
     <string name="image_send_error_title">图片发送失败</string>

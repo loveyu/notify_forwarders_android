@@ -3,7 +3,8 @@ package com.hestudio.notifyforwarders.util
 import com.hestudio.notifyforwarders.service.NotificationData
 import org.json.JSONObject
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 /**
  * 通知格式化工具类

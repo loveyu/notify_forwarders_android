@@ -112,11 +112,6 @@ object ApiConstants {
     
     // ==================== HTTP头部 ====================
     
-    /**
-     * EXIF数据头部字段
-     */
-    const val HEADER_EXIF = "X-EXIF"
-    
     // ==================== JSON字段名 ====================
     
     /**
@@ -178,6 +173,26 @@ object ApiConstants {
      * 版本字段
      */
     const val FIELD_VERSION = "version"
+
+    /**
+     * 文件名字段
+     */
+    const val FIELD_FILE_NAME = "fileName"
+
+    /**
+     * 文件路径字段
+     */
+    const val FIELD_FILE_PATH = "filePath"
+
+    /**
+     * 创建时间字段
+     */
+    const val FIELD_DATE_ADDED = "dateAdded"
+
+    /**
+     * 修改时间字段
+     */
+    const val FIELD_DATE_MODIFIED = "dateModified"
     
     // ==================== 内容类型值 ====================
     

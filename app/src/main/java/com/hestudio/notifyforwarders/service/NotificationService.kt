@@ -20,12 +20,13 @@ import android.service.notification.StatusBarNotification
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.core.app.NotificationCompat
+import androidx.core.graphics.createBitmap
 import com.hestudio.notifyforwarders.MainActivity
 import com.hestudio.notifyforwarders.R
 import com.hestudio.notifyforwarders.constants.ApiConstants
-import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.IconCacheManager
 import com.hestudio.notifyforwarders.util.PersistentNotificationManager
+import com.hestudio.notifyforwarders.util.ServerPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,13 +34,12 @@ import org.json.JSONObject
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
-import androidx.core.graphics.createBitmap
 
 class NotificationService : NotificationListenerService() {
     
     companion object {
         const val TAG = "NotificationService"
-        private const val FOREGROUND_SERVICE_ID = 1001
+        private const val FOREGROUND_SERVICE_ID = 1000  // 使用统一的通知ID
         private const val CHANNEL_ID = "notifyforwarders_service_channel"
 
         // 存储收到的通知，使用可观察的列表以便UI自动更新
@@ -73,10 +73,18 @@ class NotificationService : NotificationListenerService() {
         fun refreshForegroundNotification(context: Context) {
             serviceInstance?.updateForegroundNotification()
         }
+
+        // 更新通知状态（替代PersistentNotificationManager的功能）
+        fun updateNotificationState(context: Context, state: PersistentNotificationManager.SendingState) {
+            serviceInstance?.updateNotificationState(state)
+        }
     }
     
     private val serviceScope = CoroutineScope(Dispatchers.IO)
-    
+
+    // 当前通知状态
+    private var currentNotificationState = PersistentNotificationManager.SendingState.IDLE
+
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "NotificationService onCreate")
@@ -87,13 +95,167 @@ class NotificationService : NotificationListenerService() {
         // 启动时清空图标缓存
         IconCacheManager.clearAllCache(this)
 
-        startForeground()
+        // 立即启动前台服务通知，避免ANR
+        startUnifiedForegroundNotification()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "NotificationService onStartCommand")
+
+        // 确保前台服务通知正在运行
+        startUnifiedForegroundNotification()
+
         // 如果服务被系统杀死后重新创建，则返回START_STICKY以保持服务运行
         return START_STICKY
+    }
+
+    /**
+     * 更新通知状态
+     */
+    fun updateNotificationState(state: PersistentNotificationManager.SendingState) {
+        currentNotificationState = state
+        updateUnifiedForegroundNotification()
+    }
+
+    /**
+     * 启动统一的前台服务通知
+     * 合并了原来的前台服务通知和持久化通知功能
+     */
+    private fun startUnifiedForegroundNotification() {
+        try {
+            createNotificationChannel()
+
+            val notification = buildUnifiedNotification()
+            startForeground(FOREGROUND_SERVICE_ID, notification)
+
+            Log.d(TAG, "统一前台服务通知已启动")
+        } catch (e: Exception) {
+            Log.e(TAG, "启动统一前台服务通知失败", e)
+        }
+    }
+
+    /**
+     * 更新统一的前台服务通知
+     */
+    private fun updateUnifiedForegroundNotification() {
+        try {
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notification = buildUnifiedNotification()
+            notificationManager.notify(FOREGROUND_SERVICE_ID, notification)
+
+            Log.d(TAG, "统一前台服务通知已更新，状态: $currentNotificationState")
+        } catch (e: Exception) {
+            Log.e(TAG, "更新统一前台服务通知失败", e)
+        }
+    }
+
+    /**
+     * 构建统一的通知
+     * 根据持久化通知设置和当前状态动态构建通知内容
+     */
+    private fun buildUnifiedNotification(): Notification {
+        // 创建启动应用的PendingIntent
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val isPersistentEnabled = ServerPreferences.isPersistentNotificationEnabled(this)
+
+        // 根据持久化通知设置决定通知内容
+        val (title, text) = if (isPersistentEnabled) {
+            // 持久化通知开启时，显示状态相关内容
+            getString(R.string.app_name) to getNotificationText()
+        } else {
+            // 持久化通知关闭时，显示基本前台服务内容
+            getString(R.string.foreground_service_title) to getString(R.string.foreground_service_text)
+        }
+
+        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentIntent(pendingIntent)
+            .setOngoing(true) // 设置为不可清除
+
+        // 如果持久化通知开启，添加操作按钮
+        if (isPersistentEnabled) {
+            addActionButtons(notificationBuilder)
+        }
+
+        return notificationBuilder.build()
+    }
+
+    /**
+     * 获取通知文本
+     */
+    private fun getNotificationText(): String {
+        return when (currentNotificationState) {
+            PersistentNotificationManager.SendingState.SENDING_CLIPBOARD -> getString(R.string.sending_clipboard)
+            PersistentNotificationManager.SendingState.SENDING_IMAGE -> getString(R.string.sending_image)
+            PersistentNotificationManager.SendingState.IDLE -> getString(R.string.persistent_notification_text)
+        }
+    }
+
+    /**
+     * 添加操作按钮
+     */
+    private fun addActionButtons(notificationBuilder: NotificationCompat.Builder) {
+        // 创建剪贴板操作的PendingIntent
+        val clipboardIntent = Intent(this, NotificationActionService::class.java).apply {
+            action = NotificationActionService.ACTION_SEND_CLIPBOARD
+        }
+        val clipboardPendingIntent = PendingIntent.getService(
+            this,
+            1,
+            clipboardIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // 创建图片操作的PendingIntent
+        val imageIntent = Intent(this, NotificationActionService::class.java).apply {
+            action = NotificationActionService.ACTION_SEND_IMAGE
+        }
+        val imagePendingIntent = PendingIntent.getService(
+            this,
+            2,
+            imageIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // 按钮文本保持不变，不显示发送状态
+        val clipboardButtonText = getString(R.string.action_send_clipboard)
+        val imageButtonText = getString(R.string.action_send_image)
+
+        notificationBuilder
+            .addAction(
+                R.drawable.ic_launcher_foreground,
+                clipboardButtonText,
+                clipboardPendingIntent
+            )
+            .addAction(
+                R.drawable.ic_launcher_foreground,
+                imageButtonText,
+                imagePendingIntent
+            )
+    }
+
+    /**
+     * 创建通知渠道
+     */
+    private fun createNotificationChannel() {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            getString(R.string.foreground_service_channel),
+            NotificationManager.IMPORTANCE_LOW // 低优先级，不会打扰用户
+        ).apply {
+            description = getString(R.string.foreground_service_channel_desc)
+            setShowBadge(false) // 不在启动器图标上显示通知角标
+        }
+        notificationManager.createNotificationChannel(channel)
     }
     
     override fun onNotificationPosted(sbn: StatusBarNotification) {
@@ -417,95 +579,15 @@ class NotificationService : NotificationListenerService() {
 
 
 
-    // 创建前台服务通知
-    private fun startForeground() {
-        // 创建通知渠道（Android 8.0+需要）
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            getString(R.string.foreground_service_channel),
-            NotificationManager.IMPORTANCE_LOW // 低优先级，不会打扰用户
-        ).apply {
-            description = getString(R.string.foreground_service_channel_desc)
-            setShowBadge(false) // 不在启动器图标上显示通知角标
-        }
-        notificationManager.createNotificationChannel(channel)
-
-        // 创建启动应用的PendingIntent
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE
-        )
-
-        // 构建通知
-        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(
-                if (ServerPreferences.isPersistentNotificationEnabled(this)) {
-                    getString(R.string.persistent_notification_title)
-                } else {
-                    getString(R.string.foreground_service_title)
-                }
-            )
-            .setContentText(
-                if (ServerPreferences.isPersistentNotificationEnabled(this)) {
-                    getString(R.string.persistent_notification_text)
-                } else {
-                    getString(R.string.foreground_service_text)
-                }
-            )
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentIntent(pendingIntent)
-            .setOngoing(true) // 设置为不可清除
-
-        // 如果启用了常驻通知，添加操作按钮
-        if (ServerPreferences.isPersistentNotificationEnabled(this)) {
-            // 发送剪贴板按钮
-            val clipboardIntent = Intent(this, NotificationActionService::class.java).apply {
-                action = NotificationActionService.ACTION_SEND_CLIPBOARD
-            }
-            val clipboardPendingIntent = PendingIntent.getService(
-                this,
-                1,
-                clipboardIntent,
-                PendingIntent.FLAG_IMMUTABLE
-            )
-
-            // 发送图片按钮
-            val imageIntent = Intent(this, NotificationActionService::class.java).apply {
-                action = NotificationActionService.ACTION_SEND_IMAGE
-            }
-            val imagePendingIntent = PendingIntent.getService(
-                this,
-                2,
-                imageIntent,
-                PendingIntent.FLAG_IMMUTABLE
-            )
-
-            notificationBuilder
-                .addAction(
-                    R.drawable.ic_launcher_foreground,
-                    getString(R.string.action_send_clipboard),
-                    clipboardPendingIntent
-                )
-                .addAction(
-                    R.drawable.ic_launcher_foreground,
-                    getString(R.string.action_send_image),
-                    imagePendingIntent
-                )
-        }
-
-        // 启动前台服务
-        startForeground(FOREGROUND_SERVICE_ID, notificationBuilder.build())
-    }
-
     /**
      * 更新前台通知（用于持久化通知设置变更时）
      */
     fun updateForegroundNotification() {
         try {
-            startForeground()
+            // 无论持久化通知是否开启，都保持前台服务运行
+            // 只是根据设置改变通知的内容和功能
+            updateUnifiedForegroundNotification()
+            Log.d(TAG, "前台通知已更新")
         } catch (e: Exception) {
             Log.e(TAG, "更新前台通知失败", e)
         }

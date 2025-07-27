@@ -50,6 +50,14 @@
             android:exported="false"
             android:label="@string/settings"
             android:theme="@style/Theme.NotifyForwarders" />
+
+        <!-- 添加媒体权限引导Activity -->
+        <activity
+            android:name=".MediaPermissionActivity"
+            android:exported="false"
+            android:label="@string/media_permission_title"
+            android:theme="@style/Theme.NotifyForwarders"
+            android:excludeFromRecents="true" />
         
         <!-- 添加通知监听服务 -->
         <service

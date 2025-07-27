@@ -106,7 +106,11 @@ class JobSchedulerService : JobService() {
         try {
             // 检查是否开启了持久化通知
             if (!ServerPreferences.isPersistentNotificationEnabled(this)) {
-                Log.d(TAG, "持久化通知未开启，跳过检查")
+                Log.d(TAG, "持久化通知未开启，确保清除所有通知")
+                // 确保清除所有相关通知
+                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.cancel(1000) // 清除持久化通知
+                notificationManager.cancel(1001) // 清除前台服务通知
                 return
             }
 

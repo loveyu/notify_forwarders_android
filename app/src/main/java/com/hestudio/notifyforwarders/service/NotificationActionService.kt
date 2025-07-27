@@ -6,17 +6,16 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import android.widget.Toast
 import com.hestudio.notifyforwarders.MainActivity
 import com.hestudio.notifyforwarders.R
 import com.hestudio.notifyforwarders.constants.ApiConstants
+import com.hestudio.notifyforwarders.util.AppStateManager
 import com.hestudio.notifyforwarders.util.ClipboardImageUtils
-import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.ErrorNotificationUtils
 import com.hestudio.notifyforwarders.util.MediaPermissionUtils
-import com.hestudio.notifyforwarders.util.AppStateManager
-import com.hestudio.notifyforwarders.util.ToastManager
 import com.hestudio.notifyforwarders.util.PersistentNotificationManager
+import com.hestudio.notifyforwarders.util.ServerPreferences
+import com.hestudio.notifyforwarders.util.ToastManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -148,11 +147,14 @@ class NotificationActionService : Service() {
      */
     private fun restoreNotificationStateToIdle() {
         try {
-            PersistentNotificationManager.updateNotificationState(
-                this,
-                PersistentNotificationManager.SendingState.IDLE
-            )
-            Log.d(TAG, "持久化通知状态已恢复到空闲状态")
+            // 只有在持久化通知开启时才更新持久化通知状态
+            if (ServerPreferences.isPersistentNotificationEnabled(this)) {
+                NotificationService.updateNotificationState(
+                    this,
+                    PersistentNotificationManager.SendingState.IDLE
+                )
+                Log.d(TAG, "持久化通知状态已恢复到空闲状态")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "恢复持久化通知状态失败", e)
         }
@@ -205,11 +207,13 @@ class NotificationActionService : Service() {
                     // 设置任务运行状态
                     isClipboardTaskRunning.set(true)
 
-                    // 更新持久化通知状态
-                    PersistentNotificationManager.updateNotificationState(
-                        this@NotificationActionService,
-                        PersistentNotificationManager.SendingState.SENDING_CLIPBOARD
-                    )
+                    // 只有在持久化通知开启时才更新持久化通知状态
+                    if (ServerPreferences.isPersistentNotificationEnabled(this@NotificationActionService)) {
+                        NotificationService.updateNotificationState(
+                            this@NotificationActionService,
+                            PersistentNotificationManager.SendingState.SENDING_CLIPBOARD
+                        )
+                    }
 
                     // 根据常驻通知设置决定是否启动MainActivity
                     if (ServerPreferences.isPersistentNotificationEnabled(this@NotificationActionService)) {
@@ -348,11 +352,13 @@ class NotificationActionService : Service() {
                     // 设置任务运行状态
                     isImageTaskRunning.set(true)
 
-                    // 更新持久化通知状态
-                    PersistentNotificationManager.updateNotificationState(
-                        this@NotificationActionService,
-                        PersistentNotificationManager.SendingState.SENDING_IMAGE
-                    )
+                    // 只有在持久化通知开启时才更新持久化通知状态
+                    if (ServerPreferences.isPersistentNotificationEnabled(this@NotificationActionService)) {
+                        NotificationService.updateNotificationState(
+                            this@NotificationActionService,
+                            PersistentNotificationManager.SendingState.SENDING_IMAGE
+                        )
+                    }
 
                     // 检查服务器地址配置
                     val serverAddress = ServerPreferences.getServerAddress(this@NotificationActionService)
@@ -569,15 +575,24 @@ class NotificationActionService : Service() {
             connection.connectTimeout = ApiConstants.TIMEOUT_IMAGE_CONNECT
             connection.readTimeout = ApiConstants.TIMEOUT_IMAGE_READ
 
-            // 添加EXIF信息到header
-            imageContent.exifData?.let { exifData ->
-                connection.setRequestProperty(ApiConstants.HEADER_EXIF, exifData)
-            }
-
             val jsonBody = JSONObject().apply {
                 put(ApiConstants.FIELD_CONTENT, imageContent.content)
                 put(ApiConstants.FIELD_DEVICE_NAME, getDeviceName())
                 put(ApiConstants.FIELD_MIME_TYPE, imageContent.mimeType)
+
+                // 添加文件信息
+                imageContent.fileName?.let { fileName ->
+                    put(ApiConstants.FIELD_FILE_NAME, fileName)
+                }
+                imageContent.filePath?.let { filePath ->
+                    put(ApiConstants.FIELD_FILE_PATH, filePath)
+                }
+                imageContent.dateAdded?.let { dateAdded ->
+                    put(ApiConstants.FIELD_DATE_ADDED, dateAdded)
+                }
+                imageContent.dateModified?.let { dateModified ->
+                    put(ApiConstants.FIELD_DATE_MODIFIED, dateModified)
+                }
             }
 
             val outputStream = connection.outputStream

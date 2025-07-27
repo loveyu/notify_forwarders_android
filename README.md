@@ -204,7 +204,7 @@ The app now features an optional persistent notification system that provides qu
 ### Key Features
 - **📌 Persistent Notification**: Optional always-visible notification with action buttons
 - **📋 Clipboard Sending**: Send clipboard content (text or images) with one tap from notification or main screen
-- **📸 Image Gallery Access**: Send the latest image from gallery with EXIF metadata
+- **📸 Image Gallery Access**: Send the latest image from gallery with file metadata (filename, creation time, modification time, file path)
 - **🔧 Configurable**: Can be enabled/disabled in settings
 - **🌍 Multi-language Support**: All features fully translated across 7 languages
 - **🔐 Smart Permission Management**: Automatic permission checks with guided authorization flows
@@ -218,15 +218,15 @@ The app now features an optional persistent notification system that provides qu
    - **Main Screen Buttons**: Dedicated send buttons below the quick toggle switches
 3. **Action Buttons**: Both locations provide:
    - **Send Clipboard**: Reads current clipboard content and sends it (supports text and images)
-   - **Send Image**: Reads the latest image from gallery and sends it with EXIF data
+   - **Send Image**: Reads the latest image from gallery and sends it with file metadata
 4. **API Endpoints**: Uses dedicated endpoints for different content types:
    - `/api/notify/clipboard/text` - For clipboard text content
    - `/api/notify/clipboard/image` - For clipboard image content
-   - `/api/notify/image/raw` - For gallery images with EXIF headers
+   - `/api/notify/image/raw` - For gallery images with file metadata
 
 ### Technical Details
 - **Base64 Encoding**: All content is Base64 encoded for transmission
-- **EXIF Metadata**: Image EXIF data is extracted and sent via `X-EXIF` header
+- **File Metadata**: Image file information (filename, creation time, modification time, file path) is included in the JSON payload
 - **Smart Permission Handling**:
   - Automatic permission checks before accessing clipboard or media
   - User-friendly error notifications with authorization guidance
@@ -245,7 +245,7 @@ This application communicates with a remote server using the following REST API 
 1. **`POST /api/notify`** - Forward captured notifications to server
 2. **`POST /api/notify/clipboard/text`** - Send clipboard text content
 3. **`POST /api/notify/clipboard/image`** - Send clipboard image content
-4. **`POST /api/notify/image/raw`** - Send gallery images with EXIF metadata
+4. **`POST /api/notify/image/raw`** - Send gallery images with file metadata
 5. **`GET /api/version`** - Check server version compatibility
 
 ### Server Configuration
@@ -262,7 +262,7 @@ This application communicates with a remote server using the following REST API 
 | `POST /api/notify` | Forward notifications | JSON |
 | `POST /api/notify/clipboard/text` | Send clipboard text | JSON + Base64 |
 | `POST /api/notify/clipboard/image` | Send clipboard images | JSON + Base64 |
-| `POST /api/notify/image/raw` | Send gallery images + EXIF | JSON + Base64 + Headers |
+| `POST /api/notify/image/raw` | Send gallery images + metadata | JSON + Base64 |
 | `GET /api/version` | Check server version | JSON Response |
 
 For detailed API specifications, request/response examples, and implementation details, see **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)**.
@@ -272,7 +272,7 @@ For detailed API specifications, request/response examples, and implementation d
 ### Version 1.5.0 - Persistent Notification & Enhanced Quick Actions
 - **📌 Persistent Notification System**: Added persistent notification with quick action buttons for clipboard and image sending
 - **📋 Enhanced Clipboard Integration**: Send clipboard content (text and images) with Base64 encoding via notification actions
-- **📸 Image Gallery Access**: Send latest images from gallery with EXIF metadata extraction and transmission
+- **📸 Image Gallery Access**: Send latest images from gallery with file metadata (filename, creation time, modification time, file path)
 - **🔔 Intelligent Error Notifications**: 20-second auto-dismissing error notifications with detailed failure reasons
 - **🎯 Smart Icon Forwarding**: Copy notification icons as PNG images to clipboard with transparency support
 - **🔐 Smart Permission Handling**: Automatic permission checks with user-friendly error notifications for clipboard and media access
@@ -283,7 +283,7 @@ For detailed API specifications, request/response examples, and implementation d
 ### Version 1.4.0 - Persistent Notification & Quick Actions
 - **📌 Persistent Notification**: Optional persistent notification with quick action buttons
 - **📋 Clipboard Integration**: Send clipboard content (text and images) directly from notification
-- **📸 Image Gallery Access**: Send latest images with EXIF metadata extraction
+- **📸 Image Gallery Access**: Send latest images with file metadata (filename, creation time, modification time, file path)
 - **🔧 New API Endpoints**: Dedicated endpoints for clipboard and image sending
 - **🌍 Complete Translations**: All new features translated across 7 supported languages
 - **⚡ Enhanced Permissions**: Added media access permissions for image functionality

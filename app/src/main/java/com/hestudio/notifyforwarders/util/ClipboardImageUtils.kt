@@ -8,8 +8,7 @@ import android.net.Uri
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
-import androidx.exifinterface.media.ExifInterface
-import org.json.JSONObject
+
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
@@ -33,8 +32,11 @@ object ClipboardImageUtils {
      */
     data class ImageContent(
         val content: String, // Base64编码的图片
-        val exifData: String? = null, // Base64编码的EXIF JSON数据
-        val mimeType: String = "image/jpeg"
+        val mimeType: String = "image/jpeg",
+        val fileName: String? = null, // 文件名
+        val filePath: String? = null, // 文件路径
+        val dateAdded: Long? = null, // 创建时间（时间戳）
+        val dateModified: Long? = null // 修改时间（时间戳）
     )
 
     /**
@@ -123,6 +125,8 @@ object ClipboardImageUtils {
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.DATA,
                 MediaStore.Images.Media.DATE_ADDED,
+                MediaStore.Images.Media.DATE_MODIFIED,
+                MediaStore.Images.Media.DISPLAY_NAME,
                 MediaStore.Images.Media.MIME_TYPE
             )
 
@@ -138,21 +142,32 @@ object ClipboardImageUtils {
                 if (it.moveToFirst()) {
                     val idColumn = it.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
                     val dataColumn = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+                    val dateAddedColumn = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
+                    val dateModifiedColumn = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_MODIFIED)
+                    val displayNameColumn = it.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
                     val mimeTypeColumn = it.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE)
 
                     val id = it.getLong(idColumn)
                     val imagePath = it.getString(dataColumn)
+                    val dateAdded = it.getLong(dateAddedColumn)
+                    val dateModified = it.getLong(dateModifiedColumn)
+                    val fileName = it.getString(displayNameColumn)
                     val mimeType = it.getString(mimeTypeColumn) ?: "image/jpeg"
 
                     val imageUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id.toString())
-                    
+
                     // 读取图片并转换为Base64
                     val imageBase64 = uriToBase64(context, imageUri)
                     if (imageBase64 != null) {
-                        // 读取EXIF数据
-                        val exifData = extractExifData(context, imageUri, imagePath)
-                        Log.d(TAG, "成功获取最新图片")
-                        return ImageContent(imageBase64, exifData, mimeType)
+                        Log.d(TAG, "成功获取最新图片: $fileName")
+                        return ImageContent(
+                            content = imageBase64,
+                            mimeType = mimeType,
+                            fileName = fileName,
+                            filePath = imagePath,
+                            dateAdded = dateAdded,
+                            dateModified = dateModified
+                        )
                     }
                 }
             }
@@ -204,45 +219,5 @@ object ClipboardImageUtils {
         return Base64.encodeToString(byteArray, Base64.NO_WRAP)
     }
 
-    /**
-     * 提取EXIF数据
-     */
-    private fun extractExifData(context: Context, uri: Uri, imagePath: String?): String? {
-        return try {
-            val exifInterface = if (imagePath != null) {
-                ExifInterface(imagePath)
-            } else {
-                val inputStream = context.contentResolver.openInputStream(uri)
-                inputStream?.use { ExifInterface(it) }
-            }
 
-            exifInterface?.let { exif ->
-                val exifJson = JSONObject().apply {
-                    // 基本信息
-                    put("make", exif.getAttribute(ExifInterface.TAG_MAKE) ?: "")
-                    put("model", exif.getAttribute(ExifInterface.TAG_MODEL) ?: "")
-                    put("datetime", exif.getAttribute(ExifInterface.TAG_DATETIME) ?: "")
-                    put("orientation", exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL))
-                    
-                    // GPS信息
-                    val latLong = FloatArray(2)
-                    if (exif.getLatLong(latLong)) {
-                        put("latitude", latLong[0].toDouble())
-                        put("longitude", latLong[1].toDouble())
-                    }
-                    
-                    // 相机设置
-                    put("iso", exif.getAttributeInt(ExifInterface.TAG_ISO_SPEED_RATINGS, 0))
-                    put("exposureTime", exif.getAttribute(ExifInterface.TAG_EXPOSURE_TIME) ?: "")
-                    put("fNumber", exif.getAttribute(ExifInterface.TAG_F_NUMBER) ?: "")
-                    put("focalLength", exif.getAttribute(ExifInterface.TAG_FOCAL_LENGTH) ?: "")
-                }
-                
-                Base64.encodeToString(exifJson.toString().toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "提取EXIF数据失败", e)
-            null
-        }
-    }
 }

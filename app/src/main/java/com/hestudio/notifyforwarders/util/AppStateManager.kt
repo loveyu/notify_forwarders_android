@@ -1,6 +1,5 @@
 package com.hestudio.notifyforwarders.util
 
-import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context
 import android.util.Log

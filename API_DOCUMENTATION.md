@@ -29,7 +29,7 @@ This file contains:
 - **HTTP Methods**: GET and POST method constants
 - **Timeout Settings**: Connection and read timeouts for each endpoint type
 - **JSON Field Names**: Standardized field names for all API requests
-- **HTTP Headers**: Custom headers like X-EXIF
+- **HTTP Headers**: Custom headers (if any)
 - **Content Types**: Text and image content type identifiers
 - **Utility Methods**: URL building and server address formatting
 
@@ -183,7 +183,7 @@ All API requests include the following common fields:
 
 ### 4. POST /api/notify/image/raw
 
-**Purpose**: Send gallery images with EXIF metadata to the server
+**Purpose**: Send gallery images with file metadata to the server
 
 **URL**: `http://[server_address]:[port]/api/notify/image/raw`
 
@@ -191,15 +191,16 @@ All API requests include the following common fields:
 
 **Content-Type**: application/json
 
-**Headers**:
-- **`X-EXIF`**: Base64 encoded EXIF metadata JSON string (optional)
-
 **Request Body**:
 ```json
 {
   "content": "string",           // Base64 encoded image data
   "devicename": "string",        // Android device name
-  "mimeType": "string"           // Image MIME type (e.g., "image/jpeg")
+  "mimeType": "string",          // Image MIME type (e.g., "image/jpeg")
+  "fileName": "string",          // Original filename (optional)
+  "filePath": "string",          // Full file path (optional)
+  "dateAdded": "number",         // Creation timestamp in seconds (optional)
+  "dateModified": "number"       // Modification timestamp in seconds (optional)
 }
 ```
 
@@ -208,13 +209,12 @@ All API requests include the following common fields:
 {
   "content": "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBD...",
   "devicename": "Samsung Galaxy S21",
-  "mimeType": "image/jpeg"
+  "mimeType": "image/jpeg",
+  "fileName": "IMG_20231231_143000.jpg",
+  "filePath": "/storage/emulated/0/DCIM/Camera/IMG_20231231_143000.jpg",
+  "dateAdded": 1704024600,
+  "dateModified": 1704024600
 }
-```
-
-**Headers Example**:
-```
-X-EXIF: eyJEYXRlVGltZSI6IjIwMjM6MTI6MzEgMTQ6MzA6MDAiLCJDYW1lcmEiOiJTYW1zdW5nIEdhbGF4eSBTMjEifQ==
 ```
 
 **Response**:
@@ -223,8 +223,9 @@ X-EXIF: eyJEYXRlVGltZSI6IjIwMjM6MTI6MzEgMTQ6MzA6MDAiLCJDYW1lcmEiOiJTYW1zdW5nIEdh
 
 **Notes**:
 - Triggered by "Send Image" action to send the latest gallery image
-- EXIF metadata is included in the `X-EXIF` header when available
-- EXIF data contains camera information, GPS coordinates, timestamps, etc.
+- File metadata includes filename, creation time, modification time, and file path
+- Timestamps are provided in Unix timestamp format (seconds since epoch)
+- All metadata fields are optional and may not be available for all images
 
 ---
 
@@ -345,7 +346,7 @@ The NotifyForwarders Android application uses exactly **5 remote API endpoints**
 | `/api/notify` | POST | Forward captured notifications | 5s |
 | `/api/notify/clipboard/text` | POST | Send clipboard text content | 10s |
 | `/api/notify/clipboard/image` | POST | Send clipboard image content | 10s |
-| `/api/notify/image/raw` | POST | Send gallery images with EXIF | 10s |
+| `/api/notify/image/raw` | POST | Send gallery images with metadata | 10s |
 | `/api/version` | GET | Check server version compatibility | 5s |
 
 ### Network Configuration Summary
@@ -361,7 +362,7 @@ The NotifyForwarders Android application uses exactly **5 remote API endpoints**
 
 1. **Real-time Notification Forwarding**: Captures Android notifications and forwards them instantly
 2. **Clipboard Integration**: Supports both text and image content from clipboard
-3. **Gallery Image Sending**: Sends latest images with EXIF metadata preservation
+3. **Gallery Image Sending**: Sends latest images with file metadata (filename, timestamps, file path)
 4. **Icon Support**: Optional app icon forwarding with MD5 verification
 5. **Error Handling**: Comprehensive error notifications and retry mechanisms
 6. **Multi-language Support**: All API interactions support 7 languages
@@ -372,7 +373,7 @@ To implement a compatible server, you need to support:
 - HTTP POST requests with JSON payloads for data endpoints
 - HTTP GET requests for version checking
 - Base64 decoding for content and images
-- Optional EXIF metadata handling via custom headers (`X-EXIF`)
+- Optional file metadata handling in JSON payload
 - Device identification via `devicename` field
 - Version compatibility checking via `/api/version` endpoint
 - Standard HTTP response codes (200 for success)
@@ -388,7 +389,7 @@ Key constant categories:
 - **Endpoints**: `ENDPOINT_NOTIFY`, `ENDPOINT_CLIPBOARD_TEXT`, `ENDPOINT_CLIPBOARD_IMAGE`, `ENDPOINT_IMAGE_RAW`, `ENDPOINT_VERSION`
 - **Timeouts**: `TIMEOUT_*_CONNECT` and `TIMEOUT_*_READ` for each endpoint type
 - **Field Names**: `FIELD_DEVICE_NAME`, `FIELD_APP_NAME`, `FIELD_CONTENT`, etc.
-- **Headers**: `HEADER_EXIF` for EXIF metadata
+- **Headers**: Custom headers (if any)
 - **Content Types**: `CONTENT_TYPE_TEXT`, `CONTENT_TYPE_IMAGE`
 - **Utility Methods**: `buildApiUrl()`, `formatServerAddress()`
 

@@ -180,6 +180,15 @@ object ServerPreferences {
         getPreferences(context).edit() {
             putBoolean(KEY_PERSISTENT_NOTIFICATION_ENABLED, enabled)
         }
+
+        // 立即更新通知状态
+        try {
+            // 无论开启还是关闭持久化通知，都刷新前台通知
+            // NotificationService会根据设置自动调整通知内容和功能
+            com.hestudio.notifyforwarders.service.NotificationService.refreshForegroundNotification(context)
+        } catch (e: Exception) {
+            android.util.Log.e("ServerPreferences", "更新持久化通知状态失败", e)
+        }
     }
 
     // 获取常驻通知开关状态，默认为true

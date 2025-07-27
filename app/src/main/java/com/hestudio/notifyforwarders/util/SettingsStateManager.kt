@@ -1,9 +1,8 @@
 package com.hestudio.notifyforwarders.util
 
 import android.content.Context
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 
 /**
  * 全局设置状态管理器

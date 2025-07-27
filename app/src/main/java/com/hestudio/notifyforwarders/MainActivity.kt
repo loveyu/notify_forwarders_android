@@ -2,18 +2,24 @@ package com.hestudio.notifyforwarders
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Base64
+import android.util.Log
 import android.widget.Toast
-import androidx.compose.ui.text.font.FontWeight
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,10 +33,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Settings
@@ -50,49 +55,42 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import android.graphics.BitmapFactory
-import android.util.Base64
-import android.util.Log
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.hestudio.notifyforwarders.service.JobSchedulerService
+import com.hestudio.notifyforwarders.service.NotificationActionService
 import com.hestudio.notifyforwarders.service.NotificationData
 import com.hestudio.notifyforwarders.service.NotificationService
 import com.hestudio.notifyforwarders.ui.theme.NotifyForwardersTheme
-import com.hestudio.notifyforwarders.util.NotificationUtils
-import com.hestudio.notifyforwarders.util.ServerPreferences
-import com.hestudio.notifyforwarders.util.LocaleHelper
-import com.hestudio.notifyforwarders.util.IconCacheManager
-import com.hestudio.notifyforwarders.util.PermissionUtils
-import com.hestudio.notifyforwarders.util.SettingsStateManager
-import com.hestudio.notifyforwarders.util.ClipboardUtils
+import com.hestudio.notifyforwarders.util.AppExitManager
 import com.hestudio.notifyforwarders.util.AppLaunchUtils
+import com.hestudio.notifyforwarders.util.ClipboardUtils
+import com.hestudio.notifyforwarders.util.IconCacheManager
+import com.hestudio.notifyforwarders.util.LocaleHelper
 import com.hestudio.notifyforwarders.util.NotificationFormatUtils
-import com.hestudio.notifyforwarders.service.NotificationActionService
+import com.hestudio.notifyforwarders.util.NotificationUtils
+import com.hestudio.notifyforwarders.util.PermissionUtils
+import com.hestudio.notifyforwarders.util.PersistentNotificationManager
+import com.hestudio.notifyforwarders.util.ServerPreferences
+import com.hestudio.notifyforwarders.util.SettingsStateManager
 import com.hestudio.notifyforwarders.util.ToastManager
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     // 添加权限状态跟踪变量
@@ -142,6 +140,9 @@ class MainActivity : ComponentActivity() {
         // 启动通知监听服务
         startNotificationService()
 
+        // 初始化持久化通知
+        initializePersistentNotificationOnStartup()
+
         // 请求忽略电池优化
         requestBatteryOptimizationExemption()
 
@@ -189,6 +190,9 @@ class MainActivity : ComponentActivity() {
             // 如果权限状态改变，重新设置界面内容
             updateUI()
         }
+
+        // 检查并确保持久化通知状态正确
+        checkAndUpdatePersistentNotificationState()
     }
 
 
@@ -201,6 +205,45 @@ class MainActivity : ComponentActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(this, getString(R.string.service_start_failed), Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // 在应用启动时初始化持久化通知
+    private fun initializePersistentNotificationOnStartup() {
+        try {
+            if (ServerPreferences.isPersistentNotificationEnabled(this)) {
+                Log.d("MainActivity", "应用启动时检测到持久化通知已开启，确保持久化通知显示")
+                // 延迟一点时间确保服务已经启动
+                Handler(Looper.getMainLooper()).postDelayed({
+                    NotificationService.updateNotificationState(
+                        this,
+                        PersistentNotificationManager.SendingState.IDLE
+                    )
+                }, 500) // 延迟500ms
+            } else {
+                Log.d("MainActivity", "应用启动时检测到持久化通知已关闭，通知由NotificationService统一管理")
+                // 现在由NotificationService统一管理，无需手动清除
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "初始化持久化通知失败", e)
+        }
+    }
+
+    // 检查并更新持久化通知状态
+    private fun checkAndUpdatePersistentNotificationState() {
+        try {
+            if (ServerPreferences.isPersistentNotificationEnabled(this)) {
+                Log.d("MainActivity", "应用恢复时检测到持久化通知已开启，确保持久化通知显示")
+                NotificationService.updateNotificationState(
+                    this,
+                    PersistentNotificationManager.SendingState.IDLE
+                )
+            } else {
+                Log.d("MainActivity", "应用恢复时检测到持久化通知已关闭，通知由NotificationService统一管理")
+                // 现在由NotificationService统一管理，无需手动清除
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "检查持久化通知状态失败", e)
         }
     }
 
@@ -237,6 +280,11 @@ fun NotificationScreen(
     val context = LocalContext.current
     // 确认对话框状态
     var showClearConfirmDialog by remember { mutableStateOf(false) }
+
+    // 处理返回按钮 - 使用温和的退出方式
+    BackHandler {
+        AppExitManager.exitAppGracefully(context)
+    }
 
     Scaffold(
         topBar = {

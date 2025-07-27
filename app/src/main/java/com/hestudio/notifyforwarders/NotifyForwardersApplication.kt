@@ -2,9 +2,9 @@ package com.hestudio.notifyforwarders
 
 import android.app.Application
 import android.content.Context
+import com.hestudio.notifyforwarders.util.AppStateManager
 import com.hestudio.notifyforwarders.util.LocaleHelper
 import com.hestudio.notifyforwarders.util.ServerPreferences
-import com.hestudio.notifyforwarders.util.AppStateManager
 
 class NotifyForwardersApplication : Application() {
     

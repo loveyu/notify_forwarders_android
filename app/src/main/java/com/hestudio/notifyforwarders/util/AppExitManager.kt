@@ -28,27 +28,27 @@ object AppExitManager {
      */
     fun exitApp(context: Context) {
         Log.d(TAG, "开始退出应用")
-        
+
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 // 1. 停止所有服务
                 stopAllServices(context)
-                
+
                 // 2. 取消所有通知
                 clearAllNotifications(context)
-                
+
                 // 3. 取消JobScheduler任务
                 cancelJobScheduler(context)
-                
+
                 // 4. 清理缓存
                 clearAppCache(context)
-                
+
                 // 5. 等待一小段时间确保所有操作完成
                 delay(1000)
-                
+
                 // 6. 结束应用进程
                 finishApp(context)
-                
+
             } catch (e: Exception) {
                 Log.e(TAG, "退出应用时发生错误", e)
                 // 即使出现错误也要尝试结束进程
@@ -58,29 +58,87 @@ object AppExitManager {
     }
 
     /**
+     * 温和退出应用
+     * 只清理资源并移动到后台，不强制杀死进程
+     */
+    fun exitAppGracefully(context: Context) {
+        Log.d(TAG, "开始温和退出应用")
+
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                // 1. 停止所有服务
+                stopAllServices(context)
+
+                // 2. 取消所有通知
+                clearAllNotifications(context)
+
+                // 3. 取消JobScheduler任务
+                cancelJobScheduler(context)
+
+                // 4. 清理缓存
+                clearAppCache(context)
+
+                // 5. 等待清理完成
+                delay(500)
+
+                // 6. 移动应用到后台而不是杀死进程
+                val intent = Intent(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_HOME)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
+                Log.d(TAG, "应用已移动到后台，资源已清理")
+
+            } catch (e: Exception) {
+                Log.e(TAG, "温和退出应用时发生错误", e)
+                // 如果温和退出失败，回退到完全退出
+                finishApp(context)
+            }
+        }
+    }
+
+    /**
      * 重启应用
+     * 使用更温和的方式重启，减少系统错误
      */
     fun restartApp(context: Context) {
         Log.d(TAG, "重启应用")
-        
+
         try {
-            // 获取应用的启动Intent
+            // 1. 先停止所有服务和清理资源
+            stopAllServices(context)
+            clearAllNotifications(context)
+            cancelJobScheduler(context)
+
+            // 2. 获取应用的启动Intent
             val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
             intent?.let {
                 it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(it)
+                Log.d(TAG, "已启动新的应用实例")
             }
-            
-            // 延迟一下再退出当前进程
+
+            // 3. 延迟更长时间再退出当前进程，让新实例有时间启动
             CoroutineScope(Dispatchers.Main).launch {
-                delay(500)
-                exitProcess(0)
+                delay(1500) // 增加延迟时间
+
+                try {
+                    // 温和地结束当前进程
+                    Log.d(TAG, "结束旧的应用进程")
+                    exitProcess(0)
+                } catch (e: Exception) {
+                    Log.e(TAG, "结束旧进程时发生错误", e)
+                    exitProcess(0)
+                }
             }
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "重启应用失败", e)
-            // 如果重启失败，直接退出
-            exitProcess(0)
+            // 如果重启失败，延迟一下再退出
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(1000)
+                exitProcess(0)
+            }
         }
     }
 
@@ -156,27 +214,60 @@ object AppExitManager {
 
     /**
      * 结束应用
+     * 使用更温和的方式退出，避免强制杀死进程导致的错误
      */
     private fun finishApp(context: Context) {
         Log.d(TAG, "结束应用进程")
-        
+
         try {
-            // 尝试使用ActivityManager结束应用
+            // 1. 尝试使用ActivityManager结束应用任务
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
                 val appTasks = activityManager.appTasks
                 for (task in appTasks) {
-                    task.finishAndRemoveTask()
+                    try {
+                        task.finishAndRemoveTask()
+                        Log.d(TAG, "已结束应用任务")
+                    } catch (e: Exception) {
+                        Log.w(TAG, "结束应用任务失败", e)
+                    }
                 }
             }
-            
-            // 最后结束进程
-            exitProcess(0)
-            
+
+            // 2. 延迟一段时间让系统完成清理工作
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(500)
+
+                // 3. 如果应用仍在运行，使用更温和的方式退出
+                try {
+                    // 移动应用到后台而不是强制杀死进程
+                    val intent = Intent(Intent.ACTION_MAIN).apply {
+                        addCategory(Intent.CATEGORY_HOME)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    context.startActivity(intent)
+                    Log.d(TAG, "应用已移动到后台")
+
+                    // 如果确实需要退出进程，延迟更长时间
+                    delay(1000)
+
+                    // 最后的手段：退出进程，但给系统更多时间清理
+                    Log.d(TAG, "执行最终退出")
+                    exitProcess(0)
+
+                } catch (e: Exception) {
+                    Log.e(TAG, "温和退出失败，执行强制退出", e)
+                    exitProcess(0)
+                }
+            }
+
         } catch (e: Exception) {
             Log.e(TAG, "结束应用时发生错误", e)
-            // 强制退出
-            exitProcess(0)
+            // 即使出现错误，也给系统一些时间
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(500)
+                exitProcess(0)
+            }
         }
     }
 }

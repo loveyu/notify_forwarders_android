@@ -1,12 +1,14 @@
 package com.hestudio.notifyforwarders.util
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import androidx.core.app.NotificationCompat
+import com.hestudio.notifyforwarders.MediaPermissionActivity
 import com.hestudio.notifyforwarders.R
 
 /**
@@ -81,11 +83,48 @@ object ErrorNotificationUtils {
      * 显示媒体权限错误通知
      */
     fun showMediaPermissionError(context: Context) {
-        showErrorNotification(
+        showMediaPermissionErrorWithAction(context)
+    }
+
+    /**
+     * 显示媒体权限错误通知，点击可启动权限引导页面
+     */
+    private fun showMediaPermissionErrorWithAction(context: Context) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationId = notificationIdCounter++
+
+        // 确保渠道已创建
+        initializeErrorChannel(context)
+
+        // 创建启动MediaPermissionActivity的Intent
+        val permissionIntent = Intent(context, MediaPermissionActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        val permissionPendingIntent = PendingIntent.getActivity(
             context,
-            context.getString(R.string.media_permission_error_title),
-            context.getString(R.string.media_permission_error_message)
+            notificationId,
+            permissionIntent,
+            PendingIntent.FLAG_IMMUTABLE
         )
+
+        // 创建通知
+        val notification = NotificationCompat.Builder(context, ERROR_CHANNEL_ID)
+            .setContentTitle(context.getString(R.string.media_permission_error_title))
+            .setContentText(context.getString(R.string.media_permission_error_message_improved))
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(context.getString(R.string.media_permission_error_message_improved)))
+            .setContentIntent(permissionPendingIntent) // 点击通知启动权限引导页面
+            .build()
+
+        // 显示通知
+        notificationManager.notify(notificationId, notification)
+
+        // 30秒后自动取消通知（给用户更多时间阅读详细说明）
+        Handler(Looper.getMainLooper()).postDelayed({
+            notificationManager.cancel(notificationId)
+        }, 30000) // 30秒
     }
     
     /**

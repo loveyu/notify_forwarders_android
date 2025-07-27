@@ -201,6 +201,7 @@ class NotificationActionService : Service() {
 
     /**
      * 处理发送剪贴板内容
+     * 直接在服务中处理，避免后台启动Activity的限制
      */
     private fun handleSendClipboard() {
         Log.d(TAG, "开始处理剪贴板发送，应用状态: ${AppStateManager.getStateDescription()}")
@@ -214,135 +215,143 @@ class NotificationActionService : Service() {
             return
         }
 
-        clipboardJob?.cancel()
-        clipboardJob = serviceScope.launch {
-            // 使用超时机制包装整个任务
-            val result = withTimeoutOrNull(TASK_TIMEOUT_MS) {
-                try {
-                    // 设置任务运行状态
-                    isClipboardTaskRunning.set(true)
+        try {
+            // 设置任务运行状态
+            isClipboardTaskRunning.set(true)
 
-                    // 只有在持久化通知开启时才更新持久化通知状态
-                    if (ServerPreferences.isPersistentNotificationEnabled(this@NotificationActionService)) {
-                        NotificationService.updateNotificationState(
-                            this@NotificationActionService,
-                            PersistentNotificationManager.SendingState.SENDING_CLIPBOARD
-                        )
-                    }
+            // 直接在服务中处理剪贴板，避免启动Activity
+            Log.d(TAG, "在服务中直接处理剪贴板发送")
 
-                    // 检查服务器地址配置
-                    val serverAddress = ServerPreferences.getServerAddress(this@NotificationActionService)
-                    if (serverAddress.isEmpty()) {
-                        Log.e(TAG, "服务器地址未配置")
-                        ErrorNotificationUtils.showClipboardSendError(
-                            this@NotificationActionService,
-                            getString(R.string.server_not_configured)
-                        )
-                        return@withTimeoutOrNull false
-                    }
+            clipboardJob = serviceScope.launch {
+                handleClipboardInService()
+            }
 
-                    // 确保应用获得焦点以访问剪贴板
-                    Log.d(TAG, "尝试让应用获得焦点以访问剪贴板")
+        } catch (e: Exception) {
+            Log.e(TAG, "处理剪贴板发送失败", e)
+            ErrorNotificationUtils.showClipboardSendError(
+                this,
+                e.message ?: getString(R.string.unknown_error)
+            )
+            isClipboardTaskRunning.set(false)
+            restoreNotificationStateToIdle()
+            stopSelfSafely()
+        }
+    }
+
+    /**
+     * 在服务中直接处理剪贴板发送
+     */
+    private suspend fun handleClipboardInService() {
+        val result = withTimeoutOrNull(TASK_TIMEOUT_MS) {
+            try {
+                // 更新通知状态为发送中
+                if (ServerPreferences.isPersistentNotificationEnabled(this@NotificationActionService)) {
+                    NotificationService.updateNotificationState(
+                        this@NotificationActionService,
+                        PersistentNotificationManager.SendingState.SENDING_CLIPBOARD
+                    )
+                }
+
+                // 检查服务器地址配置
+                val serverAddress = ServerPreferences.getServerAddress(this@NotificationActionService)
+                if (serverAddress.isEmpty()) {
+                    Log.e(TAG, "服务器地址未配置")
+                    ErrorNotificationUtils.showClipboardSendError(
+                        this@NotificationActionService,
+                        getString(R.string.server_not_configured)
+                    )
+                    return@withTimeoutOrNull false
+                }
+
+                // 等待一小段时间确保可以访问剪贴板
+                delay(300)
+
+                // 读取剪贴板内容
+                val clipboardContent = try {
                     withContext(Dispatchers.Main) {
-                        bringAppToForeground()
+                        ClipboardImageUtils.readClipboardContentWithRetry(this@NotificationActionService, 3)
                     }
-
-                    // 给系统时间确保应用焦点生效
-                    delay(800)
-
-                    val clipboardContent = try {
-                        withContext(Dispatchers.Main) {
-                            ClipboardImageUtils.readClipboardContentWithRetry(this@NotificationActionService)
-                        }
-                    } catch (e: SecurityException) {
-                        Log.e(TAG, "剪贴板权限不足，尝试再次获得焦点", e)
-                        // 再次尝试获得焦点
-                        withContext(Dispatchers.Main) {
-                            bringAppToForeground()
-                        }
-                        delay(1500)
-
-                        // 最后一次尝试
-                        try {
-                            withContext(Dispatchers.Main) {
-                                ClipboardImageUtils.readClipboardContentWithRetry(this@NotificationActionService, 3)
-                            }
-                        } catch (e2: Exception) {
-                            Log.e(TAG, "最终剪贴板访问失败", e2)
-                            ErrorNotificationUtils.showClipboardPermissionError(this@NotificationActionService)
-                            return@withTimeoutOrNull false
-                        }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "读取剪贴板失败", e)
-                        ErrorNotificationUtils.showClipboardSendError(
-                            this@NotificationActionService,
-                            e.message ?: getString(R.string.unknown_error)
-                        )
-                        return@withTimeoutOrNull false
-                    }
-
-                    if (clipboardContent.type == ClipboardImageUtils.ContentType.EMPTY) {
-                        Log.d(TAG, "剪贴板为空")
-                        withContext(Dispatchers.Main) {
-                            ToastManager.showToast(this@NotificationActionService, getString(R.string.clipboard_empty))
-                        }
-                        return@withTimeoutOrNull false
-                    }
-
-                    val networkResult = when (clipboardContent.type) {
-                        ClipboardImageUtils.ContentType.TEXT -> {
-                            sendClipboardText(clipboardContent.content)
-                        }
-                        ClipboardImageUtils.ContentType.IMAGE -> {
-                            sendClipboardImage(clipboardContent.content)
-                        }
-                        else -> NetworkResult.Error(getString(R.string.unknown_error))
-                    }
-
-                    when (networkResult) {
-                        is NetworkResult.Success -> {
-                            withContext(Dispatchers.Main) {
-                                ToastManager.showToast(this@NotificationActionService, getString(R.string.clipboard_sent_success))
-                            }
-                            Log.d(TAG, "剪贴板发送成功，应用状态: ${AppStateManager.getStateDescription()}")
-                            return@withTimeoutOrNull true
-                        }
-                        is NetworkResult.Error -> {
-                            ErrorNotificationUtils.showClipboardSendError(
-                                this@NotificationActionService,
-                                networkResult.message
-                            )
-                            return@withTimeoutOrNull false
-                        }
-                    }
-
+                } catch (e: SecurityException) {
+                    Log.e(TAG, "剪贴板权限不足", e)
+                    ErrorNotificationUtils.showClipboardPermissionError(this@NotificationActionService)
+                    return@withTimeoutOrNull false
                 } catch (e: Exception) {
-                    Log.e(TAG, "处理剪贴板发送时发生未知错误", e)
+                    Log.e(TAG, "读取剪贴板失败", e)
                     ErrorNotificationUtils.showClipboardSendError(
                         this@NotificationActionService,
                         e.message ?: getString(R.string.unknown_error)
                     )
                     return@withTimeoutOrNull false
                 }
-            }
 
-            // 处理超时情况
-            if (result == null) {
-                Log.e(TAG, "剪贴板发送任务超时")
+                if (clipboardContent.type == ClipboardImageUtils.ContentType.EMPTY) {
+                    Log.d(TAG, "剪贴板为空")
+                    withContext(Dispatchers.Main) {
+                        ToastManager.showToast(this@NotificationActionService, getString(R.string.clipboard_empty))
+                    }
+                    return@withTimeoutOrNull false
+                }
+
+                Log.d(TAG, "成功获取剪贴板内容，类型: ${clipboardContent.type}")
+
+                // 发送剪贴板内容
+                val networkResult = when (clipboardContent.type) {
+                    ClipboardImageUtils.ContentType.TEXT -> {
+                        sendClipboardText(clipboardContent.content)
+                    }
+                    ClipboardImageUtils.ContentType.IMAGE -> {
+                        sendClipboardImage(clipboardContent.content)
+                    }
+                    else -> NetworkResult.Error(getString(R.string.unknown_error))
+                }
+
+                when (networkResult) {
+                    is NetworkResult.Success -> {
+                        withContext(Dispatchers.Main) {
+                            ToastManager.showToast(this@NotificationActionService, getString(R.string.clipboard_sent_success))
+                        }
+                        Log.d(TAG, "剪贴板发送成功")
+                        return@withTimeoutOrNull true
+                    }
+                    is NetworkResult.Error -> {
+                        ErrorNotificationUtils.showClipboardSendError(
+                            this@NotificationActionService,
+                            networkResult.message
+                        )
+                        return@withTimeoutOrNull false
+                    }
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "处理剪贴板任务时发生未知错误", e)
                 ErrorNotificationUtils.showClipboardSendError(
                     this@NotificationActionService,
-                    getString(R.string.task_timeout)
+                    e.message ?: getString(R.string.unknown_error)
                 )
+                return@withTimeoutOrNull false
             }
-
-            // 清理任务状态
-            isClipboardTaskRunning.set(false)
-
-            // 恢复持久化通知状态
-            restoreNotificationStateToIdle()
-
-            stopSelfSafely()
         }
+
+        // 处理超时情况
+        if (result == null) {
+            Log.e(TAG, "剪贴板发送任务超时")
+            ErrorNotificationUtils.showClipboardSendError(
+                this@NotificationActionService,
+                getString(R.string.task_timeout)
+            )
+        }
+
+        // 恢复通知状态
+        if (ServerPreferences.isPersistentNotificationEnabled(this@NotificationActionService)) {
+            NotificationService.updateNotificationState(
+                this@NotificationActionService,
+                PersistentNotificationManager.SendingState.IDLE
+            )
+        }
+
+        // 清理任务状态并停止服务
+        isClipboardTaskRunning.set(false)
+        stopSelfSafely()
     }
 
     /**
@@ -452,123 +461,7 @@ class NotificationActionService : Service() {
         }
     }
 
-    /**
-     * 发送剪贴板文本内容
-     */
-    private suspend fun sendClipboardText(base64Content: String): NetworkResult {
-        return try {
-            val serverAddress = ServerPreferences.getServerAddress(this)
-            if (serverAddress.isEmpty()) {
-                Log.e(TAG, "服务器地址未配置")
-                return NetworkResult.Error(getString(R.string.server_not_configured))
-            }
 
-            val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_CLIPBOARD_TEXT)
-            val url = URL(serverUrl)
-            val connection = url.openConnection() as HttpURLConnection
-
-            connection.requestMethod = ApiConstants.METHOD_POST
-            connection.setRequestProperty("Content-Type", ApiConstants.CONTENT_TYPE_JSON)
-            connection.doOutput = true
-            connection.connectTimeout = ApiConstants.TIMEOUT_CLIPBOARD_CONNECT
-            connection.readTimeout = ApiConstants.TIMEOUT_CLIPBOARD_READ
-
-            val jsonBody = JSONObject().apply {
-                put(ApiConstants.FIELD_CONTENT, base64Content)
-                put(ApiConstants.FIELD_DEVICE_NAME, getDeviceName())
-                put(ApiConstants.FIELD_TYPE, ApiConstants.CONTENT_TYPE_TEXT)
-            }
-
-            val outputStream = connection.outputStream
-            val writer = OutputStreamWriter(outputStream, ApiConstants.CHARSET_UTF8)
-            writer.write(jsonBody.toString())
-            writer.flush()
-            writer.close()
-
-            val responseCode = connection.responseCode
-            connection.disconnect()
-
-            Log.d(TAG, "剪贴板文本发送响应: $responseCode")
-
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                NetworkResult.Success
-            } else {
-                NetworkResult.Error(getString(R.string.network_error_with_code, responseCode))
-            }
-
-        } catch (e: java.net.ConnectException) {
-            Log.e(TAG, "连接服务器失败", e)
-            NetworkResult.Error(getString(R.string.network_connection_failed))
-        } catch (e: java.net.SocketTimeoutException) {
-            Log.e(TAG, "网络请求超时", e)
-            NetworkResult.Error(getString(R.string.network_timeout))
-        } catch (e: java.net.UnknownHostException) {
-            Log.e(TAG, "无法解析服务器地址", e)
-            NetworkResult.Error(getString(R.string.network_host_unknown))
-        } catch (e: Exception) {
-            Log.e(TAG, "发送剪贴板文本失败", e)
-            NetworkResult.Error(e.message ?: getString(R.string.unknown_error))
-        }
-    }
-
-    /**
-     * 发送剪贴板图片内容
-     */
-    private suspend fun sendClipboardImage(base64Content: String): NetworkResult {
-        return try {
-            val serverAddress = ServerPreferences.getServerAddress(this)
-            if (serverAddress.isEmpty()) {
-                Log.e(TAG, "服务器地址未配置")
-                return NetworkResult.Error(getString(R.string.server_not_configured))
-            }
-
-            val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_CLIPBOARD_IMAGE)
-            val url = URL(serverUrl)
-            val connection = url.openConnection() as HttpURLConnection
-
-            connection.requestMethod = ApiConstants.METHOD_POST
-            connection.setRequestProperty("Content-Type", ApiConstants.CONTENT_TYPE_JSON)
-            connection.doOutput = true
-            connection.connectTimeout = ApiConstants.TIMEOUT_CLIPBOARD_CONNECT
-            connection.readTimeout = ApiConstants.TIMEOUT_CLIPBOARD_READ
-
-            val jsonBody = JSONObject().apply {
-                put(ApiConstants.FIELD_CONTENT, base64Content)
-                put(ApiConstants.FIELD_DEVICE_NAME, getDeviceName())
-                put(ApiConstants.FIELD_TYPE, ApiConstants.CONTENT_TYPE_IMAGE)
-            }
-
-            val outputStream = connection.outputStream
-            val writer = OutputStreamWriter(outputStream, ApiConstants.CHARSET_UTF8)
-            writer.write(jsonBody.toString())
-            writer.flush()
-            writer.close()
-
-            val responseCode = connection.responseCode
-            connection.disconnect()
-
-            Log.d(TAG, "剪贴板图片发送响应: $responseCode")
-
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                NetworkResult.Success
-            } else {
-                NetworkResult.Error(getString(R.string.network_error_with_code, responseCode))
-            }
-
-        } catch (e: java.net.ConnectException) {
-            Log.e(TAG, "连接服务器失败", e)
-            NetworkResult.Error(getString(R.string.network_connection_failed))
-        } catch (e: java.net.SocketTimeoutException) {
-            Log.e(TAG, "网络请求超时", e)
-            NetworkResult.Error(getString(R.string.network_timeout))
-        } catch (e: java.net.UnknownHostException) {
-            Log.e(TAG, "无法解析服务器地址", e)
-            NetworkResult.Error(getString(R.string.network_host_unknown))
-        } catch (e: Exception) {
-            Log.e(TAG, "发送剪贴板图片失败", e)
-            NetworkResult.Error(e.message ?: getString(R.string.unknown_error))
-        }
-    }
 
     /**
      * 发送图片RAW内容
@@ -640,6 +533,104 @@ class NotificationActionService : Service() {
         } catch (e: Exception) {
             Log.e(TAG, "发送图片RAW失败", e)
             NetworkResult.Error(e.message ?: getString(R.string.unknown_error))
+        }
+    }
+
+
+
+    /**
+     * 发送剪贴板文本
+     */
+    private suspend fun sendClipboardText(base64Content: String): NetworkResult {
+        return withContext(Dispatchers.IO) {
+            try {
+                val serverAddress = ServerPreferences.getServerAddress(this@NotificationActionService)
+                val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_CLIPBOARD_TEXT)
+                val url = URL(serverUrl)
+                val connection = url.openConnection() as HttpURLConnection
+
+                connection.requestMethod = ApiConstants.METHOD_POST
+                connection.setRequestProperty("Content-Type", ApiConstants.CONTENT_TYPE_JSON)
+                connection.doOutput = true
+                connection.connectTimeout = ApiConstants.TIMEOUT_CLIPBOARD_CONNECT
+                connection.readTimeout = ApiConstants.TIMEOUT_CLIPBOARD_READ
+
+                val jsonBody = JSONObject().apply {
+                    put(ApiConstants.FIELD_CONTENT, base64Content)
+                    put(ApiConstants.FIELD_DEVICE_NAME, getDeviceName())
+                    put(ApiConstants.FIELD_TYPE, ApiConstants.CONTENT_TYPE_TEXT)
+                }
+
+                connection.outputStream.use { outputStream ->
+                    outputStream.write(jsonBody.toString().toByteArray())
+                }
+
+                val responseCode = connection.responseCode
+                Log.d(TAG, "剪贴板文本发送响应码: $responseCode")
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    NetworkResult.Success
+                } else {
+                    val errorMessage = try {
+                        connection.errorStream?.bufferedReader()?.use { it.readText() } ?: "HTTP $responseCode"
+                    } catch (e: Exception) {
+                        "HTTP $responseCode"
+                    }
+                    NetworkResult.Error("发送失败: $errorMessage")
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "发送剪贴板文本失败", e)
+                NetworkResult.Error(e.message ?: "网络错误")
+            }
+        }
+    }
+
+    /**
+     * 发送剪贴板图片
+     */
+    private suspend fun sendClipboardImage(base64Content: String): NetworkResult {
+        return withContext(Dispatchers.IO) {
+            try {
+                val serverAddress = ServerPreferences.getServerAddress(this@NotificationActionService)
+                val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_CLIPBOARD_IMAGE)
+                val url = URL(serverUrl)
+                val connection = url.openConnection() as HttpURLConnection
+
+                connection.requestMethod = ApiConstants.METHOD_POST
+                connection.setRequestProperty("Content-Type", ApiConstants.CONTENT_TYPE_JSON)
+                connection.doOutput = true
+                connection.connectTimeout = ApiConstants.TIMEOUT_CLIPBOARD_CONNECT
+                connection.readTimeout = ApiConstants.TIMEOUT_CLIPBOARD_READ
+
+                val jsonBody = JSONObject().apply {
+                    put(ApiConstants.FIELD_CONTENT, base64Content)
+                    put(ApiConstants.FIELD_DEVICE_NAME, getDeviceName())
+                    put(ApiConstants.FIELD_TYPE, ApiConstants.CONTENT_TYPE_IMAGE)
+                }
+
+                connection.outputStream.use { outputStream ->
+                    outputStream.write(jsonBody.toString().toByteArray())
+                }
+
+                val responseCode = connection.responseCode
+                Log.d(TAG, "剪贴板图片发送响应码: $responseCode")
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    NetworkResult.Success
+                } else {
+                    val errorMessage = try {
+                        connection.errorStream?.bufferedReader()?.use { it.readText() } ?: "HTTP $responseCode"
+                    } catch (e: Exception) {
+                        "HTTP $responseCode"
+                    }
+                    NetworkResult.Error("发送失败: $errorMessage")
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "发送剪贴板图片失败", e)
+                NetworkResult.Error(e.message ?: "网络错误")
+            }
         }
     }
 

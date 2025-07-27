@@ -66,6 +66,24 @@ object ClipboardImageUtils {
     }
 
     /**
+     * 立即同步获取剪贴板内容
+     * 专门用于Activity启动时的立即获取，不进行重试和延迟
+     */
+    fun readClipboardContentImmediate(context: Context): ClipboardContent {
+        Log.d(TAG, "立即同步读取剪贴板内容")
+
+        return try {
+            readClipboardContentDirect(context)
+        } catch (e: SecurityException) {
+            Log.w(TAG, "立即读取剪贴板权限不足", e)
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "立即读取剪贴板失败", e)
+            throw e
+        }
+    }
+
+    /**
      * 带重试机制的剪贴板内容读取
      * 专门用于通知按钮触发的场景，会尝试多次读取
      */
@@ -80,7 +98,7 @@ object ClipboardImageUtils {
                 if (!canAccessClipboard(context)) {
                     Log.w(TAG, "第${attempt + 1}次剪贴板访问权限检查失败")
                     if (attempt < maxRetries - 1) {
-                        val waitTime = 800 + (attempt * 300) // 递增等待时间
+                        val waitTime = 200 + (attempt * 200) // 减少等待时间，提高响应速度
                         Log.d(TAG, "权限不足，等待 ${waitTime}ms 后重试")
                         delay(waitTime.toLong())
                     } else {
@@ -93,8 +111,8 @@ object ClipboardImageUtils {
                 Log.w(TAG, "第${attempt + 1}次剪贴板访问权限不足，${if (attempt < maxRetries - 1) "将重试" else "已达到最大重试次数"}", e)
                 lastException = e
                 if (attempt < maxRetries - 1) {
-                    // 权限问题需要更长的等待时间
-                    val waitTime = 800 + (attempt * 300) // 递增等待时间
+                    // 减少权限问题的等待时间，提高响应速度
+                    val waitTime = 200 + (attempt * 200) // 递增等待时间
                     Log.d(TAG, "等待 ${waitTime}ms 后重试")
                     delay(waitTime.toLong())
                 }
@@ -102,7 +120,7 @@ object ClipboardImageUtils {
                 Log.w(TAG, "第${attempt + 1}次读取剪贴板失败，${if (attempt < maxRetries - 1) "将重试" else "已达到最大重试次数"}", e)
                 lastException = e
                 if (attempt < maxRetries - 1) {
-                    delay(500)
+                    delay(300) // 减少一般错误的等待时间
                 }
             }
         }

@@ -257,6 +257,8 @@
     <string name="sending_clipboard_short">发送中...</string>
     <string name="sending_image_short">发送中...</string>
 
+
+
     <!-- 应用退出功能 -->
     <string name="app_exit_settings">应用退出</string>
     <string name="app_exit_settings_desc">完全退出应用并停止所有后台服务</string>

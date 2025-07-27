@@ -1236,3 +1236,5 @@ fun AppExitSettingsCard() {
         )
     }
 }
+
+

@@ -195,4 +195,6 @@ object ServerPreferences {
     fun isPersistentNotificationEnabled(context: Context): Boolean {
         return getPreferences(context).getBoolean(KEY_PERSISTENT_NOTIFICATION_ENABLED, true)
     }
+
+
 }

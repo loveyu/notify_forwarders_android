@@ -142,5 +142,27 @@ object ClipboardUtils {
         )
     }
 
+     /**
+     * 获取剪贴板内容
+     * @param context 上下文
+     * @return 剪贴板内容，如果为空或获取失败则返回null
+     */
+    fun getClipboardContent(context: Context): String? {
+        return try {
+            val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = clipboardManager.primaryClip
+
+            if (clipData != null && clipData.itemCount > 0) {
+                val item = clipData.getItemAt(0)
+                item.text?.toString()
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "获取剪贴板内容失败", e)
+            null
+        }
+    }
+
 
 }

@@ -58,6 +58,17 @@
             android:label="@string/media_permission_title"
             android:theme="@style/Theme.NotifyForwarders"
             android:excludeFromRecents="true" />
+
+        <!-- 剪贴板浮动Activity -->
+        <activity
+            android:name=".ClipboardFloatingActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ClipboardFloating"
+            android:excludeFromRecents="true"
+            android:finishOnTaskLaunch="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:launchMode="singleInstance" />
         
         <!-- 添加通知监听服务 -->
         <service

@@ -11,6 +11,7 @@ import android.util.Log
 
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import kotlinx.coroutines.delay
 
 /**
  * 剪贴板和图片处理工具类
@@ -65,55 +66,103 @@ object ClipboardImageUtils {
     }
 
     /**
-     * 读取剪贴板内容
+     * 带重试机制的剪贴板内容读取
+     * 专门用于通知按钮触发的场景，会尝试多次读取
      */
-    fun readClipboardContent(context: Context): ClipboardContent {
-        try {
-            // 首先检查是否可以访问剪贴板
-            if (!canAccessClipboard(context)) {
-                Log.w(TAG, "无法访问剪贴板，可能是权限不足或应用在后台")
-                throw SecurityException("剪贴板访问权限不足")
-            }
+    suspend fun readClipboardContentWithRetry(context: Context, maxRetries: Int = 5): ClipboardContent {
+        var lastException: Exception? = null
 
-            val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clipData = clipboardManager.primaryClip
+        repeat(maxRetries) { attempt ->
+            try {
+                Log.d(TAG, "尝试读取剪贴板内容，第${attempt + 1}次")
 
-            if (clipData == null || clipData.itemCount == 0) {
-                Log.d(TAG, "剪贴板为空")
-                return ClipboardContent(ContentType.EMPTY, "")
-            }
-
-            val item = clipData.getItemAt(0)
-
-            // 检查是否是图片URI
-            item.uri?.let { uri ->
-                if (isImageUri(context, uri)) {
-                    Log.d(TAG, "剪贴板包含图片URI")
-                    val imageBase64 = uriToBase64(context, uri)
-                    if (imageBase64 != null) {
-                        return ClipboardContent(ContentType.IMAGE, imageBase64, "image/*")
+                // 检查是否可以访问剪贴板
+                if (!canAccessClipboard(context)) {
+                    Log.w(TAG, "第${attempt + 1}次剪贴板访问权限检查失败")
+                    if (attempt < maxRetries - 1) {
+                        val waitTime = 800 + (attempt * 300) // 递增等待时间
+                        Log.d(TAG, "权限不足，等待 ${waitTime}ms 后重试")
+                        delay(waitTime.toLong())
+                    } else {
+                        throw SecurityException("剪贴板访问权限不足")
                     }
                 }
+
+                return readClipboardContentDirect(context)
+            } catch (e: SecurityException) {
+                Log.w(TAG, "第${attempt + 1}次剪贴板访问权限不足，${if (attempt < maxRetries - 1) "将重试" else "已达到最大重试次数"}", e)
+                lastException = e
+                if (attempt < maxRetries - 1) {
+                    // 权限问题需要更长的等待时间
+                    val waitTime = 800 + (attempt * 300) // 递增等待时间
+                    Log.d(TAG, "等待 ${waitTime}ms 后重试")
+                    delay(waitTime.toLong())
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "第${attempt + 1}次读取剪贴板失败，${if (attempt < maxRetries - 1) "将重试" else "已达到最大重试次数"}", e)
+                lastException = e
+                if (attempt < maxRetries - 1) {
+                    delay(500)
+                }
             }
+        }
 
-            // 检查文本内容
-            val text = item.text?.toString()
-            if (!text.isNullOrBlank()) {
-                Log.d(TAG, "剪贴板包含文本内容")
-                val textBase64 = Base64.encodeToString(text.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
-                return ClipboardContent(ContentType.TEXT, textBase64, "text/plain")
-            }
+        // 所有重试都失败了，抛出最后一个异常
+        throw lastException ?: Exception("读取剪贴板失败")
+    }
 
-            Log.d(TAG, "剪贴板内容无法识别")
-            return ClipboardContent(ContentType.EMPTY, "")
+    /**
+     * 直接读取剪贴板内容，不进行前台状态检查
+     */
+    private fun readClipboardContentDirect(context: Context): ClipboardContent {
+        val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
+        val clipData = try {
+            clipboardManager.primaryClip
         } catch (e: SecurityException) {
-            Log.e(TAG, "剪贴板权限不足", e)
+            Log.e(TAG, "剪贴板权限不足 - 系统拒绝访问", e)
             throw e
         } catch (e: Exception) {
-            Log.e(TAG, "读取剪贴板失败", e)
+            Log.e(TAG, "访问剪贴板时发生异常", e)
             throw e
         }
+
+        if (clipData == null || clipData.itemCount == 0) {
+            Log.d(TAG, "剪贴板为空")
+            return ClipboardContent(ContentType.EMPTY, "")
+        }
+
+        val item = clipData.getItemAt(0)
+
+        // 检查是否是图片URI
+        item.uri?.let { uri ->
+            if (isImageUri(context, uri)) {
+                Log.d(TAG, "剪贴板包含图片URI")
+                val imageBase64 = uriToBase64(context, uri)
+                if (imageBase64 != null) {
+                    return ClipboardContent(ContentType.IMAGE, imageBase64, "image/*")
+                }
+            }
+        }
+
+        // 检查文本内容
+        val text = item.text?.toString()
+        if (!text.isNullOrBlank()) {
+            Log.d(TAG, "剪贴板包含文本内容")
+            val textBase64 = Base64.encodeToString(text.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+            return ClipboardContent(ContentType.TEXT, textBase64, "text/plain")
+        }
+
+        Log.d(TAG, "剪贴板内容无法识别")
+        return ClipboardContent(ContentType.EMPTY, "")
+    }
+
+    /**
+     * 读取剪贴板内容
+     * 保持原有接口兼容性，但移除过于严格的前台检查
+     */
+    fun readClipboardContent(context: Context): ClipboardContent {
+        return readClipboardContentDirect(context)
     }
 
     /**

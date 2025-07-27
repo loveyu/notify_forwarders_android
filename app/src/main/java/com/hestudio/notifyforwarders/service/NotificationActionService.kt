@@ -1,11 +1,16 @@
 package com.hestudio.notifyforwarders.service
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import com.hestudio.notifyforwarders.MainActivity
 import com.hestudio.notifyforwarders.R
 import com.hestudio.notifyforwarders.constants.ApiConstants
@@ -19,6 +24,7 @@ import com.hestudio.notifyforwarders.util.ToastManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -86,9 +92,15 @@ class NotificationActionService : Service() {
         super.onCreate()
     }
 
+
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "NotificationActionService onStartCommand: ${intent?.action}")
+
         when (intent?.action) {
-            ACTION_SEND_CLIPBOARD -> handleSendClipboard()
+            ACTION_SEND_CLIPBOARD -> {
+                handleSendClipboard()
+            }
             ACTION_SEND_IMAGE -> handleSendImage()
             else -> {
                 Log.w(TAG, "未知的操作: ${intent?.action}")
@@ -111,18 +123,21 @@ class NotificationActionService : Service() {
         restoreNotificationStateToIdle()
     }
 
-
-
     /**
-     * 启动MainActivity让应用进入前台
+     * 启动MainActivity让应用进入前台并获得焦点
      */
     private fun bringAppToForeground() {
         try {
             val intent = Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                       Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                       Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                       Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                // 添加这个标志来确保Activity获得焦点
+                addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
             }
             startActivity(intent)
-            Log.d(TAG, "已启动MainActivity，让应用进入前台")
+            Log.d(TAG, "已启动MainActivity，让应用进入前台并获得焦点")
         } catch (e: Exception) {
             Log.e(TAG, "启动MainActivity失败", e)
         }
@@ -215,15 +230,6 @@ class NotificationActionService : Service() {
                         )
                     }
 
-                    // 根据常驻通知设置决定是否启动MainActivity
-                    if (ServerPreferences.isPersistentNotificationEnabled(this@NotificationActionService)) {
-                        // 如果开启了常驻通知，让应用进入前台
-                        bringAppToForegroundIfNeeded()
-                    } else {
-                        // 如果没有开启常驻通知，让应用在后台运行
-                        Log.d(TAG, "常驻通知未开启，应用将在后台运行")
-                    }
-
                     // 检查服务器地址配置
                     val serverAddress = ServerPreferences.getServerAddress(this@NotificationActionService)
                     if (serverAddress.isEmpty()) {
@@ -235,31 +241,37 @@ class NotificationActionService : Service() {
                         return@withTimeoutOrNull false
                     }
 
-                    // 等待一小段时间让应用进入前台
-                    kotlinx.coroutines.delay(500)
-
-                    // 再次检查应用状态，如果仍在后台则尝试使用ActivityManager检查
-                    val isInBackground = if (AppStateManager.isAppInBackground()) {
-                        // 使用ActivityManager作为备用检查
-                        !AppStateManager.isAppInForegroundByActivityManager(this@NotificationActionService)
-                    } else {
-                        false
+                    // 确保应用获得焦点以访问剪贴板
+                    Log.d(TAG, "尝试让应用获得焦点以访问剪贴板")
+                    withContext(Dispatchers.Main) {
+                        bringAppToForeground()
                     }
 
-                    if (isInBackground) {
-                        Log.w(TAG, "应用仍在后台，无法访问剪贴板")
-                        ErrorNotificationUtils.showClipboardPermissionError(this@NotificationActionService)
-                        return@withTimeoutOrNull false
-                    }
+                    // 给系统时间确保应用焦点生效
+                    delay(800)
 
                     val clipboardContent = try {
                         withContext(Dispatchers.Main) {
-                            ClipboardImageUtils.readClipboardContent(this@NotificationActionService)
+                            ClipboardImageUtils.readClipboardContentWithRetry(this@NotificationActionService)
                         }
                     } catch (e: SecurityException) {
-                        Log.e(TAG, "剪贴板权限不足", e)
-                        ErrorNotificationUtils.showClipboardPermissionError(this@NotificationActionService)
-                        return@withTimeoutOrNull false
+                        Log.e(TAG, "剪贴板权限不足，尝试再次获得焦点", e)
+                        // 再次尝试获得焦点
+                        withContext(Dispatchers.Main) {
+                            bringAppToForeground()
+                        }
+                        delay(1500)
+
+                        // 最后一次尝试
+                        try {
+                            withContext(Dispatchers.Main) {
+                                ClipboardImageUtils.readClipboardContentWithRetry(this@NotificationActionService, 3)
+                            }
+                        } catch (e2: Exception) {
+                            Log.e(TAG, "最终剪贴板访问失败", e2)
+                            ErrorNotificationUtils.showClipboardPermissionError(this@NotificationActionService)
+                            return@withTimeoutOrNull false
+                        }
                     } catch (e: Exception) {
                         Log.e(TAG, "读取剪贴板失败", e)
                         ErrorNotificationUtils.showClipboardSendError(
@@ -270,6 +282,10 @@ class NotificationActionService : Service() {
                     }
 
                     if (clipboardContent.type == ClipboardImageUtils.ContentType.EMPTY) {
+                        Log.d(TAG, "剪贴板为空")
+                        withContext(Dispatchers.Main) {
+                            ToastManager.showToast(this@NotificationActionService, getString(R.string.clipboard_empty))
+                        }
                         return@withTimeoutOrNull false
                     }
 

@@ -256,6 +256,34 @@ class NotificationService : NotificationListenerService() {
             setShowBadge(false) // 不在启动器图标上显示通知角标
         }
         notificationManager.createNotificationChannel(channel)
+
+        // 清理不再使用的历史通知渠道
+        cleanupLegacyNotificationChannels(notificationManager)
+    }
+
+    /**
+     * 清理不再使用的历史通知渠道
+     */
+    private fun cleanupLegacyNotificationChannels(notificationManager: NotificationManager) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                // 删除剪贴板访问通知渠道（已不再使用）
+                val legacyChannels = listOf(
+                    "clipboard_access_channel"
+                )
+
+                legacyChannels.forEach { channelId ->
+                    try {
+                        notificationManager.deleteNotificationChannel(channelId)
+                        Log.d(TAG, "已删除历史通知渠道: $channelId")
+                    } catch (e: Exception) {
+                        Log.w(TAG, "删除历史通知渠道失败: $channelId", e)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "清理历史通知渠道失败", e)
+            }
+        }
     }
     
     override fun onNotificationPosted(sbn: StatusBarNotification) {

@@ -21,10 +21,12 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.createBitmap
+import com.hestudio.notifyforwarders.ClipboardFloatingActivity
 import com.hestudio.notifyforwarders.MainActivity
 import com.hestudio.notifyforwarders.R
 import com.hestudio.notifyforwarders.constants.ApiConstants
 import com.hestudio.notifyforwarders.util.IconCacheManager
+import com.hestudio.notifyforwarders.util.ModernNotificationUtils
 import com.hestudio.notifyforwarders.util.PersistentNotificationManager
 import com.hestudio.notifyforwarders.util.ServerPreferences
 import kotlinx.coroutines.CoroutineScope
@@ -203,11 +205,14 @@ class NotificationService : NotificationListenerService() {
      * 添加操作按钮
      */
     private fun addActionButtons(notificationBuilder: NotificationCompat.Builder) {
-        // 创建剪贴板操作的PendingIntent
-        val clipboardIntent = Intent(this, NotificationActionService::class.java).apply {
-            action = NotificationActionService.ACTION_SEND_CLIPBOARD
+        // 创建剪贴板操作的PendingIntent - 启动ClipboardFloatingActivity
+        val clipboardIntent = Intent(this, ClipboardFloatingActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                   Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                   Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                   Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
         }
-        val clipboardPendingIntent = PendingIntent.getService(
+        val clipboardPendingIntent = PendingIntent.getActivity(
             this,
             1,
             clipboardIntent,
@@ -243,47 +248,35 @@ class NotificationService : NotificationListenerService() {
     }
 
     /**
-     * 创建通知渠道
+     * 创建通知渠道（使用现代化API）
      */
     private fun createNotificationChannel() {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            getString(R.string.foreground_service_channel),
-            NotificationManager.IMPORTANCE_LOW // 低优先级，不会打扰用户
-        ).apply {
+        // 使用现代化通知工具创建渠道
+        ModernNotificationUtils.createNotificationChannel(
+            context = this,
+            channelId = CHANNEL_ID,
+            channelName = getString(R.string.foreground_service_channel),
+            importance = NotificationManager.IMPORTANCE_LOW,
             description = getString(R.string.foreground_service_channel_desc)
-            setShowBadge(false) // 不在启动器图标上显示通知角标
-        }
-        notificationManager.createNotificationChannel(channel)
+        )
 
         // 清理不再使用的历史通知渠道
-        cleanupLegacyNotificationChannels(notificationManager)
+        cleanupLegacyNotificationChannels()
     }
 
     /**
-     * 清理不再使用的历史通知渠道
+     * 清理不再使用的历史通知渠道（使用现代化API）
      */
-    private fun cleanupLegacyNotificationChannels(notificationManager: NotificationManager) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            try {
-                // 删除剪贴板访问通知渠道（已不再使用）
-                val legacyChannels = listOf(
-                    "clipboard_access_channel"
-                )
+    private fun cleanupLegacyNotificationChannels() {
+        // 定义已弃用的通知渠道列表
+        val deprecatedChannels = listOf(
+            "clipboard_access_channel",
+            "pinned_notification_channel", // 清理可能存在的已弃用的固定通知渠道
+            "legacy_notification_channel"  // 清理其他可能的遗留渠道
+        )
 
-                legacyChannels.forEach { channelId ->
-                    try {
-                        notificationManager.deleteNotificationChannel(channelId)
-                        Log.d(TAG, "已删除历史通知渠道: $channelId")
-                    } catch (e: Exception) {
-                        Log.w(TAG, "删除历史通知渠道失败: $channelId", e)
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "清理历史通知渠道失败", e)
-            }
-        }
+        // 使用现代化工具清理已弃用的渠道
+        ModernNotificationUtils.cleanupDeprecatedChannels(this, deprecatedChannels)
     }
     
     override fun onNotificationPosted(sbn: StatusBarNotification) {

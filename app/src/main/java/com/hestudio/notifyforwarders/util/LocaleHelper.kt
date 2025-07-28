@@ -14,7 +14,7 @@ object LocaleHelper {
         CHINESE_SIMPLIFIED("zh", "简体中文", Locale.SIMPLIFIED_CHINESE),
         CHINESE_TRADITIONAL("zh-TW", "繁體中文", Locale.TRADITIONAL_CHINESE),
         JAPANESE("ja", "日本語", Locale.JAPANESE),
-        RUSSIAN("ru", "Русский", Locale("ru")),
+        RUSSIAN("ru", "Русский", Locale.Builder().setLanguage("ru").build()),
         FRENCH("fr", "Français", Locale.FRENCH),
         GERMAN("de", "Deutsch", Locale.GERMAN);
         

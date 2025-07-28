@@ -197,8 +197,34 @@ class NotificationService : NotificationListenerService() {
         return when (currentNotificationState) {
             PersistentNotificationManager.SendingState.SENDING_CLIPBOARD -> getString(R.string.sending_clipboard)
             PersistentNotificationManager.SendingState.SENDING_IMAGE -> getString(R.string.sending_image)
-            PersistentNotificationManager.SendingState.IDLE -> getString(R.string.persistent_notification_text)
+            PersistentNotificationManager.SendingState.IDLE -> getStatusNotificationText()
         }
+    }
+
+    /**
+     * 获取状态通知文本，包含接收和转发状态
+     */
+    private fun getStatusNotificationText(): String {
+        // 检查接收状态 - 基于通知监听权限和接收开关
+        val hasNotificationPermission = com.hestudio.notifyforwarders.util.NotificationUtils.isNotificationListenerEnabled(this)
+        val isReceiveEnabled = ServerPreferences.isNotificationReceiveEnabled(this)
+        val receivingStatus = if (hasNotificationPermission && isReceiveEnabled) {
+            getString(R.string.notification_status_receiving_enabled)
+        } else {
+            getString(R.string.notification_status_receiving_disabled)
+        }
+
+        // 检查转发状态 - 基于服务器配置和转发开关
+        val hasServerConfig = ServerPreferences.hasValidServerConfig(this)
+        val isForwardEnabled = ServerPreferences.isNotificationForwardEnabled(this)
+        val forwardingStatus = when {
+            !hasServerConfig -> getString(R.string.notification_status_forwarding_not_configured)
+            isForwardEnabled -> getString(R.string.notification_status_forwarding_enabled)
+            else -> getString(R.string.notification_status_forwarding_disabled)
+        }
+
+        // 组合状态文本
+        return getString(R.string.persistent_notification_status_format, receivingStatus, forwardingStatus)
     }
 
     /**

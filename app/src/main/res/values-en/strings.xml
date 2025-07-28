@@ -147,6 +147,14 @@
     <string name="action_send_clipboard">Send Clipboard</string>
     <string name="action_send_image">Send Image</string>
 
+    <!-- Persistent notification status display -->
+    <string name="notification_status_receiving_enabled">Receiving: Enabled</string>
+    <string name="notification_status_receiving_disabled">Receiving: Disabled</string>
+    <string name="notification_status_forwarding_enabled">Forwarding: Enabled</string>
+    <string name="notification_status_forwarding_disabled">Forwarding: Disabled</string>
+    <string name="notification_status_forwarding_not_configured">Forwarding: Not Configured</string>
+    <string name="persistent_notification_status_format" formatted="false">%s | %s</string>
+
     <!-- Clipboard and image sending -->
     <string name="clipboard_permission_title">Clipboard Access Permission</string>
     <string name="clipboard_permission_desc">App needs to access clipboard to read and send clipboard content</string>

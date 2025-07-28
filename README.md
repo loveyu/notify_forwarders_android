@@ -269,6 +269,16 @@ For detailed API specifications, request/response examples, and implementation d
 
 ## 📋 Recent Updates
 
+### Version 1.6.0 - Enhanced Notification System & Advanced Clipboard Functionality
+- **🔔 Optimized Persistent Notification**: Improved persistent notification content with concise status display and immediate updates
+- **📋 Advanced Clipboard Integration**: Significantly enhanced clipboard functionality with comprehensive testing suite and fixed access issues
+- **🔐 Enhanced Media Permission Handling**: Improved media permission handling and notification system integration
+- **⚡ Runtime Performance Optimization**: Optimized app runtime mode and added proper exit functionality for better resource management
+- **🛠️ Modernized APIs**: Fixed deprecated pinning APIs and modernized the entire notification system for better Android 13+ compatibility
+- **🧪 Comprehensive Testing Suite**: Added extensive testing coverage for clipboard functionality to ensure reliability across different scenarios
+- **🔄 Real-time Status Updates**: Enhanced notification content to display receiving and forwarding status with immediate updates
+- **🚀 Performance Improvements**: Various under-the-hood optimizations for smoother operation and better battery efficiency
+
 ### Version 1.5.0 - Persistent Notification & Enhanced Quick Actions
 - **📌 Persistent Notification System**: Added persistent notification with quick action buttons for clipboard and image sending
 - **📋 Enhanced Clipboard Integration**: Send clipboard content (text and images) with Base64 encoding via notification actions

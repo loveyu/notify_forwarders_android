@@ -8,10 +8,9 @@ import android.net.Uri
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
-
+import kotlinx.coroutines.delay
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import kotlinx.coroutines.delay
 
 /**
  * 剪贴板和图片处理工具类

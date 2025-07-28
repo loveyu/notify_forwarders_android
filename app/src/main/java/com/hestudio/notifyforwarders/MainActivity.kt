@@ -3,7 +3,6 @@ package com.hestudio.notifyforwarders
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -71,6 +70,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.createBitmap
+import androidx.core.net.toUri
 import com.hestudio.notifyforwarders.service.JobSchedulerService
 import com.hestudio.notifyforwarders.service.NotificationActionService
 import com.hestudio.notifyforwarders.service.NotificationData
@@ -255,7 +256,7 @@ class MainActivity : ComponentActivity() {
             try {
                 val intent = Intent().apply {
                     action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                    data = Uri.parse("package:$packageName")
+                    data = "package:$packageName".toUri()
                 }
                 batteryOptimizationLauncher.launch(intent)
             } catch (e: Exception) {
@@ -443,10 +444,9 @@ fun AppIcon(
                         val drawable = packageManager.getApplicationIcon(applicationInfo)
 
                         // 转换为Bitmap
-                        val bitmap = android.graphics.Bitmap.createBitmap(
+                        val bitmap = createBitmap(
                             drawable.intrinsicWidth.coerceAtLeast(1),
-                            drawable.intrinsicHeight.coerceAtLeast(1),
-                            android.graphics.Bitmap.Config.ARGB_8888
+                            drawable.intrinsicHeight.coerceAtLeast(1)
                         )
                         val canvas = android.graphics.Canvas(bitmap)
                         drawable.setBounds(0, 0, canvas.width, canvas.height)

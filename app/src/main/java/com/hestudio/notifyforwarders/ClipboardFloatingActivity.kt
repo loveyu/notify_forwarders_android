@@ -8,7 +8,12 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import com.hestudio.notifyforwarders.constants.ApiConstants
 import com.hestudio.notifyforwarders.service.NotificationService
-import com.hestudio.notifyforwarders.util.*
+import com.hestudio.notifyforwarders.util.ClipboardImageUtils
+import com.hestudio.notifyforwarders.util.ErrorNotificationUtils
+import com.hestudio.notifyforwarders.util.LocaleHelper
+import com.hestudio.notifyforwarders.util.PersistentNotificationManager
+import com.hestudio.notifyforwarders.util.ServerPreferences
+import com.hestudio.notifyforwarders.util.ToastManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

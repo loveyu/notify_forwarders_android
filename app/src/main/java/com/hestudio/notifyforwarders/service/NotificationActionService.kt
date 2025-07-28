@@ -1,16 +1,11 @@
 package com.hestudio.notifyforwarders.service
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import com.hestudio.notifyforwarders.MainActivity
 import com.hestudio.notifyforwarders.R
 import com.hestudio.notifyforwarders.constants.ApiConstants

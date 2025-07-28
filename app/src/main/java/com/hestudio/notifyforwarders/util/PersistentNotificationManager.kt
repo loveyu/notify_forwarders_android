@@ -1,14 +1,8 @@
 package com.hestudio.notifyforwarders.util
 
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import com.hestudio.notifyforwarders.MainActivity
-import com.hestudio.notifyforwarders.R
-import com.hestudio.notifyforwarders.service.NotificationActionService
 
 /**
  * 持久化通知状态管理器

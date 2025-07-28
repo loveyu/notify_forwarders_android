@@ -445,50 +445,50 @@ class NotificationService : NotificationListenerService() {
                 }
             }
 
-            // 第二优先级：尝试从extras中获取EXTRA_LARGE_ICON
-            val extras = notification.extras
-            extras?.let { bundle ->
-                // 尝试获取 EXTRA_LARGE_ICON
-                try {
-                    val largeIconBitmap = bundle.getParcelable<Bitmap>(Notification.EXTRA_LARGE_ICON)
-                    if (largeIconBitmap != null && !largeIconBitmap.isRecycled) {
-                        Log.d(TAG, "成功从extras获取EXTRA_LARGE_ICON")
-                        return largeIconBitmap
-                    }
-                } catch (e: Exception) {
-                    Log.w(TAG, "从extras获取EXTRA_LARGE_ICON失败: ${e.message}")
-                }
-
-                // 尝试获取 EXTRA_LARGE_ICON_BIG
-                try {
-                    val largeIconBigBitmap = bundle.getParcelable<Bitmap>(Notification.EXTRA_LARGE_ICON + ".big")
-                    if (largeIconBigBitmap != null && !largeIconBigBitmap.isRecycled) {
-                        Log.d(TAG, "成功从extras获取EXTRA_LARGE_ICON_BIG")
-                        return largeIconBigBitmap
-                    }
-                } catch (e: Exception) {
-                    Log.w(TAG, "从extras获取EXTRA_LARGE_ICON_BIG失败: ${e.message}")
-                }
-
-                // 第三优先级：尝试获取 EXTRA_PICTURE（但要谨慎，这通常是BigPictureStyle的内容图片）
-                try {
-                    val pictureBitmap = bundle.getParcelable<Bitmap>(Notification.EXTRA_PICTURE)
-                    if (pictureBitmap != null && !pictureBitmap.isRecycled) {
-                        // 检查图片尺寸，如果太大可能不适合作为图标
-                        val maxIconSize = 512 // 最大图标尺寸
-                        if (pictureBitmap.width <= maxIconSize && pictureBitmap.height <= maxIconSize) {
-                            Log.d(TAG, "成功从extras获取EXTRA_PICTURE作为图标")
-                            return pictureBitmap
-                        } else {
-                            Log.d(TAG, "EXTRA_PICTURE尺寸过大(${pictureBitmap.width}x${pictureBitmap.height})，不适合作为图标")
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.w(TAG, "从extras获取EXTRA_PICTURE失败: ${e.message}")
-                }
-            }
-
-            Log.d(TAG, "未能从通知中获取任何图标")
+//            // 第二优先级：尝试从extras中获取EXTRA_LARGE_ICON
+//            val extras = notification.extras
+//            extras?.let { bundle ->
+//                // 尝试获取 EXTRA_LARGE_ICON
+//                try {
+//                    val largeIconBitmap = bundle.getParcelable<Bitmap>(Notification.EXTRA_LARGE_ICON)
+//                    if (largeIconBitmap != null && !largeIconBitmap.isRecycled) {
+//                        Log.d(TAG, "成功从extras获取EXTRA_LARGE_ICON")
+//                        return largeIconBitmap
+//                    }
+//                } catch (e: Exception) {
+//                    Log.w(TAG, "从extras获取EXTRA_LARGE_ICON失败: ${e.message}")
+//                }
+//
+//                // 尝试获取 EXTRA_LARGE_ICON_BIG
+//                try {
+//                    val largeIconBigBitmap = bundle.getParcelable<Bitmap>(Notification.EXTRA_LARGE_ICON + ".big")
+//                    if (largeIconBigBitmap != null && !largeIconBigBitmap.isRecycled) {
+//                        Log.d(TAG, "成功从extras获取EXTRA_LARGE_ICON_BIG")
+//                        return largeIconBigBitmap
+//                    }
+//                } catch (e: Exception) {
+//                    Log.w(TAG, "从extras获取EXTRA_LARGE_ICON_BIG失败: ${e.message}")
+//                }
+//
+//                // 第三优先级：尝试获取 EXTRA_PICTURE（但要谨慎，这通常是BigPictureStyle的内容图片）
+//                try {
+//                    val pictureBitmap = bundle.getParcelable<Bitmap>(Notification.EXTRA_PICTURE)
+//                    if (pictureBitmap != null && !pictureBitmap.isRecycled) {
+//                        // 检查图片尺寸，如果太大可能不适合作为图标
+//                        val maxIconSize = 512 // 最大图标尺寸
+//                        if (pictureBitmap.width <= maxIconSize && pictureBitmap.height <= maxIconSize) {
+//                            Log.d(TAG, "成功从extras获取EXTRA_PICTURE作为图标")
+//                            return pictureBitmap
+//                        } else {
+//                            Log.d(TAG, "EXTRA_PICTURE尺寸过大(${pictureBitmap.width}x${pictureBitmap.height})，不适合作为图标")
+//                        }
+//                    }
+//                } catch (e: Exception) {
+//                    Log.w(TAG, "从extras获取EXTRA_PICTURE失败: ${e.message}")
+//                }
+//            }
+//
+//            Log.d(TAG, "未能从通知中获取任何图标")
         } catch (e: Exception) {
             Log.w(TAG, "获取通知图标失败: ${e.message}")
         }

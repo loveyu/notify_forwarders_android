@@ -162,12 +162,12 @@
     <string name="action_send_image">发送图片</string>
 
     <!-- 常驻通知状态显示 -->
-    <string name="notification_status_receiving_enabled">接收: 已开启</string>
-    <string name="notification_status_receiving_disabled">接收: 已关闭</string>
-    <string name="notification_status_forwarding_enabled">转发: 已开启</string>
-    <string name="notification_status_forwarding_disabled">转发: 已关闭</string>
-    <string name="notification_status_forwarding_not_configured">转发: 未配置远程</string>
-    <string name="persistent_notification_status_format" formatted="false">%s | %s</string>
+    <string name="notification_status_receiving_enabled">接收✓</string>
+    <string name="notification_status_receiving_disabled">接收✗</string>
+    <string name="notification_status_forwarding_enabled">转发✓</string>
+    <string name="notification_status_forwarding_disabled">转发✗</string>
+    <string name="notification_status_forwarding_not_configured">转发?</string>
+    <string name="persistent_notification_status_format" formatted="false">%s • %s</string>
 
     <!-- 剪贴板和图片发送 -->
     <string name="clipboard_permission_title">剪贴板访问权限</string>

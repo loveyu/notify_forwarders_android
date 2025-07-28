@@ -147,6 +147,14 @@
     <string name="action_send_clipboard">Отправить буфер обмена</string>
     <string name="action_send_image">Отправить изображение</string>
 
+    <!-- Отображение статуса постоянного уведомления -->
+    <string name="notification_status_receiving_enabled">Получение✓</string>
+    <string name="notification_status_receiving_disabled">Получение✗</string>
+    <string name="notification_status_forwarding_enabled">Пересылка✓</string>
+    <string name="notification_status_forwarding_disabled">Пересылка✗</string>
+    <string name="notification_status_forwarding_not_configured">Пересылка?</string>
+    <string name="persistent_notification_status_format" formatted="false">%s • %s</string>
+
     <!-- Отправка буфера обмена и изображений -->
     <string name="clipboard_permission_title">Разрешение доступа к буферу обмена</string>
     <string name="clipboard_permission_desc">Приложению нужен доступ к буферу обмена для чтения и отправки содержимого буфера обмена</string>

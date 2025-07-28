@@ -147,6 +147,14 @@
     <string name="action_send_clipboard">傳送剪貼簿</string>
     <string name="action_send_image">傳送圖片</string>
 
+    <!-- 常駐通知狀態顯示 -->
+    <string name="notification_status_receiving_enabled">接收✓</string>
+    <string name="notification_status_receiving_disabled">接收✗</string>
+    <string name="notification_status_forwarding_enabled">轉發✓</string>
+    <string name="notification_status_forwarding_disabled">轉發✗</string>
+    <string name="notification_status_forwarding_not_configured">轉發?</string>
+    <string name="persistent_notification_status_format" formatted="false">%s • %s</string>
+
     <!-- 剪貼簿和圖片傳送 -->
     <string name="clipboard_permission_title">剪貼簿存取權限</string>
     <string name="clipboard_permission_desc">應用程式需要存取剪貼簿來讀取和傳送剪貼簿內容</string>

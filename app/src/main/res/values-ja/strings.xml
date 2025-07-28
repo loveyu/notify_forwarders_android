@@ -147,6 +147,14 @@
     <string name="action_send_clipboard">クリップボードを送信</string>
     <string name="action_send_image">画像を送信</string>
 
+    <!-- 常駐通知ステータス表示 -->
+    <string name="notification_status_receiving_enabled">受信✓</string>
+    <string name="notification_status_receiving_disabled">受信✗</string>
+    <string name="notification_status_forwarding_enabled">転送✓</string>
+    <string name="notification_status_forwarding_disabled">転送✗</string>
+    <string name="notification_status_forwarding_not_configured">転送?</string>
+    <string name="persistent_notification_status_format" formatted="false">%s • %s</string>
+
     <!-- クリップボードと画像送信 -->
     <string name="clipboard_permission_title">クリップボードアクセス権限</string>
     <string name="clipboard_permission_desc">アプリはクリップボードの内容を読み取り、送信するためにクリップボードへのアクセスが必要です</string>

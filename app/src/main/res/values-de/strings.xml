@@ -147,6 +147,14 @@
     <string name="action_send_clipboard">Zwischenablage senden</string>
     <string name="action_send_image">Bild senden</string>
 
+    <!-- Dauerhafte Benachrichtigungsstatusanzeige -->
+    <string name="notification_status_receiving_enabled">Empfangen✓</string>
+    <string name="notification_status_receiving_disabled">Empfangen✗</string>
+    <string name="notification_status_forwarding_enabled">Weiterleiten✓</string>
+    <string name="notification_status_forwarding_disabled">Weiterleiten✗</string>
+    <string name="notification_status_forwarding_not_configured">Weiterleiten?</string>
+    <string name="persistent_notification_status_format" formatted="false">%s • %s</string>
+
     <!-- Zwischenablage und Bildsendung -->
     <string name="clipboard_permission_title">Zwischenablage-Zugriffsberechtigung</string>
     <string name="clipboard_permission_desc">App benötigt Zugriff auf die Zwischenablage, um Zwischenablage-Inhalte zu lesen und zu senden</string>

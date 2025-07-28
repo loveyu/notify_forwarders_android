@@ -496,6 +496,10 @@ fun SettingsScreen(
                                     if (verificationCode == generatedCode) {
                                         // 验证成功，保存服务器地址
                                         ServerPreferences.saveServerAddress(context, serverAddress)
+
+                                        // 立即更新持久化通知状态
+                                        NotificationService.refreshForegroundNotification(context)
+
                                         verificationMessage = context.getString(R.string.verification_success)
                                         isVerified = true
 

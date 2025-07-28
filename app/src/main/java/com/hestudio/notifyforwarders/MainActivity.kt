@@ -747,6 +747,9 @@ fun QuickToggleSection() {
                         notificationReceiveEnabled = enabled
                         ServerPreferences.saveNotificationReceiveEnabled(context, enabled)
 
+                        // 立即更新持久化通知状态
+                        NotificationService.refreshForegroundNotification(context)
+
                         // 显示状态提示
                         val message = if (enabled) {
                             context.getString(R.string.notification_receive_enabled)
@@ -780,6 +783,9 @@ fun QuickToggleSection() {
                         } else {
                             notificationForwardEnabled = enabled
                             ServerPreferences.saveNotificationForwardEnabled(context, enabled)
+
+                            // 立即更新持久化通知状态
+                            NotificationService.refreshForegroundNotification(context)
 
                             if (enabled) {
                                 // 开启时显示当前服务器地址

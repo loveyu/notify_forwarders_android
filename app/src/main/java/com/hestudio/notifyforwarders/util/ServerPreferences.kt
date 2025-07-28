@@ -31,6 +31,13 @@ object ServerPreferences {
         getPreferences(context).edit() {
             putString(KEY_SERVER_ADDRESS, formatServerAddress(address))
         }
+
+        // 立即更新持久化通知状态
+        try {
+            com.hestudio.notifyforwarders.service.NotificationService.refreshForegroundNotification(context)
+        } catch (e: Exception) {
+            android.util.Log.e("ServerPreferences", "更新持久化通知状态失败", e)
+        }
     }
     
     fun getServerAddress(context: Context): String {
@@ -81,6 +88,13 @@ object ServerPreferences {
         getPreferences(context).edit() {
             putBoolean(KEY_NOTIFICATION_RECEIVE_ENABLED, enabled)
         }
+
+        // 立即更新持久化通知状态
+        try {
+            com.hestudio.notifyforwarders.service.NotificationService.refreshForegroundNotification(context)
+        } catch (e: Exception) {
+            android.util.Log.e("ServerPreferences", "更新持久化通知状态失败", e)
+        }
     }
 
     // 获取通知接收开关状态，默认为true
@@ -92,6 +106,13 @@ object ServerPreferences {
     fun saveNotificationForwardEnabled(context: Context, enabled: Boolean) {
         getPreferences(context).edit() {
             putBoolean(KEY_NOTIFICATION_FORWARD_ENABLED, enabled)
+        }
+
+        // 立即更新持久化通知状态
+        try {
+            com.hestudio.notifyforwarders.service.NotificationService.refreshForegroundNotification(context)
+        } catch (e: Exception) {
+            android.util.Log.e("ServerPreferences", "更新持久化通知状态失败", e)
         }
     }
 

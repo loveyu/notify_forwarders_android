@@ -120,3 +120,71 @@ ignore-filter:
 #       timeWindow: 10
 #     - packageName: "org.telegram.messenger"
 #       strategy: "content"
+
+# =============================================================================
+# 图标URL转换配置 (icon-url)
+# =============================================================================
+# 用途: 当发送通知图标开启时，将base64图标数据转换为远程URL
+#       减少通知消息体积，避免重复传输相同图标
+#
+# 功能说明:
+#   1. 通过MD5哈希检查远程是否已存在该图标
+#   2. 不存在时上传图标到远程服务器
+#   3. 使用本地缓存（内存+SQLite）避免重复请求
+#
+# 配置项:
+#   enabled: bool             是否启用，默认 false
+#   baseUrl: string           远程API基础地址（必填，如 https://api.example.com）
+#   token: string             认证令牌（必填，发送请求时放在 x-auth-token 头）
+#   tag: string               资源标签，默认 "phone-icon"
+#   checkEndpoint: string     检查图标是否存在的端点，默认 /tools/resource/check
+#   uploadEndpoint: string    上传图标的端点，默认 /tools/resource/upload-raw
+#   headerAuthToken: string   认证令牌header名称，默认 x-auth-token
+#   headerUploadTag: string   上传标签header名称，默认 x-upload-tag
+#   headerUploadFilename: string 上传文件名header名称，默认 x-upload-filename
+#   headerUploadFilesize: string 上传文件大小header名称，默认 x-upload-filesize
+#   headerUploadSource: string  上传来源header名称，默认 x-upload-source
+#   headerUploadDescription: string 上传描述header名称，默认 x-upload-description
+#   filenameTemplate: string  上传文件名模板，默认 icon_{md5}.png
+#                             支持变量: {md5}, {tag}, {appName}
+#   descriptionTemplate: string 上传描述模板，默认 {appName}-通知图标
+#                             支持变量: {appName}, {md5}, {tag}
+#
+# 缓存配置 (icon-url.cache):
+#   memoryCache: bool         是否启用内存缓存，默认 true
+#   memoryCacheSize: int      内存缓存最大条目数，默认 2000
+#   sqliteCache: bool         是否启用SQLite持久化缓存，默认 true
+#
+# 检查接口请求:
+#   POST {baseUrl}{checkEndpoint}
+#   Header: {headerAuthToken}: {token}
+#   Body: {"resources": [{"tag": "{tag}", "md5": "{iconMd5}"}]}
+#   响应: {"success": true, "data": {"resources": [{"status": "exists", "url": "..."}]}}
+#
+# 上传接口请求:
+#   POST {baseUrl}{uploadEndpoint}
+#   Header: {headerAuthToken}: {token}, {headerUploadTag}: {tag}, {headerUploadFilename}: {filenameTemplate}
+#           {headerUploadFilesize}: {size}, {headerUploadSource}: phone-api, {headerUploadDescription}: {descriptionTemplate}
+#   Body: raw binary image data
+#   响应: {"code": 0, "data": {"result": {"resource": {"url": "..."}}}}
+# =============================================================================
+
+# icon-url:
+#   enabled: true
+#   baseUrl: "https://api.example.com"
+#   token: "your-auth-token"
+#   tag: "phone-icon"
+#   checkEndpoint: "/tools/resource/check"
+#   uploadEndpoint: "/tools/resource/upload-raw"
+#   headerAuthToken: "x-auth-token"
+#   headerUploadTag: "x-upload-tag"
+#   headerUploadFilename: "x-upload-filename"
+#   headerUploadFilesize: "x-upload-filesize"
+#   headerUploadSource: "x-upload-source"
+#   headerUploadDescription: "x-upload-description"
+#   filenameTemplate: "icon_{md5}.png"
+#   descriptionTemplate: "{appName}-通知图标"
+#   cache:
+#     memoryCache: true
+#     memoryCacheSize: 2000
+#     sqliteCache: true

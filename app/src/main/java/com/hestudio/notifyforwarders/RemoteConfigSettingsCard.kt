@@ -29,7 +29,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import com.hestudio.notifyforwarders.util.IgnoreFilterConfigManager
+import com.hestudio.notifyforwarders.util.AppConfigManager
+import com.hestudio.notifyforwarders.util.IgnoreFilterConfig
+import com.hestudio.notifyforwarders.util.IgnoreFilterRule
 import com.hestudio.notifyforwarders.util.validate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,7 +48,7 @@ fun RemoteConfigSettingsCard(
 ) {
     val context = LocalContext.current
     var configUrl by remember {
-        mutableStateOf(IgnoreConfigManager.getRemoteConfigUrl(context))
+        mutableStateOf(AppConfigManager.getRemoteConfigUrl(context))
     }
     var isDownloading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -79,7 +81,7 @@ fun RemoteConfigSettingsCard(
                 value = configUrl,
                 onValueChange = {
                     configUrl = it
-                    IgnoreFilterConfigManager.saveRemoteConfigUrl(context, it)
+                    AppConfigManager.saveRemoteConfigUrl(context, it)
                 },
                 label = { Text(stringResource(R.string.config_url)) },
                 placeholder = { Text(stringResource(R.string.config_url_hint)) },
@@ -145,12 +147,6 @@ fun RemoteConfigSettingsCard(
     }
 }
 
-private object IgnoreConfigManager {
-    fun getRemoteConfigUrl(context: android.content.Context): String {
-        return IgnoreFilterConfigManager.getRemoteConfigUrl(context)
-    }
-}
-
 private suspend fun downloadAndApplyConfig(context: android.content.Context, url: String) {
     withContext(Dispatchers.IO) {
         try {
@@ -168,7 +164,7 @@ private suspend fun downloadAndApplyConfig(context: android.content.Context, url
                 connection.disconnect()
 
                 // 解析配置
-                val result = IgnoreFilterConfigManager.parseFromYaml(yamlContent)
+                val result = AppConfigManager.parseFromYaml(yamlContent)
                 result.onSuccess { config ->
                     // 验证配置
                     val errors = config.ignoreFilter.validate()
@@ -183,11 +179,11 @@ private suspend fun downloadAndApplyConfig(context: android.content.Context, url
                         return@withContext
                     }
 
-                    // 先加载到内存
-                    IgnoreFilterConfigManager.loadConfig(config)
+                    // 先加载到内存（同时初始化图标URL缓存）
+                    AppConfigManager.loadConfig(config, context)
 
                     // 保存到文件
-                    val saved = IgnoreFilterConfigManager.saveToFile(context, config)
+                    val saved = AppConfigManager.saveToFile(context, config)
                     if (saved) {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(
@@ -238,18 +234,18 @@ private suspend fun downloadAndApplyConfig(context: android.content.Context, url
 private fun openConfigInExternalEditor(context: android.content.Context) {
     try {
         // 确保外部文件存在
-        val config = IgnoreFilterConfigManager.getCurrentConfig()
-        val externalFile = IgnoreFilterConfigManager.getExternalConfigFile(context)
+        val config = AppConfigManager.getCurrentConfig()
+        val externalFile = AppConfigManager.getExternalConfigFile(context)
 
         if (!externalFile.exists()) {
             // 如果外部文件不存在，创建它
             if (config.ignoreFilter.rules.isEmpty()) {
                 // 如果内存中没有配置，创建一个空的示例配置
-                IgnoreFilterConfigManager.saveToExternalFile(
+                AppConfigManager.saveToExternalFile(
                     context,
-                    com.hestudio.notifyforwarders.util.IgnoreFilterConfig(
+                    IgnoreFilterConfig(
                         listOf(
-                            com.hestudio.notifyforwarders.util.IgnoreFilterRule(
+                            IgnoreFilterRule(
                                 appName = "示例应用",
                                 regex = listOf("/示例正则/u"),
                                 text = listOf("示例文本")
@@ -258,7 +254,7 @@ private fun openConfigInExternalEditor(context: android.content.Context) {
                     )
                 )
             } else {
-                IgnoreFilterConfigManager.saveToExternalFile(context, config)
+                AppConfigManager.saveToExternalFile(context, config)
             }
         }
 

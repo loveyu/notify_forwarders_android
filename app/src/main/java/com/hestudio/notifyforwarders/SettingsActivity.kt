@@ -68,7 +68,7 @@ import com.hestudio.notifyforwarders.constants.ApiConstants
 import com.hestudio.notifyforwarders.service.NotificationService
 import com.hestudio.notifyforwarders.ui.theme.NotifyForwardersTheme
 import com.hestudio.notifyforwarders.util.AppExitManager
-import com.hestudio.notifyforwarders.util.IgnoreFilterConfigManager
+import com.hestudio.notifyforwarders.util.AppConfigManager
 import com.hestudio.notifyforwarders.util.LocaleHelper
 import com.hestudio.notifyforwarders.util.NotificationUtils
 import com.hestudio.notifyforwarders.util.ServerPreferences
@@ -107,7 +107,7 @@ class SettingsActivity : ComponentActivity() {
         SettingsStateManager.initialize(this)
 
         // 初始化忽略过滤配置管理器，加载保存的配置
-        IgnoreFilterConfigManager.loadFromFile(this)
+        AppConfigManager.loadFromFile(this)
 
         setContent {
             NotifyForwardersTheme {

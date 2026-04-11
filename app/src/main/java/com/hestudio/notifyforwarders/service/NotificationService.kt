@@ -26,7 +26,8 @@ import com.hestudio.notifyforwarders.MainActivity
 import com.hestudio.notifyforwarders.R
 import com.hestudio.notifyforwarders.constants.ApiConstants
 import com.hestudio.notifyforwarders.util.IconCacheManager
-import com.hestudio.notifyforwarders.util.IgnoreFilterConfigManager
+import com.hestudio.notifyforwarders.util.IconUrlManager
+import com.hestudio.notifyforwarders.util.AppConfigManager
 import com.hestudio.notifyforwarders.util.ModernNotificationUtils
 import com.hestudio.notifyforwarders.util.PersistentNotificationManager
 import com.hestudio.notifyforwarders.util.ServerPreferences
@@ -331,13 +332,13 @@ class NotificationService : NotificationListenerService() {
         }
 
         // 使用忽略过滤器检查是否应该忽略此通知
-        if (IgnoreFilterConfigManager.shouldIgnore(appName, title, text)) {
+        if (AppConfigManager.shouldIgnore(appName, title, text)) {
             Log.d(TAG, "通知被过滤规则忽略: $appName, $title, $text")
             return
         }
 
         // 使用重复过滤器检查是否为重复消息
-        if (IgnoreFilterConfigManager.shouldDedup(packageName, title, text)) {
+        if (AppConfigManager.shouldDedup(packageName, title, text)) {
             Log.d(TAG, "通知被重复过滤忽略: $packageName, $appName, $title, $text")
             return
         }
@@ -605,12 +606,22 @@ class NotificationService : NotificationListenerService() {
                     put(ApiConstants.FIELD_UNIQUE_ID, notification.uniqueId) // 添加唯一标识字段
                     put(ApiConstants.FIELD_ID, notification.id) // 这个包的记录ID
 
-                    // 如果有图标信息，直接添加到请求中
-                    notification.iconMd5?.let { iconMd5 ->
-                        put(ApiConstants.FIELD_ICON_MD5, iconMd5)
-                        notification.iconBase64?.let { iconBase64 ->
+                    // 处理图标信息
+                    val iconMd5 = notification.iconMd5
+                    val iconBase64 = notification.iconBase64
+                    if (iconMd5 != null && iconBase64 != null) {
+                        // 尝试将base64图标转换为URL
+                        val iconUrl = IconUrlManager.convertToUrl(iconBase64, iconMd5, notification.appName)
+                        if (iconUrl != null) {
+                            put("iconUrl", iconUrl)
+                            Log.d(TAG, "使用图标URL: $iconMd5")
+                        } else {
+                            put(ApiConstants.FIELD_ICON_MD5, iconMd5)
                             put(ApiConstants.FIELD_ICON_BASE64, iconBase64)
                         }
+                    } else if (iconMd5 != null) {
+                        put(ApiConstants.FIELD_ICON_MD5, iconMd5)
+                        notification.iconBase64?.let { put(ApiConstants.FIELD_ICON_BASE64, it) }
                     }
                 }
 

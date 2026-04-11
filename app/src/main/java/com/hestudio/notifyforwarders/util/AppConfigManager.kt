@@ -7,11 +7,11 @@ import java.io.File
 import java.io.FileWriter
 
 /**
- * 消息过滤配置管理器
+ * 应用配置管理器
  * 负责从YAML解析配置、执行过滤逻辑、以及配置的持久化
  */
-object IgnoreFilterConfigManager {
-    private const val TAG = "IgnoreFilterConfig"
+object AppConfigManager {
+    private const val TAG = "AppConfigManager"
     private const val CONFIG_FILE_NAME = "ignore_filter_config.yaml"
     private const val KEY_REMOTE_CONFIG_URL = "remote_config_url"
 
@@ -64,7 +64,10 @@ object IgnoreFilterConfigManager {
             // 解析 api 部分
             val apiConfig = parseApiConfig(data["api"])
 
-            Result.success(AppConfig(ignoreFilterConfig, apiConfig, dedupFilterConfig))
+            // 解析 icon-url 部分
+            val iconUrlConfig = parseIconUrlConfig(data["icon-url"])
+
+            Result.success(AppConfig(ignoreFilterConfig, apiConfig, dedupFilterConfig, iconUrlConfig))
         } catch (e: Exception) {
             Log.e(TAG, "解析YAML配置失败", e)
             Result.failure(e)
@@ -124,6 +127,50 @@ object IgnoreFilterConfigManager {
         val timeouts = parseTimeoutConfig(apiData["timeouts"])
 
         return ApiConfig(endpoints, timeouts)
+    }
+
+    /**
+     * 解析图标URL转换配置
+     */
+    private fun parseIconUrlConfig(iconUrlData: Any?): IconUrlConfig {
+        if (iconUrlData !is Map<*, *>) {
+            return IconUrlConfig()
+        }
+
+        val enabled = (iconUrlData["enabled"] as? Boolean) ?: false
+        val baseUrl = iconUrlData["baseUrl"]?.toString() ?: ""
+        val token = iconUrlData["token"]?.toString() ?: ""
+        val tag = iconUrlData["tag"]?.toString() ?: "phone-icon"
+        val checkEndpoint = iconUrlData["checkEndpoint"]?.toString() ?: "/tools/resource/check"
+        val uploadEndpoint = iconUrlData["uploadEndpoint"]?.toString() ?: "/tools/resource/upload-raw"
+
+        val cacheData = iconUrlData["cache"]
+        val cacheConfig = if (cacheData is Map<*, *>) {
+            IconUrlCacheConfig(
+                memoryCache = (cacheData["memoryCache"] as? Boolean) ?: true,
+                memoryCacheSize = (cacheData["memoryCacheSize"] as? Number)?.toInt() ?: 2000,
+                sqliteCache = (cacheData["sqliteCache"] as? Boolean) ?: true
+            )
+        } else {
+            IconUrlCacheConfig()
+        }
+
+        val headerAuthToken = iconUrlData["headerAuthToken"]?.toString() ?: "x-auth-token"
+        val headerUploadTag = iconUrlData["headerUploadTag"]?.toString() ?: "x-upload-tag"
+        val headerUploadFilename = iconUrlData["headerUploadFilename"]?.toString() ?: "x-upload-filename"
+        val headerUploadFilesize = iconUrlData["headerUploadFilesize"]?.toString() ?: "x-upload-filesize"
+        val headerUploadSource = iconUrlData["headerUploadSource"]?.toString() ?: "x-upload-source"
+        val headerUploadDescription = iconUrlData["headerUploadDescription"]?.toString() ?: "x-upload-description"
+        val filenameTemplate = iconUrlData["filenameTemplate"]?.toString() ?: "icon_{md5}.png"
+        val descriptionTemplate = iconUrlData["descriptionTemplate"]?.toString() ?: "{appName}-通知图标"
+
+        return IconUrlConfig(
+            enabled, baseUrl, token, tag, checkEndpoint, uploadEndpoint,
+            headerAuthToken, headerUploadTag, headerUploadFilename,
+            headerUploadFilesize, headerUploadSource, headerUploadDescription,
+            filenameTemplate, descriptionTemplate,
+            cacheConfig
+        )
     }
 
     /**
@@ -327,6 +374,24 @@ object IgnoreFilterConfigManager {
     }
 
     /**
+     * 加载完整配置到内存并初始化图标URL缓存
+     * @param context 上下文，用于初始化SQLite缓存
+     */
+    fun loadConfig(config: AppConfig, context: Context) {
+        loadConfig(config)
+
+        // 初始化图标URL转换缓存
+        val iconUrlConfig = config.iconUrl
+        IconHashCache.init(
+            context = context,
+            memoryEnabled = iconUrlConfig.cache.memoryCache,
+            memoryMaxSize = iconUrlConfig.cache.memoryCacheSize,
+            sqliteEnabled = iconUrlConfig.cache.sqliteCache
+        )
+        IconUrlManager.init(iconUrlConfig)
+    }
+
+    /**
      * 从文件加载配置
      */
     fun loadFromFile(context: Context): Boolean {
@@ -336,7 +401,7 @@ object IgnoreFilterConfigManager {
                 val yamlContent = file.readText()
                 val result = parseFromYaml(yamlContent)
                 if (result.isSuccess) {
-                    loadConfig(result.getOrThrow())
+                    loadConfig(result.getOrThrow(), context)
                     true
                 } else {
                     Log.e(TAG, "从文件加载配置失败", result.exceptionOrNull())
@@ -476,6 +541,51 @@ object IgnoreFilterConfigManager {
                     app.timeWindow?.let { sb.append("      timeWindow: $it\n") }
                 }
             }
+        }
+
+        // 添加 icon-url 配置
+        val iconUrl = config.iconUrl
+        if (iconUrl.enabled) {
+            sb.append("\n# 图标URL转换配置\n")
+            sb.append("icon-url:\n")
+            sb.append("  enabled: true\n")
+            sb.append("  baseUrl: \"${iconUrl.baseUrl}\"\n")
+            sb.append("  token: \"${iconUrl.token}\"\n")
+            if (iconUrl.tag != "phone-icon") {
+                sb.append("  tag: \"${iconUrl.tag}\"\n")
+            }
+            if (iconUrl.checkEndpoint != "/tools/resource/check") {
+                sb.append("  checkEndpoint: \"${iconUrl.checkEndpoint}\"\n")
+            }
+            if (iconUrl.uploadEndpoint != "/tools/resource/upload-raw") {
+                sb.append("  uploadEndpoint: \"${iconUrl.uploadEndpoint}\"\n")
+            }
+            if (iconUrl.headerAuthToken != "x-auth-token") {
+                sb.append("  headerAuthToken: \"${iconUrl.headerAuthToken}\"\n")
+            }
+            if (iconUrl.headerUploadTag != "x-upload-tag") {
+                sb.append("  headerUploadTag: \"${iconUrl.headerUploadTag}\"\n")
+            }
+            if (iconUrl.headerUploadFilename != "x-upload-filename") {
+                sb.append("  headerUploadFilename: \"${iconUrl.headerUploadFilename}\"\n")
+            }
+            if (iconUrl.headerUploadFilesize != "x-upload-filesize") {
+                sb.append("  headerUploadFilesize: \"${iconUrl.headerUploadFilesize}\"\n")
+            }
+            if (iconUrl.headerUploadSource != "x-upload-source") {
+                sb.append("  headerUploadSource: \"${iconUrl.headerUploadSource}\"\n")
+            }
+            if (iconUrl.headerUploadDescription != "x-upload-description") {
+                sb.append("  headerUploadDescription: \"${iconUrl.headerUploadDescription}\"\n")
+            }
+            if (iconUrl.filenameTemplate != "icon_{md5}.png") {
+                sb.append("  filenameTemplate: \"${iconUrl.filenameTemplate}\"\n")
+            }
+            sb.append("  cache:\n")
+            val cache = iconUrl.cache
+            sb.append("    memoryCache: ${cache.memoryCache}\n")
+            sb.append("    memoryCacheSize: ${cache.memoryCacheSize}\n")
+            sb.append("    sqliteCache: ${cache.sqliteCache}\n")
         }
 
         return sb.toString()

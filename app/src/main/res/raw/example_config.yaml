@@ -24,3 +24,51 @@ ignore-filter:
 
   - appName: "Automate"
     regex: '/Running [\d]+ fibers/'
+
+# =============================================================================
+# API端点和超时配置 (api)
+# =============================================================================
+# 用途: 自定义API端点路径和超时时间，为空或省略时使用默认值
+#
+# 端点配置 (api.endpoints):
+#   notify:           通知转发API端点，默认 /api/notify
+#   clipboardText:    剪贴板文本API端点，默认 /api/notify/clipboard/text
+#   clipboardImage:   剪贴板图片API端点，默认 /api/notify/clipboard/image
+#   imageRaw:        相册图片API端点，默认 /api/notify/image/raw
+#   version:         版本检查API端点，默认 /api/version
+#
+# 超时配置 (api.timeouts) - 单位为毫秒:
+#   notify:
+#     connect:  通知转发连接超时，默认 5000
+#     read:     通知转发读取超时，默认 5000
+#   clipboard:
+#     connect:  剪贴板连接超时，默认 10000
+#     read:     剪贴板读取超时，默认 10000
+#   image:
+#     connect:  图片连接超时，默认 10000
+#     read:     图片读取超时，默认 10000
+#   version:
+#     connect:  版本检查连接超时，默认 5000
+#     read:     版本检查读取超时，默认 5000
+# =============================================================================
+
+# api:
+#   endpoints:
+#     notify: "/api/notify"
+#     clipboardText: "/api/notify/clipboard/text"
+#     clipboardImage: "/api/notify/clipboard/image"
+#     imageRaw: "/api/notify/image/raw"
+#     version: "/api/version"
+#   timeouts:
+#     notify:
+#       connect: 5000
+#       read: 5000
+#     clipboard:
+#       connect: 10000
+#       read: 10000
+#     image:
+#       connect: 10000
+#       read: 10000
+#     version:
+#       connect: 5000
+#       read: 5000

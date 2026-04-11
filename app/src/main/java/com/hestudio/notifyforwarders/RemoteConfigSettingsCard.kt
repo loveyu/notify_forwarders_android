@@ -171,7 +171,7 @@ private suspend fun downloadAndApplyConfig(context: android.content.Context, url
                 val result = IgnoreFilterConfigManager.parseFromYaml(yamlContent)
                 result.onSuccess { config ->
                     // 验证配置
-                    val errors = config.validate()
+                    val errors = config.ignoreFilter.validate()
                     if (errors.isNotEmpty()) {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(
@@ -192,7 +192,7 @@ private suspend fun downloadAndApplyConfig(context: android.content.Context, url
                         withContext(Dispatchers.Main) {
                             Toast.makeText(
                                 context,
-                                context.getString(R.string.config_downloaded_and_applied, config.rules.size),
+                                context.getString(R.string.config_downloaded_and_applied, config.ignoreFilter.rules.size),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -243,7 +243,7 @@ private fun openConfigInExternalEditor(context: android.content.Context) {
 
         if (!externalFile.exists()) {
             // 如果外部文件不存在，创建它
-            if (config.rules.isEmpty()) {
+            if (config.ignoreFilter.rules.isEmpty()) {
                 // 如果内存中没有配置，创建一个空的示例配置
                 IgnoreFilterConfigManager.saveToExternalFile(
                     context,

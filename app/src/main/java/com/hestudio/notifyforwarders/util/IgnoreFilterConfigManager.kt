@@ -16,7 +16,7 @@ object IgnoreFilterConfigManager {
     private const val KEY_REMOTE_CONFIG_URL = "remote_config_url"
 
     @Volatile
-    private var currentConfig: IgnoreFilterConfig = IgnoreFilterConfig.empty()
+    private var currentConfig: AppConfig = AppConfig()
 
     @Volatile
     private var isConfigLoaded = false
@@ -24,12 +24,13 @@ object IgnoreFilterConfigManager {
     /**
      * 从YAML字符串解析配置
      */
-    fun parseFromYaml(yamlContent: String): Result<IgnoreFilterConfig> {
+    fun parseFromYaml(yamlContent: String): Result<AppConfig> {
         return try {
             val yaml = Yaml()
             val data = yaml.load<Map<String, Any>>(yamlContent)
-            val rules = mutableListOf<IgnoreFilterRule>()
 
+            // 解析 ignore-filter 部分
+            val rules = mutableListOf<IgnoreFilterRule>()
             val ignoreFilter = data["ignore-filter"]
             if (ignoreFilter is List<*>) {
                 ignoreFilter.forEach { item ->
@@ -55,11 +56,91 @@ object IgnoreFilterConfigManager {
                 }
             }
 
-            Result.success(IgnoreFilterConfig(rules))
+            val ignoreFilterConfig = IgnoreFilterConfig(rules)
+
+            // 解析 api 部分
+            val apiConfig = parseApiConfig(data["api"])
+
+            Result.success(AppConfig(ignoreFilterConfig, apiConfig))
         } catch (e: Exception) {
             Log.e(TAG, "解析YAML配置失败", e)
             Result.failure(e)
         }
+    }
+
+    /**
+     * 解析API配置
+     */
+    private fun parseApiConfig(apiData: Any?): ApiConfig {
+        if (apiData !is Map<*, *>) {
+            return ApiConfig()
+        }
+
+        val endpoints = parseEndpointConfig(apiData["endpoints"])
+        val timeouts = parseTimeoutConfig(apiData["timeouts"])
+
+        return ApiConfig(endpoints, timeouts)
+    }
+
+    /**
+     * 解析端点配置
+     */
+    private fun parseEndpointConfig(endpointsData: Any?): ApiEndpointConfig? {
+        if (endpointsData !is Map<*, *>) {
+            return null
+        }
+
+        val notify = endpointsData["notify"]?.toString()
+        val clipboardText = endpointsData["clipboardText"]?.toString()
+        val clipboardImage = endpointsData["clipboardImage"]?.toString()
+        val imageRaw = endpointsData["imageRaw"]?.toString()
+        val version = endpointsData["version"]?.toString()
+
+        // 如果所有值都为空，返回null
+        if (notify == null && clipboardText == null && clipboardImage == null && imageRaw == null && version == null) {
+            return null
+        }
+
+        return ApiEndpointConfig(notify, clipboardText, clipboardImage, imageRaw, version)
+    }
+
+    /**
+     * 解析超时配置
+     */
+    private fun parseTimeoutConfig(timeoutsData: Any?): TimeoutGroupConfig? {
+        if (timeoutsData !is Map<*, *>) {
+            return null
+        }
+
+        val notify = parseTimeoutItem(timeoutsData["notify"])
+        val clipboard = parseTimeoutItem(timeoutsData["clipboard"])
+        val image = parseTimeoutItem(timeoutsData["image"])
+        val version = parseTimeoutItem(timeoutsData["version"])
+
+        // 如果所有值都为空，返回null
+        if (notify == null && clipboard == null && image == null && version == null) {
+            return null
+        }
+
+        return TimeoutGroupConfig(notify, clipboard, image, version)
+    }
+
+    /**
+     * 解析单个超时配置项
+     */
+    private fun parseTimeoutItem(timeoutData: Any?): TimeoutConfig? {
+        if (timeoutData !is Map<*, *>) {
+            return null
+        }
+
+        val connect = (timeoutData["connect"] as? Number)?.toInt()
+        val read = (timeoutData["read"] as? Number)?.toInt()
+
+        if (connect == null && read == null) {
+            return null
+        }
+
+        return TimeoutConfig(connect, read)
     }
 
     /**
@@ -69,7 +150,7 @@ object IgnoreFilterConfigManager {
     fun shouldIgnore(appName: String, title: String, content: String): Boolean {
         val config = currentConfig
 
-        for (rule in config.rules) {
+        for (rule in config.ignoreFilter.rules) {
             // 检查appName是否匹配
             if (rule.appName != appName) {
                 continue
@@ -108,9 +189,18 @@ object IgnoreFilterConfigManager {
      * 加载配置到内存
      */
     fun loadConfig(config: IgnoreFilterConfig) {
-        currentConfig = config
+        currentConfig = AppConfig(ignoreFilter = config)
         isConfigLoaded = true
         Log.d(TAG, "配置已加载，共 ${config.rules.size} 条规则")
+    }
+
+    /**
+     * 加载完整配置到内存
+     */
+    fun loadConfig(config: AppConfig) {
+        currentConfig = config
+        isConfigLoaded = true
+        Log.d(TAG, "配置已加载，过滤规则 ${config.ignoreFilter.rules.size} 条")
     }
 
     /**
@@ -143,6 +233,13 @@ object IgnoreFilterConfigManager {
      * 保存配置到文件
      */
     fun saveToFile(context: Context, config: IgnoreFilterConfig): Boolean {
+        return saveToFile(context, AppConfig(ignoreFilter = config))
+    }
+
+    /**
+     * 保存完整配置到文件
+     */
+    fun saveToFile(context: Context, config: AppConfig): Boolean {
         return try {
             val file = File(context.filesDir, CONFIG_FILE_NAME)
             FileWriter(file).use { writer ->
@@ -160,12 +257,19 @@ object IgnoreFilterConfigManager {
      * 将配置转换为YAML字符串
      */
     fun convertToYaml(config: IgnoreFilterConfig): String {
+        return convertToYaml(AppConfig(ignoreFilter = config))
+    }
+
+    /**
+     * 将完整配置转换为YAML字符串
+     */
+    fun convertToYaml(config: AppConfig): String {
         val sb = StringBuilder()
         sb.append("# ignore-filter 配置文件\n")
         sb.append("# 用途: 屏蔽不需要推送的通知消息\n\n")
         sb.append("ignore-filter:\n")
 
-        config.rules.forEach { rule ->
+        config.ignoreFilter.rules.forEach { rule ->
             sb.append("  - appName: \"${rule.appName}\"\n")
             if (rule.regex.isNotEmpty()) {
                 if (rule.regex.size == 1) {
@@ -189,6 +293,47 @@ object IgnoreFilterConfigManager {
             }
         }
 
+        // 添加 API 配置
+        if (config.api.endpoints != null || config.api.timeouts != null) {
+            sb.append("\n# API端点和超时配置\n")
+            sb.append("api:\n")
+
+            // 端点配置
+            if (config.api.endpoints != null) {
+                sb.append("  endpoints:\n")
+                config.api.endpoints.notify?.let { sb.append("    notify: \"$it\"\n") }
+                config.api.endpoints.clipboardText?.let { sb.append("    clipboardText: \"$it\"\n") }
+                config.api.endpoints.clipboardImage?.let { sb.append("    clipboardImage: \"$it\"\n") }
+                config.api.endpoints.imageRaw?.let { sb.append("    imageRaw: \"$it\"\n") }
+                config.api.endpoints.version?.let { sb.append("    version: \"$it\"\n") }
+            }
+
+            // 超时配置
+            if (config.api.timeouts != null) {
+                sb.append("  timeouts:\n")
+                config.api.timeouts.notify?.let { timeout ->
+                    sb.append("    notify:\n")
+                    timeout.connect?.let { sb.append("      connect: $it\n") }
+                    timeout.read?.let { sb.append("      read: $it\n") }
+                }
+                config.api.timeouts.clipboard?.let { timeout ->
+                    sb.append("    clipboard:\n")
+                    timeout.connect?.let { sb.append("      connect: $it\n") }
+                    timeout.read?.let { sb.append("      read: $it\n") }
+                }
+                config.api.timeouts.image?.let { timeout ->
+                    sb.append("    image:\n")
+                    timeout.connect?.let { sb.append("      connect: $it\n") }
+                    timeout.read?.let { sb.append("      read: $it\n") }
+                }
+                config.api.timeouts.version?.let { timeout ->
+                    sb.append("    version:\n")
+                    timeout.connect?.let { sb.append("      connect: $it\n") }
+                    timeout.read?.let { sb.append("      read: $it\n") }
+                }
+            }
+        }
+
         return sb.toString()
     }
 
@@ -204,6 +349,13 @@ object IgnoreFilterConfigManager {
      * 保存配置到外部目录（用于外部编辑器）
      */
     fun saveToExternalFile(context: Context, config: IgnoreFilterConfig): Boolean {
+        return saveToExternalFile(context, AppConfig(ignoreFilter = config))
+    }
+
+    /**
+     * 保存完整配置到外部目录（用于外部编辑器）
+     */
+    fun saveToExternalFile(context: Context, config: AppConfig): Boolean {
         return try {
             val file = getExternalConfigFile(context)
             FileWriter(file).use { writer ->
@@ -220,7 +372,7 @@ object IgnoreFilterConfigManager {
     /**
      * 从外部文件加载配置
      */
-    fun loadFromExternalFile(context: Context): IgnoreFilterConfig? {
+    fun loadFromExternalFile(context: Context): AppConfig? {
         return try {
             val file = getExternalConfigFile(context)
             if (file.exists()) {
@@ -256,7 +408,12 @@ object IgnoreFilterConfigManager {
     /**
      * 获取当前配置
      */
-    fun getCurrentConfig(): IgnoreFilterConfig = currentConfig
+    fun getCurrentConfig(): AppConfig = currentConfig
+
+    /**
+     * 获取当前API配置
+     */
+    fun getApiConfig(): ApiConfig = currentConfig.api
 
     /**
      * 检查配置是否已加载
@@ -267,7 +424,7 @@ object IgnoreFilterConfigManager {
      * 清除当前配置
      */
     fun clearConfig() {
-        currentConfig = IgnoreFilterConfig.empty()
+        currentConfig = AppConfig()
         isConfigLoaded = false
     }
 }

@@ -201,4 +201,100 @@
     <!-- Server-Verifizierung -->
     <string name="server_verification_title">Anfrage zur Verbindungsherstellung mit diesem Gerät</string>
     <string name="server_verification_desc">Bitte geben Sie den folgenden Verifizierungscode auf Ihrem Telefon ein: %s</string>
+
+    <!-- Schnellsenden -->
+    <string name="quick_send_section_title">Schnellsenden</string>
+    <string name="reading_image">Bild wird gelesen...</string>
+    <string name="send_clipboard_button">Zwischenablage</string>
+    <string name="send_image_button">Bild senden</string>
+    <string name="server_not_configured">Bitte konfigurieren Sie zuerst die Serveradresse</string>
+
+    <!-- Zwischenablage-Kopier-Feedback -->
+    <string name="copied_to_clipboard">In Zwischenablage kopiert</string>
+    <string name="copy_failed">Kopieren fehlgeschlagen</string>
+    <string name="no_icon_to_copy">Kein Symbol zum Kopieren</string>
+    <string name="icon_copied_to_clipboard">Symbol in Zwischenablage kopiert</string>
+    <string name="icon_copy_failed">Symbolkopie fehlgeschlagen</string>
+    <string name="icon_decode_failed">Symboldekodierung fehlgeschlagen</string>
+
+    <!-- App-Start -->
+    <string name="launching_app">%s wird gestartet</string>
+    <string name="app_not_found">App %s nicht gefunden</string>
+    <string name="no_permission_to_launch">Keine Berechtigung zum Starten von %s</string>
+    <string name="launch_app_failed">%s konnte nicht gestartet werden</string>
+
+    <!-- Medienberechtigungs-Flow -->
+    <string name="media_permission_request_title">Zugriff auf Ihre Fotos erforderlich</string>
+    <string name="media_permission_request_description">Um das neueste Bild zu senden, benötigt die App Zugriff auf Fotos und Medien auf Ihrem Gerät. Dies hilft Ihnen, Bildinhalte schnell zu teilen.</string>
+    <string name="media_permission_needed">Berechtigung nicht erteilt</string>
+    <string name="media_permission_explanation">Tippen Sie auf die Schaltfläche unten, um Medienzugriffsberechtigung zu erteilen, damit die App Ihre neuesten Bilder lesen und senden kann.</string>
+    <string name="media_permission_permanently_denied_title">Berechtigung dauerhaft verweigert</string>
+    <string name="media_permission_permanently_denied_description">Sie haben die Medienzugriffsberechtigung verweigert. Bitte aktivieren Sie die Berechtigung \"Fotos und Medien\" oder \"Speicher\" manuell in den App-Einstellungen.</string>
+    <string name="open_app_settings">App-Einstellungen öffnen</string>
+    <string name="media_permission_granted">Medienberechtigung erteilt</string>
+
+    <!-- Fehlerbenachrichtigungen -->
+    <string name="error_notification_channel">Fehlerbenachrichtigungen</string>
+    <string name="error_notification_channel_desc">Zeigt Fehlermeldungen bei fehlgeschlagenen Vorgängen an</string>
+    <string name="clipboard_permission_error_title">Zwischenablage-Berechtigung unzureichend</string>
+    <string name="clipboard_permission_error_message">Kein Zugriff auf Zwischenablage. Android 10+ erfordert, dass sich die App im Vordergrund befindet. Bitte verwenden Sie diese Funktion, wenn die App im Vordergrund ist</string>
+    <string name="media_permission_error_title">Medienberechtigung unzureichend</string>
+    <string name="media_permission_error_message">Kein Zugriff auf Bilder. Tippen Sie auf diese Benachrichtigung, um zu den Einstellungen zu gelangen. Aktivieren Sie \"Fotos und Medien\" oder \"Speicher\" unter \"Berechtigungen\"</string>
+    <string name="media_permission_error_message_improved">Kein Zugriff auf Bilder. Tippen Sie auf diese Benachrichtigung, um die Berechtigungshilfe zu öffnen und schnell Medienzugriff zu gewähren</string>
+    <string name="clipboard_send_error_title">Zwischenablage-Senden fehlgeschlagen</string>
+    <string name="clipboard_send_error_message">Fehlergrund: %s</string>
+    <string name="image_send_error_title">Bild-Senden fehlgeschlagen</string>
+    <string name="image_send_error_message">Fehlergrund: %s</string>
+    <string name="server_connection_error_title">Serververbindung fehlgeschlagen</string>
+    <string name="server_connection_error_message">Verbindung zum Server nicht möglich, bitte überprüfen Sie die Netzwerkverbindung und Serverkonfiguration</string>
+    <string name="network_error_with_code">Netzwerkfehler (Statuscode: %d)</string>
+    <string name="network_connection_failed">Verbindung zum Server nicht möglich</string>
+    <string name="network_timeout">Netzwerkanfrage zeitüberschritten</string>
+    <string name="network_host_unknown">Serveradresse kann nicht aufgelöst werden</string>
+    <string name="unknown_error">Unbekannter Fehler</string>
+    <string name="task_already_running_please_wait">Aufgabe wird ausgeführt, bitte versuchen Sie es später erneut</string>
+    <string name="task_timeout">Aufgabenausführung zeitüberschritten</string>
+
+    <!-- Benachrichtigungsaktionsdienst -->
+    <string name="notification_action_channel_name">Aktionsausführungsdienst</string>
+    <string name="notification_action_channel_desc">Vordergrunddienst-Benachrichtigung bei der Ausführung von Zwischenablage- und Bildsendevorgängen</string>
+    <string name="notification_action_service_title">Aktion wird ausgeführt</string>
+    <string name="notification_action_service_content">Zwischenablage- oder Bildinhalt wird gesendet</string>
+
+    <!-- Sendestatus -->
+    <string name="sending_clipboard">Zwischenablage wird gesendet...</string>
+    <string name="sending_image">Bild wird gesendet...</string>
+    <string name="sending_clipboard_short">Senden...</string>
+    <string name="sending_image_short">Senden...</string>
+
+    <!-- App-Beenden-Funktion -->
+    <string name="app_exit_settings">App beenden</string>
+    <string name="app_exit_settings_desc">App vollständig beenden und alle Hintergrunddienste stoppen</string>
+    <string name="exit_app">App beenden</string>
+    <string name="exit_app_confirm_title">Beenden bestätigen</string>
+    <string name="exit_app_confirm_message">Sind Sie sicher, dass Sie die App beenden und alle Hintergrunddienste stoppen möchten? Dies stoppt die Benachrichtigungsweiterleitung.</string>
+    <string name="app_exiting">App wird beendet...</string>
+    <string name="app_restart_required">Einstellungen geändert, App wird neu gestartet, um neue Einstellungen anzuwenden</string>
+
+    <!-- Remote-Konfiguration herunterladen -->
+    <string name="remote_config_settings">Remote-Konfiguration herunterladen</string>
+    <string name="remote_config_settings_desc">Remote-YAML-Konfigurationsdatei über HTTP(S) herunterladen für erweiterte Funktionen wie Nachrichtenfilterung</string>
+    <string name="config_url">Konfigurations-URL</string>
+    <string name="config_url_hint">z.B.: https://example.com/config.yaml</string>
+    <string name="download_and_apply">Herunterladen und anwenden</string>
+    <string name="open_external">Öffnen</string>
+    <string name="show_example_config">Beispielkonfiguration</string>
+    <string name="downloading">Herunterladen…</string>
+    <string name="config_url_required">Bitte Konfigurations-URL eingeben</string>
+    <string name="config_downloaded_and_applied">Konfiguration heruntergeladen und angewendet, %d Regeln geladen</string>
+    <string name="config_save_failed">Konfigurationsspeicherung fehlgeschlagen</string>
+    <string name="config_validation_failed">Konfigurationsvalidierung fehlgeschlagen:\n%s</string>
+    <string name="config_parse_failed">Konfigurationsanalyse fehlgeschlagen: %s</string>
+    <string name="config_download_failed">Konfigurationsdownload fehlgeschlagen (HTTP %d)</string>
+    <string name="config_download_error">Konfigurationsdownload-Fehler: %s</string>
+    <string name="no_app_to_open_config">Keine App zum Öffnen der Konfigurationsdatei verfügbar</string>
+    <string name="open_config_error">Konfigurationsdatei konnte nicht geöffnet werden: %s</string>
+
+    <!-- Beispielkonfigurationsseite -->
+    <string name="example_config_title">Beispielkonfiguration-Anleitung</string>
 </resources>

@@ -201,4 +201,100 @@
     <!-- Vérification du serveur -->
     <string name="server_verification_title">Demande d\'établissement de connexion avec cet appareil</string>
     <string name="server_verification_desc">Veuillez entrer le code de vérification suivant sur votre téléphone : %s</string>
+
+    <!-- Envoi rapide -->
+    <string name="quick_send_section_title">Envoi rapide</string>
+    <string name="reading_image">Lecture de l\'image...</string>
+    <string name="send_clipboard_button">Presse-papiers</string>
+    <string name="send_image_button">Envoyer l\'image</string>
+    <string name="server_not_configured">Veuillez d\'abord configurer l\'adresse du serveur</string>
+
+    <!-- Retour de copie du presse-papiers -->
+    <string name="copied_to_clipboard">Copié dans le presse-papiers</string>
+    <string name="copy_failed">Échec de la copie</string>
+    <string name="no_icon_to_copy">Aucune icône à copier</string>
+    <string name="icon_copied_to_clipboard">Icône copiée dans le presse-papiers</string>
+    <string name="icon_copy_failed">Échec de la copie de l\'icône</string>
+    <string name="icon_decode_failed">Échec du décodage de l\'icône</string>
+
+    <!-- Lancement d\'application -->
+    <string name="launching_app">Lancement de %s</string>
+    <string name="app_not_found">Application %s introuvable</string>
+    <string name="no_permission_to_launch">Pas de permission pour lancer %s</string>
+    <string name="launch_app_failed">Échec du lancement de %s</string>
+
+    <!-- Flux d\'autorisation média -->
+    <string name="media_permission_request_title">Accès à vos photos requis</string>
+    <string name="media_permission_request_description">Pour envoyer la dernière image, l\'application a besoin d\'accéder aux photos et médias sur votre appareil. Cela vous aidera à partager rapidement le contenu des images.</string>
+    <string name="media_permission_needed">Permission non accordée</string>
+    <string name="media_permission_explanation">Appuyez sur le bouton ci-dessous pour accorder l\'autorisation d\'accès aux médias afin que l\'application puisse lire et envoyer vos dernières images.</string>
+    <string name="media_permission_permanently_denied_title">Permission définitivement refusée</string>
+    <string name="media_permission_permanently_denied_description">Vous avez refusé l\'autorisation d\'accès aux médias. Veuillez activer manuellement l\'autorisation \"Photos et médias\" ou \"Stockage\" dans les paramètres de l\'application.</string>
+    <string name="open_app_settings">Ouvrir les paramètres de l\'application</string>
+    <string name="media_permission_granted">Autorisation média accordée</string>
+
+    <!-- Notifications d\'erreur -->
+    <string name="error_notification_channel">Notifications d\'erreur</string>
+    <string name="error_notification_channel_desc">Affiche les messages d\'erreur pour les opérations échouées</string>
+    <string name="clipboard_permission_error_title">Permission presse-papiers insuffisante</string>
+    <string name="clipboard_permission_error_message">Impossible d\'accéder au presse-papiers. Android 10+ exige que l\'application soit au premier plan pour accéder au presse-papiers. Veuillez utiliser cette fonction lorsque l\'application est au premier plan</string>
+    <string name="media_permission_error_title">Permission média insuffisante</string>
+    <string name="media_permission_error_message">Impossible d\'accéder aux images. Appuyez sur cette notification pour accéder aux paramètres, activez \"Photos et médias\" ou \"Stockage\" sous \"Permissions\"</string>
+    <string name="media_permission_error_message_improved">Impossible d\'accéder aux images. Appuyez sur cette notification pour ouvrir le guide des permissions et accorder rapidement l\'accès aux médias</string>
+    <string name="clipboard_send_error_title">Échec de l\'envoi du presse-papiers</string>
+    <string name="clipboard_send_error_message">Raison de l\'échec : %s</string>
+    <string name="image_send_error_title">Échec de l\'envoi de l\'image</string>
+    <string name="image_send_error_message">Raison de l\'échec : %s</string>
+    <string name="server_connection_error_title">Échec de la connexion au serveur</string>
+    <string name="server_connection_error_message">Impossible de se connecter au serveur, veuillez vérifier la connexion réseau et la configuration du serveur</string>
+    <string name="network_error_with_code">Erreur réseau (code d\'état : %d)</string>
+    <string name="network_connection_failed">Impossible de se connecter au serveur</string>
+    <string name="network_timeout">Délai d\'attente de la requête réseau dépassé</string>
+    <string name="network_host_unknown">Impossible de résoudre l\'adresse du serveur</string>
+    <string name="unknown_error">Erreur inconnue</string>
+    <string name="task_already_running_please_wait">Tâche en cours, veuillez réessayer plus tard</string>
+    <string name="task_timeout">Délai d\'exécution de la tâche dépassé</string>
+
+    <!-- Service d\'action de notification -->
+    <string name="notification_action_channel_name">Service d\'exécution d\'actions</string>
+    <string name="notification_action_channel_desc">Notification de service de premier plan lors de l\'exécution des opérations d\'envoi de presse-papiers et d\'images</string>
+    <string name="notification_action_service_title">Exécution de l\'action</string>
+    <string name="notification_action_service_content">Envoi du contenu du presse-papiers ou de l\'image</string>
+
+    <!-- Statut d\'envoi -->
+    <string name="sending_clipboard">Envoi du presse-papiers...</string>
+    <string name="sending_image">Envoi de l\'image...</string>
+    <string name="sending_clipboard_short">Envoi...</string>
+    <string name="sending_image_short">Envoi...</string>
+
+    <!-- Fonctionnalité de sortie de l\'application -->
+    <string name="app_exit_settings">Quitter l\'application</string>
+    <string name="app_exit_settings_desc">Quitter complètement l\'application et arrêter tous les services en arrière-plan</string>
+    <string name="exit_app">Quitter l\'application</string>
+    <string name="exit_app_confirm_title">Confirmer la sortie</string>
+    <string name="exit_app_confirm_message">Êtes-vous sûr de vouloir quitter l\'application et arrêter tous les services en arrière-plan ? Cela arrêtera le transfert de notifications.</string>
+    <string name="app_exiting">Fermeture de l\'application...</string>
+    <string name="app_restart_required">Paramètres modifiés, l\'application redémarrera pour appliquer les nouveaux paramètres</string>
+
+    <!-- Téléchargement de configuration à distance -->
+    <string name="remote_config_settings">Téléchargement de configuration à distance</string>
+    <string name="remote_config_settings_desc">Télécharger le fichier de configuration YAML à distance via HTTP(S) pour des fonctionnalités avancées comme le filtrage de messages</string>
+    <string name="config_url">URL de configuration</string>
+    <string name="config_url_hint">par ex. : https://example.com/config.yaml</string>
+    <string name="download_and_apply">Télécharger et appliquer</string>
+    <string name="open_external">Ouvrir</string>
+    <string name="show_example_config">Exemple de configuration</string>
+    <string name="downloading">Téléchargement…</string>
+    <string name="config_url_required">Veuillez entrer l\'URL de configuration</string>
+    <string name="config_downloaded_and_applied">Configuration téléchargée et appliquée, %d règles chargées</string>
+    <string name="config_save_failed">Échec de la sauvegarde de la configuration</string>
+    <string name="config_validation_failed">Échec de la validation de la configuration :\n%s</string>
+    <string name="config_parse_failed">Échec de l\'analyse de la configuration : %s</string>
+    <string name="config_download_failed">Échec du téléchargement de la configuration (HTTP %d)</string>
+    <string name="config_download_error">Erreur de téléchargement de la configuration : %s</string>
+    <string name="no_app_to_open_config">Aucune application disponible pour ouvrir le fichier de configuration</string>
+    <string name="open_config_error">Échec de l\'ouverture du fichier de configuration : %s</string>
+
+    <!-- Page d\'exemple de configuration -->
+    <string name="example_config_title">Guide de configuration exemple</string>
 </resources>

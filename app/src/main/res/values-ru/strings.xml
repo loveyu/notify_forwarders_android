@@ -201,4 +201,100 @@
     <!-- Подтверждение сервера -->
     <string name="server_verification_title">Запрос на установление соединения с этим устройством</string>
     <string name="server_verification_desc">Пожалуйста, введите следующий код подтверждения на вашем телефоне: %s</string>
+
+    <!-- Быстрая отправка -->
+    <string name="quick_send_section_title">Быстрая отправка</string>
+    <string name="reading_image">Чтение изображения...</string>
+    <string name="send_clipboard_button">Буфер обмена</string>
+    <string name="send_image_button">Отправить изображение</string>
+    <string name="server_not_configured">Сначала настройте адрес сервера</string>
+
+    <!-- Обратная связь копирования буфера обмена -->
+    <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
+    <string name="copy_failed">Ошибка копирования</string>
+    <string name="no_icon_to_copy">Нет значка для копирования</string>
+    <string name="icon_copied_to_clipboard">Значок скопирован в буфер обмена</string>
+    <string name="icon_copy_failed">Ошибка копирования значка</string>
+    <string name="icon_decode_failed">Ошибка декодирования значка</string>
+
+    <!-- Запуск приложения -->
+    <string name="launching_app">Запуск %s</string>
+    <string name="app_not_found">Приложение %s не найдено</string>
+    <string name="no_permission_to_launch">Нет разрешения на запуск %s</string>
+    <string name="launch_app_failed">Не удалось запустить %s</string>
+
+    <!-- Процесс разрешения медиа -->
+    <string name="media_permission_request_title">Требуется доступ к вашим фотографиям</string>
+    <string name="media_permission_request_description">Для отправки последнего изображения приложению нужен доступ к фотографиям и медиафайлам на вашем устройстве. Это поможет вам быстро делиться содержимым изображений.</string>
+    <string name="media_permission_needed">Разрешение не предоставлено</string>
+    <string name="media_permission_explanation">Нажмите кнопку ниже, чтобы предоставить разрешение на доступ к медиафайлам, чтобы приложение могло читать и отправлять ваши последние изображения.</string>
+    <string name="media_permission_permanently_denied_title">Разрешение навсегда отклонено</string>
+    <string name="media_permission_permanently_denied_description">Вы отклонили разрешение на доступ к медиафайлам. Пожалуйста, вручную включите разрешение \"Фото и медиа\" или \"Хранилище\" в настройках приложения.</string>
+    <string name="open_app_settings">Открыть настройки приложения</string>
+    <string name="media_permission_granted">Разрешение на доступ к медиафайлам предоставлено</string>
+
+    <!-- Уведомления об ошибках -->
+    <string name="error_notification_channel">Уведомления об ошибках</string>
+    <string name="error_notification_channel_desc">Отображает сообщения об ошибках при неудачных операциях</string>
+    <string name="clipboard_permission_error_title">Недостаточное разрешение буфера обмена</string>
+    <string name="clipboard_permission_error_message">Нет доступа к буферу обмена. Android 10+ требует, чтобы приложение находилось на переднем плане для доступа к буферу обмена. Пожалуйста, используйте эту функцию, когда приложение на переднем плане</string>
+    <string name="media_permission_error_title">Недостаточное разрешение медиа</string>
+    <string name="media_permission_error_message">Нет доступа к изображениям. Нажмите на это уведомление, чтобы перейти к настройкам, найдите \"Фото и медиа\" или \"Хранилище\" в разделе \"Разрешения\" и включите его</string>
+    <string name="media_permission_error_message_improved">Нет доступа к изображениям. Нажмите на это уведомление, чтобы открыть руководство по разрешениям и быстро предоставить доступ к медиафайлам</string>
+    <string name="clipboard_send_error_title">Ошибка отправки буфера обмена</string>
+    <string name="clipboard_send_error_message">Причина ошибки: %s</string>
+    <string name="image_send_error_title">Ошибка отправки изображения</string>
+    <string name="image_send_error_message">Причина ошибки: %s</string>
+    <string name="server_connection_error_title">Ошибка подключения к серверу</string>
+    <string name="server_connection_error_message">Не удается подключиться к серверу, проверьте сетевое подключение и конфигурацию сервера</string>
+    <string name="network_error_with_code">Сетевая ошибка (код состояния: %d)</string>
+    <string name="network_connection_failed">Не удается подключиться к серверу</string>
+    <string name="network_timeout">Тайм-аут сетевого запроса</string>
+    <string name="network_host_unknown">Не удается разрешить адрес сервера</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
+    <string name="task_already_running_please_wait">Задача выполняется, пожалуйста, попробуйте позже</string>
+    <string name="task_timeout">Тайм-аут выполнения задачи</string>
+
+    <!-- Служба действий уведомлений -->
+    <string name="notification_action_channel_name">Служба выполнения действий</string>
+    <string name="notification_action_channel_desc">Уведомление службы переднего плана при выполнении операций отправки буфера обмена и изображений</string>
+    <string name="notification_action_service_title">Выполнение действия</string>
+    <string name="notification_action_service_content">Отправка содержимого буфера обмена или изображения</string>
+
+    <!-- Статус отправки -->
+    <string name="sending_clipboard">Отправка буфера обмена...</string>
+    <string name="sending_image">Отправка изображения...</string>
+    <string name="sending_clipboard_short">Отправка...</string>
+    <string name="sending_image_short">Отправка...</string>
+
+    <!-- Функция выхода из приложения -->
+    <string name="app_exit_settings">Выход из приложения</string>
+    <string name="app_exit_settings_desc">Полностью выйти из приложения и остановить все фоновые службы</string>
+    <string name="exit_app">Выйти из приложения</string>
+    <string name="exit_app_confirm_title">Подтвердить выход</string>
+    <string name="exit_app_confirm_message">Вы уверены, что хотите выйти из приложения и остановить все фоновые службы? Это остановит функцию переадресации уведомлений.</string>
+    <string name="app_exiting">Выход из приложения...</string>
+    <string name="app_restart_required">Настройки изменены, приложение перезапустится для применения новых настроек</string>
+
+    <!-- Загрузка удалённой конфигурации -->
+    <string name="remote_config_settings">Загрузка удалённой конфигурации</string>
+    <string name="remote_config_settings_desc">Загрузить удалённый файл конфигурации YAML через HTTP(S) для расширенных функций, таких как фильтрация сообщений</string>
+    <string name="config_url">URL конфигурации</string>
+    <string name="config_url_hint">например: https://example.com/config.yaml</string>
+    <string name="download_and_apply">Скачать и применить</string>
+    <string name="open_external">Открыть</string>
+    <string name="show_example_config">Пример конфигурации</string>
+    <string name="downloading">Загрузка…</string>
+    <string name="config_url_required">Пожалуйста, введите URL конфигурации</string>
+    <string name="config_downloaded_and_applied">Конфигурация загружена и применена, загружено %d правил</string>
+    <string name="config_save_failed">Ошибка сохранения конфигурации</string>
+    <string name="config_validation_failed">Ошибка проверки конфигурации:\n%s</string>
+    <string name="config_parse_failed">Ошибка разбора конфигурации: %s</string>
+    <string name="config_download_failed">Ошибка загрузки конфигурации (HTTP %d)</string>
+    <string name="config_download_error">Ошибка загрузки конфигурации: %s</string>
+    <string name="no_app_to_open_config">Нет приложения для открытия файла конфигурации</string>
+    <string name="open_config_error">Не удалось открыть файл конфигурации: %s</string>
+
+    <!-- Страница примера конфигурации -->
+    <string name="example_config_title">Руководство по примерной конфигурации</string>
 </resources>

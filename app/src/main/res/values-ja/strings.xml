@@ -201,4 +201,100 @@
     <!-- サーバー認証 -->
     <string name="server_verification_title">このデバイスとの接続確立要求</string>
     <string name="server_verification_desc">携帯電話で以下の認証コードを入力してください：%s</string>
+
+    <!-- クイック送信 -->
+    <string name="quick_send_section_title">クイック送信</string>
+    <string name="reading_image">画像を読み取り中...</string>
+    <string name="send_clipboard_button">クリップボード</string>
+    <string name="send_image_button">画像を送信</string>
+    <string name="server_not_configured">まずサーバーアドレスを設定してください</string>
+
+    <!-- クリップボードコピーフィードバック -->
+    <string name="copied_to_clipboard">クリップボードにコピーしました</string>
+    <string name="copy_failed">コピーに失敗しました</string>
+    <string name="no_icon_to_copy">コピーするアイコンがありません</string>
+    <string name="icon_copied_to_clipboard">アイコンをクリップボードにコピーしました</string>
+    <string name="icon_copy_failed">アイコンのコピーに失敗しました</string>
+    <string name="icon_decode_failed">アイコンのデコードに失敗しました</string>
+
+    <!-- アプリ起動 -->
+    <string name="launching_app">%s を起動中</string>
+    <string name="app_not_found">アプリ %s が見つかりません</string>
+    <string name="no_permission_to_launch">%s を起動する権限がありません</string>
+    <string name="launch_app_failed">%s の起動に失敗しました</string>
+
+    <!-- メディア権限フロー -->
+    <string name="media_permission_request_title">写真へのアクセスが必要です</string>
+    <string name="media_permission_request_description">最新の画像を送信するため、アプリはデバイス上の写真とメディアにアクセスする必要があります。これにより画像コンテンツを素早く共有できます。</string>
+    <string name="media_permission_needed">権限が付与されていません</string>
+    <string name="media_permission_explanation">下のボタンをタップしてメディアアクセス権限を付与してください。アプリが最新の画像を読み取り、送信できるようになります。</string>
+    <string name="media_permission_permanently_denied_title">権限が永久に拒否されました</string>
+    <string name="media_permission_permanently_denied_description">メディアアクセス権限が拒否されています。アプリ設定で「写真とメディア」または「ストレージ」権限を手動で有効にしてください。</string>
+    <string name="open_app_settings">アプリ設定を開く</string>
+    <string name="media_permission_granted">メディア権限が付与されました</string>
+
+    <!-- エラー通知 -->
+    <string name="error_notification_channel">エラー通知</string>
+    <string name="error_notification_channel_desc">失敗した操作のエラーメッセージを表示します</string>
+    <string name="clipboard_permission_error_title">クリップボード権限不足</string>
+    <string name="clipboard_permission_error_message">クリップボードにアクセスできません。Android 10以降ではアプリがフォアグラウンドにある場合のみクリップボードにアクセスできます。アプリがフォアグラウンドにあるときにこの機能を使用してください</string>
+    <string name="media_permission_error_title">メディア権限不足</string>
+    <string name="media_permission_error_message">画像にアクセスできません。この通知をタップして設定ページに移動し、「権限」で「写真とメディア」または「ストレージ」権限を有効にしてください</string>
+    <string name="media_permission_error_message_improved">画像にアクセスできません。この通知をタップして権限ガイドを開き、メディアアクセス権限を素早く付与してください</string>
+    <string name="clipboard_send_error_title">クリップボード送信失敗</string>
+    <string name="clipboard_send_error_message">失敗理由: %s</string>
+    <string name="image_send_error_title">画像送信失敗</string>
+    <string name="image_send_error_message">失敗理由: %s</string>
+    <string name="server_connection_error_title">サーバー接続失敗</string>
+    <string name="server_connection_error_message">サーバーに接続できません。ネットワーク接続とサーバー設定を確認してください</string>
+    <string name="network_error_with_code">ネットワークエラー (ステータスコード: %d)</string>
+    <string name="network_connection_failed">サーバーに接続できません</string>
+    <string name="network_timeout">ネットワークリクエストがタイムアウトしました</string>
+    <string name="network_host_unknown">サーバーアドレスを解決できません</string>
+    <string name="unknown_error">不明なエラー</string>
+    <string name="task_already_running_please_wait">タスク実行中です。後でもう一度お試しください</string>
+    <string name="task_timeout">タスク実行がタイムアウトしました</string>
+
+    <!-- 通知アクションサービス -->
+    <string name="notification_action_channel_name">アクション実行サービス</string>
+    <string name="notification_action_channel_desc">クリップボードと画像送信操作を実行する際のフォアグラウンドサービス通知</string>
+    <string name="notification_action_service_title">アクション実行中</string>
+    <string name="notification_action_service_content">クリップボードまたは画像コンテンツを送信中</string>
+
+    <!-- 送信ステータス -->
+    <string name="sending_clipboard">クリップボードを送信中...</string>
+    <string name="sending_image">画像を送信中...</string>
+    <string name="sending_clipboard_short">送信中...</string>
+    <string name="sending_image_short">送信中...</string>
+
+    <!-- アプリ終了機能 -->
+    <string name="app_exit_settings">アプリ終了</string>
+    <string name="app_exit_settings_desc">アプリを完全に終了し、すべてのバックグラウンドサービスを停止します</string>
+    <string name="exit_app">アプリを終了</string>
+    <string name="exit_app_confirm_title">終了の確認</string>
+    <string name="exit_app_confirm_message">アプリを終了し、すべてのバックグラウンドサービスを停止してもよろしいですか？通知転送機能が停止します。</string>
+    <string name="app_exiting">アプリを終了中...</string>
+    <string name="app_restart_required">設定が変更されました。新しい設定を適用するためにアプリが再起動されます</string>
+
+    <!-- リモート設定ダウンロード -->
+    <string name="remote_config_settings">リモート設定ダウンロード</string>
+    <string name="remote_config_settings_desc">HTTP(S)経由でリモートYAML設定ファイルをダウンロードし、メッセージフィルタリングなどの高度な機能に使用します</string>
+    <string name="config_url">設定URL</string>
+    <string name="config_url_hint">例: https://example.com/config.yaml</string>
+    <string name="download_and_apply">ダウンロードして適用</string>
+    <string name="open_external">開く</string>
+    <string name="show_example_config">設定例</string>
+    <string name="downloading">ダウンロード中…</string>
+    <string name="config_url_required">設定URLを入力してください</string>
+    <string name="config_downloaded_and_applied">設定がダウンロードされ、適用されました。%d 件のルールが読み込まれました</string>
+    <string name="config_save_failed">設定の保存に失敗しました</string>
+    <string name="config_validation_failed">設定の検証に失敗しました:\n%s</string>
+    <string name="config_parse_failed">設定の解析に失敗しました: %s</string>
+    <string name="config_download_failed">設定のダウンロードに失敗しました (HTTP %d)</string>
+    <string name="config_download_error">設定のダウンロードエラー: %s</string>
+    <string name="no_app_to_open_config">設定ファイルを開くアプリがありません</string>
+    <string name="open_config_error">設定ファイルを開けませんでした: %s</string>
+
+    <!-- 設定例ページ -->
+    <string name="example_config_title">設定例ガイド</string>
 </resources>

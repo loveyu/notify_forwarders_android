@@ -201,4 +201,100 @@
     <!-- 伺服器驗證 -->
     <string name="server_verification_title">請求與本機建立連接</string>
     <string name="server_verification_desc">請在手機輸入以下驗證碼：%s</string>
+
+    <!-- 快捷傳送 -->
+    <string name="quick_send_section_title">快捷傳送</string>
+    <string name="reading_image">正在讀取圖片...</string>
+    <string name="send_clipboard_button">剪貼簿</string>
+    <string name="send_image_button">傳送圖片</string>
+    <string name="server_not_configured">請先設定伺服器位址</string>
+
+    <!-- 剪貼簿複製回饋 -->
+    <string name="copied_to_clipboard">已複製到剪貼簿</string>
+    <string name="copy_failed">複製失敗</string>
+    <string name="no_icon_to_copy">沒有圖示可複製</string>
+    <string name="icon_copied_to_clipboard">圖示已複製到剪貼簿</string>
+    <string name="icon_copy_failed">圖示複製失敗</string>
+    <string name="icon_decode_failed">圖示解碼失敗</string>
+
+    <!-- 應用程式啟動 -->
+    <string name="launching_app">正在啟動 %s</string>
+    <string name="app_not_found">未找到應用程式 %s</string>
+    <string name="no_permission_to_launch">沒有權限啟動 %s</string>
+    <string name="launch_app_failed">啟動 %s 失敗</string>
+
+    <!-- 媒體權限引導頁面 -->
+    <string name="media_permission_request_title">需要存取您的圖片</string>
+    <string name="media_permission_request_description">為了傳送最新圖片，應用程式需要存取您裝置上的照片和媒體檔案。這將幫助您快速分享圖片內容。</string>
+    <string name="media_permission_needed">權限未授予</string>
+    <string name="media_permission_explanation">點擊下方按鈕授予媒體存取權限，以便應用程式能夠讀取和傳送您的最新圖片。</string>
+    <string name="media_permission_permanently_denied_title">權限被永久拒絕</string>
+    <string name="media_permission_permanently_denied_description">您已拒絕媒體存取權限。請在應用程式設定中手動開啟「照片和媒體」或「儲存空間」權限。</string>
+    <string name="open_app_settings">開啟應用程式設定</string>
+    <string name="media_permission_granted">媒體權限已授予</string>
+
+    <!-- 錯誤通知 -->
+    <string name="error_notification_channel">錯誤通知</string>
+    <string name="error_notification_channel_desc">顯示操作失敗的錯誤資訊</string>
+    <string name="clipboard_permission_error_title">剪貼簿權限不足</string>
+    <string name="clipboard_permission_error_message">無法存取剪貼簿。Android 10+ 要求應用程式在前台才能存取剪貼簿，請確保應用程式在前台時使用此功能</string>
+    <string name="media_permission_error_title">媒體權限不足</string>
+    <string name="media_permission_error_message">無法存取圖片。請點擊此通知前往設定頁面，在「權限」中找到「照片和媒體」或「儲存空間」權限並開啟</string>
+    <string name="media_permission_error_message_improved">無法存取圖片。點擊此通知可開啟權限引導頁面，快速授予媒體存取權限</string>
+    <string name="clipboard_send_error_title">剪貼簿傳送失敗</string>
+    <string name="clipboard_send_error_message">傳送失敗原因: %s</string>
+    <string name="image_send_error_title">圖片傳送失敗</string>
+    <string name="image_send_error_message">傳送失敗原因: %s</string>
+    <string name="server_connection_error_title">伺服器連接失敗</string>
+    <string name="server_connection_error_message">無法連接到伺服器，請檢查網路連接和伺服器設定</string>
+    <string name="network_error_with_code">網路錯誤 (狀態碼: %d)</string>
+    <string name="network_connection_failed">無法連接到伺服器</string>
+    <string name="network_timeout">網路請求逾時</string>
+    <string name="network_host_unknown">無法解析伺服器位址</string>
+    <string name="unknown_error">未知錯誤</string>
+    <string name="task_already_running_please_wait">任務正在進行中，請稍後再試</string>
+    <string name="task_timeout">任務執行逾時</string>
+
+    <!-- 通知操作服務 -->
+    <string name="notification_action_channel_name">操作執行服務</string>
+    <string name="notification_action_channel_desc">執行剪貼簿和圖片傳送操作時的前台服務通知</string>
+    <string name="notification_action_service_title">正在執行操作</string>
+    <string name="notification_action_service_content">正在傳送剪貼簿或圖片內容</string>
+
+    <!-- 傳送狀態 -->
+    <string name="sending_clipboard">正在傳送剪貼簿...</string>
+    <string name="sending_image">正在傳送圖片...</string>
+    <string name="sending_clipboard_short">傳送中...</string>
+    <string name="sending_image_short">傳送中...</string>
+
+    <!-- 應用程式退出功能 -->
+    <string name="app_exit_settings">應用程式退出</string>
+    <string name="app_exit_settings_desc">完全退出應用程式並停止所有背景服務</string>
+    <string name="exit_app">退出應用程式</string>
+    <string name="exit_app_confirm_title">確認退出</string>
+    <string name="exit_app_confirm_message">確定要退出應用程式並停止所有背景服務嗎？這將停止通知轉發功能。</string>
+    <string name="app_exiting">正在退出應用程式...</string>
+    <string name="app_restart_required">設定已變更，應用程式將重啟以套用新設定</string>
+
+    <!-- 遠端設定下載 -->
+    <string name="remote_config_settings">遠端設定下載</string>
+    <string name="remote_config_settings_desc">透過HTTP(S)下載遠端YAML設定檔案，用於訊息過濾等進階功能</string>
+    <string name="config_url">設定位址</string>
+    <string name="config_url_hint">例如: https://example.com/config.yaml</string>
+    <string name="download_and_apply">下載並套用</string>
+    <string name="open_external">開啟</string>
+    <string name="show_example_config">範例設定</string>
+    <string name="downloading">下載中…</string>
+    <string name="config_url_required">請輸入設定位址</string>
+    <string name="config_downloaded_and_applied">設定已下載並套用，共 %d 條規則</string>
+    <string name="config_save_failed">設定儲存失敗</string>
+    <string name="config_validation_failed">設定驗證失敗:\n%s</string>
+    <string name="config_parse_failed">設定解析失敗: %s</string>
+    <string name="config_download_failed">設定下載失敗 (HTTP %d)</string>
+    <string name="config_download_error">設定下載錯誤: %s</string>
+    <string name="no_app_to_open_config">沒有可開啟設定檔案的應用程式</string>
+    <string name="open_config_error">開啟設定檔案失敗: %s</string>
+
+    <!-- 範例設定頁面 -->
+    <string name="example_config_title">範例設定說明</string>
 </resources>

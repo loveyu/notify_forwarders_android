@@ -26,6 +26,7 @@ import com.hestudio.notifyforwarders.MainActivity
 import com.hestudio.notifyforwarders.R
 import com.hestudio.notifyforwarders.constants.ApiConstants
 import com.hestudio.notifyforwarders.util.IconCacheManager
+import com.hestudio.notifyforwarders.util.IgnoreFilterConfigManager
 import com.hestudio.notifyforwarders.util.ModernNotificationUtils
 import com.hestudio.notifyforwarders.util.PersistentNotificationManager
 import com.hestudio.notifyforwarders.util.ServerPreferences
@@ -326,6 +327,12 @@ class NotificationService : NotificationListenerService() {
         // 过滤掉没有内容的通知
         if (text.isBlank() && title.isBlank()) {
             Log.d(TAG, "过滤空内容通知: $packageName")
+            return
+        }
+
+        // 使用忽略过滤器检查是否应该忽略此通知
+        if (IgnoreFilterConfigManager.shouldIgnore(appName, title, text)) {
+            Log.d(TAG, "通知被过滤规则忽略: $appName, $title, $text")
             return
         }
         

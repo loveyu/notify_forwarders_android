@@ -68,6 +68,7 @@ import com.hestudio.notifyforwarders.constants.ApiConstants
 import com.hestudio.notifyforwarders.service.NotificationService
 import com.hestudio.notifyforwarders.ui.theme.NotifyForwardersTheme
 import com.hestudio.notifyforwarders.util.AppExitManager
+import com.hestudio.notifyforwarders.util.IgnoreFilterConfigManager
 import com.hestudio.notifyforwarders.util.LocaleHelper
 import com.hestudio.notifyforwarders.util.NotificationUtils
 import com.hestudio.notifyforwarders.util.ServerPreferences
@@ -105,6 +106,9 @@ class SettingsActivity : ComponentActivity() {
         // 初始化设置状态管理器
         SettingsStateManager.initialize(this)
 
+        // 初始化忽略过滤配置管理器，加载保存的配置
+        IgnoreFilterConfigManager.loadFromFile(this)
+
         setContent {
             NotifyForwardersTheme {
                 SettingsScreen(
@@ -117,10 +121,16 @@ class SettingsActivity : ComponentActivity() {
                     onOpenBatteryOptimizationSettings = { openBatteryOptimizationSettings() },
                     onSendRandomNotification = { sendRandomNotification() },
                     onSendRandomNotificationWithIcon = { sendRandomNotificationWithIcon() },
-                    onSendProgressNotification = { sendProgressNotification() }
+                    onSendProgressNotification = { sendProgressNotification() },
+                    onOpenExampleConfig = { openExampleConfigActivity() }
                 )
             }
         }
+    }
+
+    private fun openExampleConfigActivity() {
+        val intent = Intent(this, ExampleConfigActivity::class.java)
+        startActivity(intent)
     }
 
     private fun openBatteryOptimizationSettings() {
@@ -301,7 +311,8 @@ fun SettingsScreen(
     onOpenBatteryOptimizationSettings: () -> Unit,
     onSendRandomNotification: () -> Unit = {},
     onSendRandomNotificationWithIcon: () -> Unit = {},
-    onSendProgressNotification: () -> Unit = {}
+    onSendProgressNotification: () -> Unit = {},
+    onOpenExampleConfig: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var serverAddress by remember { mutableStateOf(ServerPreferences.getServerAddress(context)) }
@@ -730,6 +741,11 @@ fun SettingsScreen(
 
             // 语言设置卡片
             LanguageSettingsCard()
+
+            // 远程配置下载卡片
+            RemoteConfigSettingsCard(
+                onOpenExampleConfig = onOpenExampleConfig
+            )
 
             // 应用退出设置卡片
             AppExitSettingsCard()

@@ -51,6 +51,13 @@
             android:label="@string/settings"
             android:theme="@style/Theme.NotifyForwarders" />
 
+        <!-- 示例配置Activity -->
+        <activity
+            android:name=".ExampleConfigActivity"
+            android:exported="false"
+            android:label="@string/example_config_title"
+            android:theme="@style/Theme.NotifyForwarders" />
+
         <!-- 添加媒体权限引导Activity -->
         <activity
             android:name=".MediaPermissionActivity"
@@ -105,6 +112,17 @@
             android:name=".service.NotificationActionService"
             android:foregroundServiceType="dataSync"
             android:exported="false" />
+
+        <!-- FileProvider for sharing files with external editors -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

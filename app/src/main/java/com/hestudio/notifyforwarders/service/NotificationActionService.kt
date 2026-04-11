@@ -13,6 +13,7 @@ import com.hestudio.notifyforwarders.util.AppStateManager
 import com.hestudio.notifyforwarders.util.ClipboardImageUtils
 import com.hestudio.notifyforwarders.util.ErrorNotificationUtils
 import com.hestudio.notifyforwarders.util.MediaPermissionUtils
+import com.hestudio.notifyforwarders.util.MirrorForwarder
 import com.hestudio.notifyforwarders.util.PersistentNotificationManager
 import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.ToastManager
@@ -510,6 +511,9 @@ class NotificationActionService : Service() {
 
             Log.d(TAG, "图片RAW发送响应: $responseCode")
 
+            // 镜像转发
+            MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_IMAGE_RAW)
+
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 NetworkResult.Success
             } else {
@@ -563,6 +567,9 @@ class NotificationActionService : Service() {
                 val responseCode = connection.responseCode
                 Log.d(TAG, "剪贴板文本发送响应码: $responseCode")
 
+                // 镜像转发
+                MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_CLIPBOARD_TEXT)
+
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     NetworkResult.Success
                 } else {
@@ -610,6 +617,9 @@ class NotificationActionService : Service() {
 
                 val responseCode = connection.responseCode
                 Log.d(TAG, "剪贴板图片发送响应码: $responseCode")
+
+                // 镜像转发
+                MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_CLIPBOARD_IMAGE)
 
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     NetworkResult.Success

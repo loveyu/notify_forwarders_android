@@ -11,6 +11,7 @@ import com.hestudio.notifyforwarders.service.NotificationService
 import com.hestudio.notifyforwarders.util.ClipboardImageUtils
 import com.hestudio.notifyforwarders.util.ErrorNotificationUtils
 import com.hestudio.notifyforwarders.util.LocaleHelper
+import com.hestudio.notifyforwarders.util.MirrorForwarder
 import com.hestudio.notifyforwarders.util.PersistentNotificationManager
 import com.hestudio.notifyforwarders.util.ServerPreferences
 import com.hestudio.notifyforwarders.util.ToastManager
@@ -279,6 +280,9 @@ class ClipboardFloatingActivity : ComponentActivity() {
                 val responseCode = connection.responseCode
                 Log.d(TAG, "剪贴板文本发送响应码: $responseCode")
 
+                // 镜像转发
+                MirrorForwarder.forwardToMirrors(lifecycleScope, jsonBody, ApiConstants.ENDPOINT_CLIPBOARD_TEXT)
+
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     NetworkResult.Success("发送成功")
                 } else {
@@ -326,6 +330,9 @@ class ClipboardFloatingActivity : ComponentActivity() {
 
                 val responseCode = connection.responseCode
                 Log.d(TAG, "剪贴板图片发送响应码: $responseCode")
+
+                // 镜像转发
+                MirrorForwarder.forwardToMirrors(lifecycleScope, jsonBody, ApiConstants.ENDPOINT_CLIPBOARD_IMAGE)
 
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     NetworkResult.Success("发送成功")

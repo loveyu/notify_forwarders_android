@@ -67,7 +67,10 @@ object AppConfigManager {
             // 解析 icon-url 部分
             val iconUrlConfig = parseIconUrlConfig(data["icon-url"])
 
-            Result.success(AppConfig(ignoreFilterConfig, apiConfig, dedupFilterConfig, iconUrlConfig))
+            // 解析 mirror 部分
+            val mirrorConfig = parseMirrorConfig(data["mirror"])
+
+            Result.success(AppConfig(ignoreFilterConfig, apiConfig, dedupFilterConfig, iconUrlConfig, mirrorConfig))
         } catch (e: Exception) {
             Log.e(TAG, "解析YAML配置失败", e)
             Result.failure(e)
@@ -171,6 +174,39 @@ object AppConfigManager {
             filenameTemplate, descriptionTemplate,
             cacheConfig
         )
+    }
+
+    /**
+     * 解析镜像目的地配置
+     */
+    private fun parseMirrorConfig(mirrorData: Any?): MirrorConfig {
+        if (mirrorData !is Map<*, *>) {
+            return MirrorConfig()
+        }
+
+        val enabled = (mirrorData["enabled"] as? Boolean) ?: false
+
+        val destinations = when (val dest = mirrorData["destinations"]) {
+            is String -> listOf(dest)
+            is List<*> -> dest.filterIsInstance<String>()
+            else -> emptyList()
+        }
+
+        return MirrorConfig(enabled, destinations)
+    }
+
+    /**
+     * 获取解析后的镜像目的地列表
+     * 仅返回 enabled=true 且解析成功的目的地
+     */
+    fun getMirrorDestinations(): List<MirrorDestination> {
+        val config = currentConfig.mirror
+        if (!config.enabled || config.destinations.isEmpty()) {
+            return emptyList()
+        }
+        return config.destinations.mapNotNull { dsn ->
+            parseMirrorDsn(dsn).getOrNull()
+        }
     }
 
     /**
@@ -586,6 +622,20 @@ object AppConfigManager {
             sb.append("    memoryCache: ${cache.memoryCache}\n")
             sb.append("    memoryCacheSize: ${cache.memoryCacheSize}\n")
             sb.append("    sqliteCache: ${cache.sqliteCache}\n")
+        }
+
+        // 添加 mirror 配置
+        val mirror = config.mirror
+        if (mirror.enabled || mirror.destinations.isNotEmpty()) {
+            sb.append("\n# 镜像目的地配置\n")
+            sb.append("mirror:\n")
+            sb.append("  enabled: ${mirror.enabled}\n")
+            if (mirror.destinations.isNotEmpty()) {
+                sb.append("  destinations:\n")
+                mirror.destinations.forEach { dest ->
+                    sb.append("    - \"$dest\"\n")
+                }
+            }
         }
 
         return sb.toString()

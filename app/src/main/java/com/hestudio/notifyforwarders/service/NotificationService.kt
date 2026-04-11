@@ -28,6 +28,7 @@ import com.hestudio.notifyforwarders.constants.ApiConstants
 import com.hestudio.notifyforwarders.util.IconCacheManager
 import com.hestudio.notifyforwarders.util.IconUrlManager
 import com.hestudio.notifyforwarders.util.AppConfigManager
+import com.hestudio.notifyforwarders.util.MirrorForwarder
 import com.hestudio.notifyforwarders.util.ModernNotificationUtils
 import com.hestudio.notifyforwarders.util.PersistentNotificationManager
 import com.hestudio.notifyforwarders.util.ServerPreferences
@@ -35,9 +36,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
-import java.net.URL
 
 class NotificationService : NotificationListenerService() {
     
@@ -583,67 +582,53 @@ class NotificationService : NotificationListenerService() {
             Log.d(TAG, "服务器地址未配置，不转发通知")
             return
         }
-        
+
+        val jsonBody = buildNotificationJson(notification)
+
         serviceScope.launch {
             try {
                 val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_NOTIFY)
                 Log.d(TAG, "正在转发通知到 $serverUrl")
-
-                val url = URL(serverUrl)
-                val connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = ApiConstants.METHOD_POST
-                connection.setRequestProperty("Content-Type", ApiConstants.CONTENT_TYPE_JSON)
-                connection.doOutput = true
-                connection.connectTimeout = ApiConstants.TIMEOUT_NOTIFY_CONNECT
-                connection.readTimeout = ApiConstants.TIMEOUT_NOTIFY_READ
-
-                // 创建JSON数据，使用指定的参数名
-                val jsonBody = JSONObject().apply {
-                    put(ApiConstants.FIELD_APP_NAME, notification.appName) // 改用appName而不是packageName
-                    put(ApiConstants.FIELD_TITLE, notification.title)
-                    put(ApiConstants.FIELD_DESCRIPTION, notification.content)
-                    put(ApiConstants.FIELD_DEVICE_NAME, getDeviceName()) // 添加设备名称参数
-                    put(ApiConstants.FIELD_UNIQUE_ID, notification.uniqueId) // 添加唯一标识字段
-                    put(ApiConstants.FIELD_ID, notification.id) // 这个包的记录ID
-
-                    // 处理图标信息
-                    val iconMd5 = notification.iconMd5
-                    val iconBase64 = notification.iconBase64
-                    if (iconMd5 != null && iconBase64 != null) {
-                        // 尝试将base64图标转换为URL
-                        val iconUrl = IconUrlManager.convertToUrl(iconBase64, iconMd5, notification.appName)
-                        if (iconUrl != null) {
-                            put("iconUrl", iconUrl)
-                            Log.d(TAG, "使用图标URL: $iconMd5")
-                        } else {
-                            put(ApiConstants.FIELD_ICON_MD5, iconMd5)
-                            put(ApiConstants.FIELD_ICON_BASE64, iconBase64)
-                        }
-                    } else if (iconMd5 != null) {
-                        put(ApiConstants.FIELD_ICON_MD5, iconMd5)
-                        notification.iconBase64?.let { put(ApiConstants.FIELD_ICON_BASE64, it) }
-                    }
-                }
-
-                // 发送JSON数据
-                val outputStream = connection.outputStream
-                val writer = OutputStreamWriter(outputStream, ApiConstants.CHARSET_UTF8)
-                writer.write(jsonBody.toString())
-                writer.flush()
-                writer.close()
-                
-                // 获取响应
-                val responseCode = connection.responseCode
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    Log.d(TAG, "通知转发成功")
-                    // 图标已经随通知一起发送，不需要额外的异步推送
-                } else {
-                    Log.e(TAG, "通知转发失败: HTTP $responseCode")
-                }
-
-                connection.disconnect()
+                MirrorForwarder.sendHttpRequest(
+                    serverUrl, jsonBody,
+                    ApiConstants.TIMEOUT_NOTIFY_CONNECT, ApiConstants.TIMEOUT_NOTIFY_READ
+                )
             } catch (e: Exception) {
                 Log.e(TAG, "通知转发失败", e)
+            }
+        }
+
+        // 异步执行镜像转发（不阻塞主流程）
+        MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_NOTIFY)
+    }
+
+    /**
+     * 构建通知JSON数据
+     */
+    private fun buildNotificationJson(notification: NotificationData): JSONObject {
+        return JSONObject().apply {
+            put(ApiConstants.FIELD_APP_NAME, notification.appName)
+            put(ApiConstants.FIELD_TITLE, notification.title)
+            put(ApiConstants.FIELD_DESCRIPTION, notification.content)
+            put(ApiConstants.FIELD_DEVICE_NAME, getDeviceName())
+            put(ApiConstants.FIELD_UNIQUE_ID, notification.uniqueId)
+            put(ApiConstants.FIELD_ID, notification.id)
+
+            // 处理图标信息
+            val iconMd5 = notification.iconMd5
+            val iconBase64 = notification.iconBase64
+            if (iconMd5 != null && iconBase64 != null) {
+                val iconUrl = IconUrlManager.convertToUrl(iconBase64, iconMd5, notification.appName)
+                if (iconUrl != null) {
+                    put("iconUrl", iconUrl)
+                    Log.d(TAG, "使用图标URL: $iconMd5")
+                } else {
+                    put(ApiConstants.FIELD_ICON_MD5, iconMd5)
+                    put(ApiConstants.FIELD_ICON_BASE64, iconBase64)
+                }
+            } else if (iconMd5 != null) {
+                put(ApiConstants.FIELD_ICON_MD5, iconMd5)
+                notification.iconBase64?.let { put(ApiConstants.FIELD_ICON_BASE64, it) }
             }
         }
     }

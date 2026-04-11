@@ -7,5 +7,6 @@ data class AppConfig(
     val ignoreFilter: IgnoreFilterConfig = IgnoreFilterConfig.empty(),
     val api: ApiConfig = ApiConfig(),
     val dedupFilter: DedupFilterConfig = DedupFilterConfig(),
-    val iconUrl: IconUrlConfig = IconUrlConfig()
+    val iconUrl: IconUrlConfig = IconUrlConfig(),
+    val mirror: MirrorConfig = MirrorConfig()
 )

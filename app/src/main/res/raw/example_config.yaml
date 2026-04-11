@@ -188,3 +188,47 @@ ignore-filter:
 #     memoryCache: true
 #     memoryCacheSize: 2000
 #     sqliteCache: true
+
+# =============================================================================
+# 镜像目的地配置 (mirror)
+# =============================================================================
+# 用途: 将通知同时推送到多个目的地（镜像），与主服务器转发独立运行
+#       镜像转发失败不影响主服务器转发，各镜像目的地之间也互不影响
+#
+# 配置格式:
+#   mirror:
+#     enabled: bool              是否启用镜像转发，默认 false
+#     destinations: string|array 镜像目的地DSN，支持单个字符串或数组
+#
+# DSN 格式:
+#   http[s]://[userinfo@]host[:port][/path_prefix][?param=value&...]
+#
+#   DSN 中的路径作为前缀，各端点路径追加到其后。
+#   例如: http://mirror.example.com/proxy?retry=3
+#     /api/notify                → http://mirror.example.com/proxy/api/notify
+#     /api/notify/clipboard/text → http://mirror.example.com/proxy/api/notify/clipboard/text
+#
+#   支持所有转发端点: 通知转发、剪贴板文本、剪贴板图片、相册图片
+#
+# DSN 支持的查询参数:
+#   connectTimeout: int   连接超时时间(ms)，默认 5000
+#   writeTimeout:   int   写入/读取超时时间(ms)，默认 5000
+#   retry:          int   重试次数，默认 0（不重试）
+#   retryInterval:  int   重试间隔(ms)，默认 1000
+#   token:          string 认证令牌，设置 Authorization: Bearer {token} 请求头
+#   verifySSL:      bool  是否验证SSL证书，默认 true
+#
+# DSN 示例:
+#   http://192.168.1.100:19283?connectTimeout=5000&retry=3
+#   https://api.example.com?token=secret&verifySSL=false&retry=5
+#   https://user:pass@api.example.com?retry=2&retryInterval=2000
+#   http://mirror.example.com/proxy?connectTimeout=10000
+# =============================================================================
+
+# mirror:
+#   enabled: true
+#   destinations:
+#     - "http://192.168.1.100:19283?connectTimeout=5000&writeTimeout=5000&retry=3&retryInterval=1000"
+#     - "https://api.example.com?token=your-auth-token&verifySSL=false"
+#   # 单个目的地也支持字符串格式:
+#   # destinations: "http://192.168.1.100:19283"

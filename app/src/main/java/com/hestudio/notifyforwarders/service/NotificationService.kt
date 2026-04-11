@@ -335,6 +335,12 @@ class NotificationService : NotificationListenerService() {
             Log.d(TAG, "通知被过滤规则忽略: $appName, $title, $text")
             return
         }
+
+        // 使用重复过滤器检查是否为重复消息
+        if (IgnoreFilterConfigManager.shouldDedup(packageName, title, text)) {
+            Log.d(TAG, "通知被重复过滤忽略: $packageName, $appName, $title, $text")
+            return
+        }
         
         // 生成唯一标识符
         // 使用包名+通知ID作为唯一标识

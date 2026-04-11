@@ -58,13 +58,57 @@ object IgnoreFilterConfigManager {
 
             val ignoreFilterConfig = IgnoreFilterConfig(rules)
 
+            // 解析 dedup-filter 部分
+            val dedupFilterConfig = parseDedupFilterConfig(data["dedup-filter"])
+
             // 解析 api 部分
             val apiConfig = parseApiConfig(data["api"])
 
-            Result.success(AppConfig(ignoreFilterConfig, apiConfig))
+            Result.success(AppConfig(ignoreFilterConfig, apiConfig, dedupFilterConfig))
         } catch (e: Exception) {
             Log.e(TAG, "解析YAML配置失败", e)
             Result.failure(e)
+        }
+    }
+
+    /**
+     * 解析重复消息过滤配置
+     */
+    private fun parseDedupFilterConfig(dedupData: Any?): DedupFilterConfig {
+        if (dedupData !is Map<*, *>) {
+            return DedupFilterConfig()
+        }
+
+        val enabled = (dedupData["enabled"] as? Boolean) ?: false
+        val onlyApps = (dedupData["onlyApps"] as? Boolean) ?: false
+        val strategy = parseDedupStrategy(dedupData["strategy"]?.toString())
+        val timeWindow = (dedupData["timeWindow"] as? Number)?.toInt() ?: 20
+
+        val apps = mutableListOf<DedupAppConfig>()
+        val appsData = dedupData["apps"]
+        if (appsData is List<*>) {
+            appsData.forEach { item ->
+                if (item is Map<*, *>) {
+                    val packageName = item["packageName"]?.toString() ?: return@forEach
+                    val appStrategy = parseDedupStrategy(item["strategy"]?.toString())
+                    val appTimeWindow = (item["timeWindow"] as? Number)?.toInt()
+                    apps.add(DedupAppConfig(packageName, appStrategy, appTimeWindow))
+                }
+            }
+        }
+
+        return DedupFilterConfig(enabled, onlyApps, strategy, timeWindow, apps)
+    }
+
+    /**
+     * 解析去重策略字符串
+     */
+    private fun parseDedupStrategy(value: String?): DedupStrategy {
+        return when (value) {
+            "title" -> DedupStrategy.TITLE
+            "content" -> DedupStrategy.CONTENT
+            "title_content" -> DedupStrategy.TITLE_CONTENT
+            else -> DedupStrategy.TITLE_CONTENT
         }
     }
 
@@ -182,6 +226,85 @@ object IgnoreFilterConfigManager {
             }
         }
 
+        return false
+    }
+
+    /**
+     * 缓存的最近一条消息（按packageName分组）
+     */
+    private val lastMessageCache = mutableMapOf<String, CachedMessage>()
+
+    private data class CachedMessage(
+        val title: String,
+        val content: String,
+        val timestamp: Long
+    )
+
+    /**
+     * 匹配包名：精确匹配或前缀匹配（packageName以 . 结尾时视为前缀）
+     */
+    private fun matchPackageName(pattern: String, packageName: String): Boolean {
+        return if (pattern.endsWith(".")) {
+            packageName.startsWith(pattern)
+        } else {
+            packageName == pattern
+        }
+    }
+
+    /**
+     * 检查消息是否为重复消息
+     * 如果最近 timeWindow 秒内相同 packageName 的消息内容匹配，则视为重复
+     *
+     * @param packageName 应用包名
+     * @param title       通知标题
+     * @param content     通知内容
+     * @return true 表示是重复消息，应忽略
+     */
+    fun shouldDedup(packageName: String, title: String, content: String): Boolean {
+        val config = currentConfig.dedupFilter
+        if (!config.enabled) {
+            return false
+        }
+
+        // 查找该包名匹配的自定义配置
+        val appConfig = config.apps.find { matchPackageName(it.packageName, packageName) }
+
+        // onlyApps=true 时，仅对 apps 列表中匹配的应用生效
+        if (config.onlyApps && appConfig == null) {
+            return false
+        }
+
+        val strategy = appConfig?.strategy ?: config.strategy
+        val timeWindow = (appConfig?.timeWindow ?: config.timeWindow) * 1000L
+
+        val cached = lastMessageCache[packageName]
+        if (cached == null) {
+            // 首条消息，缓存并放行
+            lastMessageCache[packageName] = CachedMessage(title, content, System.currentTimeMillis())
+            return false
+        }
+
+        val now = System.currentTimeMillis()
+        if (now - cached.timestamp > timeWindow) {
+            // 超出时间窗口，更新缓存并放行
+            lastMessageCache[packageName] = CachedMessage(title, content, now)
+            return false
+        }
+
+        // 在时间窗口内，按策略比较内容
+        val isDuplicate = when (strategy) {
+            DedupStrategy.TITLE_CONTENT -> cached.title == title && cached.content == content
+            DedupStrategy.TITLE -> cached.title == title
+            DedupStrategy.CONTENT -> cached.content == content
+        }
+
+        if (isDuplicate) {
+            Log.d(TAG, "重复消息被过滤: packageName=$packageName, title=$title, strategy=$strategy")
+            return true
+        }
+
+        // 内容不同，更新缓存
+        lastMessageCache[packageName] = CachedMessage(title, content, now)
         return false
     }
 
@@ -330,6 +453,27 @@ object IgnoreFilterConfigManager {
                     sb.append("    version:\n")
                     timeout.connect?.let { sb.append("      connect: $it\n") }
                     timeout.read?.let { sb.append("      read: $it\n") }
+                }
+            }
+        }
+
+        // 添加 dedup-filter 配置
+        val dedup = config.dedupFilter
+        if (dedup.enabled || dedup.apps.isNotEmpty()) {
+            sb.append("\n# 重复消息过滤配置\n")
+            sb.append("dedup-filter:\n")
+            sb.append("  enabled: ${dedup.enabled}\n")
+            if (dedup.onlyApps) {
+                sb.append("  onlyApps: true\n")
+            }
+            sb.append("  strategy: \"${dedup.strategy.name.lowercase()}\"\n")
+            sb.append("  timeWindow: ${dedup.timeWindow}\n")
+            if (dedup.apps.isNotEmpty()) {
+                sb.append("  apps:\n")
+                dedup.apps.forEach { app ->
+                    sb.append("    - packageName: \"${app.packageName}\"\n")
+                    app.strategy?.let { sb.append("      strategy: \"${it.name.lowercase()}\"\n") }
+                    app.timeWindow?.let { sb.append("      timeWindow: $it\n") }
                 }
             }
         }

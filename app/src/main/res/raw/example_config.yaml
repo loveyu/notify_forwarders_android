@@ -72,3 +72,51 @@ ignore-filter:
 #     version:
 #       connect: 5000
 #       read: 5000
+
+# =============================================================================
+# 重复消息过滤配置 (dedup-filter)
+# =============================================================================
+# 用途: 过滤短时间内内容相同的重复通知消息
+#       参考 PhoneNotifyProcessService 的去重逻辑，支持配置策略和时间窗口
+#
+# 全局配置:
+#   enabled: bool         是否启用重复过滤，默认 false
+#                         启用后默认对所有应用生效
+#   onlyApps: bool        是否仅对 apps 列表中的应用生效，默认 false
+#                         false: 所有应用都过滤，apps 列表用于覆盖策略
+#                         true:  仅 apps 列表中的应用才会过滤
+#   strategy: string      比较策略，默认 "title_content"
+#     - "title_content":  比较 title 和 content 均相同（默认，与PHP端一致）
+#     - "title":          仅比较 title
+#     - "content":        仅比较 content
+#   timeWindow: int       时间窗口（秒），默认 20
+#                         在此时间内的相同消息将被忽略
+#
+# 按应用配置 (dedup-filter.apps):
+#   可为特定应用覆盖全局策略和时间窗口
+#   - packageName: string  应用包名（必填），支持精确匹配和前缀匹配
+#                          精确匹配: "com.tencent.mm"
+#                          前缀匹配: "com.tencent." （以 . 结尾匹配所有子包名）
+#     strategy: string     覆盖策略（可选）
+#     timeWindow: int      覆盖时间窗口（可选）
+#
+# 匹配逻辑:
+#   1. 在 apps 列表中查找匹配当前 packageName 的配置
+#   2. onlyApps=true 时，未匹配的应用直接放行
+#   3. 使用匹配到的或全局默认的 strategy/timeWindow
+#   4. 与该包名缓存的上一条消息按 strategy 比较
+#   5. 在 timeWindow 内且匹配则忽略，否则更新缓存并放行
+# =============================================================================
+
+# dedup-filter:
+#   enabled: true
+#   strategy: "title_content"
+#   timeWindow: 20
+#   apps:
+#     - packageName: "com.tencent.mm"
+#       strategy: "title"
+#       timeWindow: 30
+#     - packageName: "com.tencent."    # 前缀匹配，所有腾讯应用
+#       timeWindow: 10
+#     - packageName: "org.telegram.messenger"
+#       strategy: "content"

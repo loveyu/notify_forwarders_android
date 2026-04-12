@@ -14,11 +14,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -41,27 +41,37 @@ jobs:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
-          
+
     - name: Make gradlew executable
       run: chmod +x gradlew
-      
+
     - name: Determine build type and version
       id: build_info
       run: |
+        TIMESTAMP=$(date +%Y%m%d-%H%M%S)
         if [[ $GITHUB_REF == refs/tags/* ]]; then
           echo "build_type=release" >> $GITHUB_OUTPUT
           echo "version_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           echo "is_release=true" >> $GITHUB_OUTPUT
+          echo "build_release=false" >> $GITHUB_OUTPUT
+        elif [[ $GITHUB_REF == refs/heads/main ]]; then
+          echo "build_type=debug" >> $GITHUB_OUTPUT
+          echo "version_name=main-${TIMESTAMP}-dev" >> $GITHUB_OUTPUT
+          echo "is_release=false" >> $GITHUB_OUTPUT
+          echo "build_release=true" >> $GITHUB_OUTPUT
         elif [[ $GITHUB_REF == refs/heads/dev ]]; then
           echo "build_type=debug" >> $GITHUB_OUTPUT
-          echo "version_name=dev-$(date +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
+          echo "version_name=dev-${TIMESTAMP}-dev" >> $GITHUB_OUTPUT
           echo "is_release=false" >> $GITHUB_OUTPUT
+          echo "build_release=false" >> $GITHUB_OUTPUT
         else
+          BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
           echo "build_type=debug" >> $GITHUB_OUTPUT
-          echo "version_name=pr-$(date +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
+          echo "version_name=${BRANCH_NAME}-${TIMESTAMP}-dev" >> $GITHUB_OUTPUT
           echo "is_release=false" >> $GITHUB_OUTPUT
+          echo "build_release=false" >> $GITHUB_OUTPUT
         fi
-        
+
     - name: Create keystore for all builds
       run: |
         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/release.keystore
@@ -69,44 +79,52 @@ jobs:
         echo "STORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> keystore.properties
         echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> keystore.properties
         echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> keystore.properties
-        
+
     - name: Build Debug APK
-      if: steps.build_info.outputs.build_type == 'debug'
-      run: ./gradlew assembleDebug
-      
+      run: ./gradlew assembleDebug -PciVersionName=${{ steps.build_info.outputs.version_name }}
+
     - name: Build Release APK
-      if: steps.build_info.outputs.build_type == 'release'
-      run: ./gradlew assembleRelease
-      
-    - name: Find APK files
+      if: steps.build_info.outputs.build_release == 'true' || steps.build_info.outputs.is_release == 'true'
+      run: ./gradlew assembleRelease -PciVersionName=${{ steps.build_info.outputs.version_name }}
+
+    - name: Find and rename APK files
       id: find_apk
       run: |
-        if [[ "${{ steps.build_info.outputs.build_type }}" == "release" ]]; then
-          APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
-          APK_NAME="NotifyForwarders-${{ steps.build_info.outputs.version_name }}-release.apk"
-        else
-          APK_PATH=$(find app/build/outputs/apk/debug -name "*.apk" | head -1)
-          APK_NAME="NotifyForwarders-${{ steps.build_info.outputs.version_name }}-debug.apk"
+        VERSION="${{ steps.build_info.outputs.version_name }}"
+        APK_FILES=""
+
+        # Debug APK
+        DEBUG_APK_PATH=$(find app/build/outputs/apk/debug -name "*.apk" | head -1)
+        if [[ -n "$DEBUG_APK_PATH" ]]; then
+          DEBUG_APK_NAME="NotifyForwarders-${VERSION}-debug.apk"
+          cp "$DEBUG_APK_PATH" "$DEBUG_APK_NAME"
+          APK_FILES="$APK_FILES $DEBUG_APK_NAME"
+          echo "debug_apk=$DEBUG_APK_NAME" >> $GITHUB_OUTPUT
         fi
-        echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
-        echo "apk_name=$APK_NAME" >> $GITHUB_OUTPUT
-        
-    - name: Rename APK
-      run: |
-        cp "${{ steps.find_apk.outputs.apk_path }}" "${{ steps.find_apk.outputs.apk_name }}"
-        
+
+        # Release APK
+        RELEASE_APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
+        if [[ -n "$RELEASE_APK_PATH" ]]; then
+          RELEASE_APK_NAME="NotifyForwarders-${VERSION}-release.apk"
+          cp "$RELEASE_APK_PATH" "$RELEASE_APK_NAME"
+          APK_FILES="$APK_FILES $RELEASE_APK_NAME"
+          echo "release_apk=$RELEASE_APK_NAME" >> $GITHUB_OUTPUT
+        fi
+
+        echo "apk_files=$(echo $APK_FILES | xargs)" >> $GITHUB_OUTPUT
+
     - name: Upload APK as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ steps.find_apk.outputs.apk_name }}
-        path: ${{ steps.find_apk.outputs.apk_name }}
+        name: NotifyForwarders-${{ steps.build_info.outputs.version_name }}
+        path: ${{ steps.find_apk.outputs.apk_files }}
         retention-days: 30
-        
+
     - name: Create Release
       if: steps.build_info.outputs.is_release == 'true'
       uses: softprops/action-gh-release@v1
       with:
-        files: ${{ steps.find_apk.outputs.apk_name }}
+        files: ${{ steps.find_apk.outputs.release_apk }}
         tag_name: ${{ steps.build_info.outputs.version_name }}
         name: Release ${{ steps.build_info.outputs.version_name }}
         draft: false
@@ -114,7 +132,7 @@ jobs:
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
+
     - name: Clean up keystore
       if: always()
       run: |

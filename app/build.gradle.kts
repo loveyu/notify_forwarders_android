@@ -1,7 +1,5 @@
 import java.util.Properties
 import java.io.FileInputStream
-import java.text.SimpleDateFormat
-import java.util.Date
 
 plugins {
     alias(libs.plugins.android.application)
@@ -18,7 +16,10 @@ android {
         minSdk = 33
         targetSdk = 36
         versionCode = 6
-        versionName = "1.6.0"
+
+        // CI 通过 -PciVersionName=xxx 传入版本名，否则使用默认值
+        val ciVersionName: String? by project
+        versionName = ciVersionName ?: "1.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -42,11 +43,6 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
-
-            // 为 debug 版本生成带时间戳的版本号
-            val dateFormat = SimpleDateFormat("yyMMddHHmm")
-            val timestamp = dateFormat.format(Date())
-            versionNameSuffix = "-debug-$timestamp"
 
             isDebuggable = true
             isMinifyEnabled = false

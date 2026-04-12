@@ -64,6 +64,28 @@ object ApiConstants {
      * 用于检查服务器版本兼容性
      */
     const val ENDPOINT_VERSION = "/api/version"
+
+    // ==================== 端点名称（镜像配置用） ====================
+
+    /**
+     * 通知转发端点名称（镜像配置键名）
+     */
+    const val ENDPOINT_NAME_NOTIFY = "notify"
+
+    /**
+     * 剪贴板文本端点名称（镜像配置键名）
+     */
+    const val ENDPOINT_NAME_CLIPBOARD_TEXT = "clipboardText"
+
+    /**
+     * 剪贴板图片端点名称（镜像配置键名）
+     */
+    const val ENDPOINT_NAME_CLIPBOARD_IMAGE = "clipboardImage"
+
+    /**
+     * 相册图片端点名称（镜像配置键名）
+     */
+    const val ENDPOINT_NAME_IMAGE_RAW = "imageRaw"
     
     // ==================== HTTP方法 ====================
     

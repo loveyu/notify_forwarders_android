@@ -512,7 +512,7 @@ class NotificationActionService : Service() {
             Log.d(TAG, "图片RAW发送响应: $responseCode")
 
             // 镜像转发
-            MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_IMAGE_RAW)
+            MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_NAME_IMAGE_RAW)
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 NetworkResult.Success
@@ -568,7 +568,7 @@ class NotificationActionService : Service() {
                 Log.d(TAG, "剪贴板文本发送响应码: $responseCode")
 
                 // 镜像转发
-                MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_CLIPBOARD_TEXT)
+                MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_NAME_CLIPBOARD_TEXT)
 
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     NetworkResult.Success
@@ -619,7 +619,7 @@ class NotificationActionService : Service() {
                 Log.d(TAG, "剪贴板图片发送响应码: $responseCode")
 
                 // 镜像转发
-                MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_CLIPBOARD_IMAGE)
+                MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_NAME_CLIPBOARD_IMAGE)
 
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     NetworkResult.Success

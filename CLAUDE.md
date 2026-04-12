@@ -61,7 +61,7 @@ NotificationListenerService (通知捕获)
 - `api`：自定义端点路径和超时
 - `dedup-filter`：按包名的重复消息过滤（策略+时间窗口）
 - `icon-url`：图标 Base64→远程URL 转换（含缓存）
-- `mirror`：DSN 格式镜像目的地（支持多端点）
+- `mirror`：按端点独立配置镜像目的地（DSN 包含完整路径）
 
 ### 转发端点
 

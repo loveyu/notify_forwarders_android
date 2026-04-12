@@ -599,7 +599,7 @@ class NotificationService : NotificationListenerService() {
         }
 
         // 异步执行镜像转发（不阻塞主流程）
-        MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_NOTIFY)
+        MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_NAME_NOTIFY)
     }
 
     /**

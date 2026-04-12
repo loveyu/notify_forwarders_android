@@ -64,15 +64,19 @@ Default port: `19283`. Content-Type: `application/json`.
 
 ## Mirror Forwarding
 
-Configure mirror destinations in YAML to forward to multiple servers simultaneously:
+Configure per-endpoint mirror destinations in YAML to forward to multiple servers:
 
 ```yaml
 mirror:
   enabled: true
-  destinations:
-    - "http://192.168.1.100:19283?connectTimeout=5000&retry=3"
-    - "https://api.example.com?token=secret&verifySSL=false"
+  endpoints:
+    notify:
+      - "http://192.168.1.100:19283/api/notify?connectTimeout=5000&retry=3"
+    clipboardText:
+      - "https://api.example.com/api/notify/clipboard/text?token=secret&verifySSL=false"
 ```
+
+Each endpoint (notify, clipboardText, clipboardImage, imageRaw) has its own mirror list. DSN contains the full request path — POST is sent directly to that URL.
 
 DSN supports: `connectTimeout`, `writeTimeout`, `retry`, `retryInterval`, `token`, `verifySSL`.
 
@@ -86,7 +90,7 @@ The app supports remote or local YAML configuration with the following modules:
 - **api**: Custom endpoint paths and timeouts
 - **dedup-filter**: Duplicate message filtering with configurable strategy and time window
 - **icon-url**: Convert Base64 icons to remote URLs with caching
-- **mirror**: Mirror destinations with DSN format
+- **mirror**: Per-endpoint mirror destinations with full-path DSN
 
 See [example_config.yaml](app/src/main/res/raw/example_config.yaml) for full configuration reference.
 

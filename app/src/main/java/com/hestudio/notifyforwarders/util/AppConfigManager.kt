@@ -186,25 +186,46 @@ object AppConfigManager {
 
         val enabled = (mirrorData["enabled"] as? Boolean) ?: false
 
-        val destinations = when (val dest = mirrorData["destinations"]) {
-            is String -> listOf(dest)
-            is List<*> -> dest.filterIsInstance<String>()
-            else -> emptyList()
+        val endpointsData = mirrorData["endpoints"]
+        val endpoints = if (endpointsData is Map<*, *>) {
+            MirrorEndpointConfig(
+                notify = parseDsnList(endpointsData["notify"]),
+                clipboardText = parseDsnList(endpointsData["clipboardText"]),
+                clipboardImage = parseDsnList(endpointsData["clipboardImage"]),
+                imageRaw = parseDsnList(endpointsData["imageRaw"])
+            )
+        } else {
+            MirrorEndpointConfig()
         }
 
-        return MirrorConfig(enabled, destinations)
+        return MirrorConfig(enabled, endpoints)
     }
 
     /**
-     * 获取解析后的镜像目的地列表
-     * 仅返回 enabled=true 且解析成功的目的地
+     * 解析 DSN 列表（支持单字符串或数组）
      */
-    fun getMirrorDestinations(): List<MirrorDestination> {
+    private fun parseDsnList(value: Any?): List<String> = when (value) {
+        is String -> listOf(value)
+        is List<*> -> value.filterIsInstance<String>()
+        else -> emptyList()
+    }
+
+    /**
+     * 获取指定端点的解析后镜像目的地列表
+     * 仅返回 enabled=true 且解析成功的目的地
+     *
+     * @param endpointName 端点名称，如 "notify"、"clipboardText"
+     */
+    fun getMirrorDestinations(endpointName: String): List<MirrorDestination> {
         val config = currentConfig.mirror
-        if (!config.enabled || config.destinations.isEmpty()) {
+        if (!config.enabled) {
             return emptyList()
         }
-        return config.destinations.mapNotNull { dsn ->
+        val dsnList = config.endpoints.getDestinations(endpointName)
+        if (dsnList.isEmpty()) {
+            return emptyList()
+        }
+        return dsnList.mapNotNull { dsn ->
             parseMirrorDsn(dsn).getOrNull()
         }
     }
@@ -626,19 +647,32 @@ object AppConfigManager {
 
         // 添加 mirror 配置
         val mirror = config.mirror
-        if (mirror.enabled || mirror.destinations.isNotEmpty()) {
+        if (mirror.enabled || mirror.endpoints.hasAnyDestinations()) {
             sb.append("\n# 镜像目的地配置\n")
             sb.append("mirror:\n")
             sb.append("  enabled: ${mirror.enabled}\n")
-            if (mirror.destinations.isNotEmpty()) {
-                sb.append("  destinations:\n")
-                mirror.destinations.forEach { dest ->
-                    sb.append("    - \"$dest\"\n")
-                }
+            val ep = mirror.endpoints
+            if (ep.hasAnyDestinations()) {
+                sb.append("  endpoints:\n")
+                appendDsnList(sb, "notify", ep.notify)
+                appendDsnList(sb, "clipboardText", ep.clipboardText)
+                appendDsnList(sb, "clipboardImage", ep.clipboardImage)
+                appendDsnList(sb, "imageRaw", ep.imageRaw)
             }
         }
 
         return sb.toString()
+    }
+
+    /**
+     * 将 DSN 列表追加到 YAML 输出
+     */
+    private fun appendDsnList(sb: StringBuilder, name: String, list: List<String>) {
+        if (list.isEmpty()) return
+        sb.append("    $name:\n")
+        list.forEach { dest ->
+            sb.append("      - \"$dest\"\n")
+        }
     }
 
     /**

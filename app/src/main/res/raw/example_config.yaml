@@ -194,21 +194,25 @@ ignore-filter:
 # =============================================================================
 # 用途: 将通知同时推送到多个目的地（镜像），与主服务器转发独立运行
 #       镜像转发失败不影响主服务器转发，各镜像目的地之间也互不影响
+#       每个端点可独立配置自己的镜像列表
 #
 # 配置格式:
 #   mirror:
-#     enabled: bool              是否启用镜像转发，默认 false
-#     destinations: string|array 镜像目的地DSN，支持单个字符串或数组
+#     enabled: bool    是否启用镜像转发，默认 false
+#     endpoints:       按端点配置镜像目的地，端点名称与 api.endpoints 一致
+#       notify:            通知转发端点的镜像列表
+#       clipboardText:     剪贴板文本端点的镜像列表
+#       clipboardImage:    剪贴板图片端点的镜像列表
+#       imageRaw:          相册图片端点的镜像列表
+#
+#   每个端点下的 DSN 支持单个字符串或数组格式，未配置的端点不做镜像转发
 #
 # DSN 格式:
-#   http[s]://[userinfo@]host[:port][/path_prefix][?param=value&...]
+#   http[s]://[userinfo@]host[:port][/full/path][?param=value&...]
 #
-#   DSN 中的路径作为前缀，各端点路径追加到其后。
-#   例如: http://mirror.example.com/proxy?retry=3
-#     /api/notify                → http://mirror.example.com/proxy/api/notify
-#     /api/notify/clipboard/text → http://mirror.example.com/proxy/api/notify/clipboard/text
-#
-#   支持所有转发端点: 通知转发、剪贴板文本、剪贴板图片、相册图片
+#   DSN 中的路径为完整的请求路径，POST 时直接提交到该 URL，不再拼接原端点路径。
+#   例如: http://mirror.example.com/api/notify?retry=3
+#     → POST http://mirror.example.com/api/notify
 #
 # DSN 支持的查询参数:
 #   connectTimeout: int   连接超时时间(ms)，默认 5000
@@ -219,16 +223,22 @@ ignore-filter:
 #   verifySSL:      bool  是否验证SSL证书，默认 true
 #
 # DSN 示例:
-#   http://192.168.1.100:19283?connectTimeout=5000&retry=3
-#   https://api.example.com?token=secret&verifySSL=false&retry=5
-#   https://user:pass@api.example.com?retry=2&retryInterval=2000
-#   http://mirror.example.com/proxy?connectTimeout=10000
+#   http://192.168.1.100:19283/api/notify?connectTimeout=5000&retry=3
+#   https://api.example.com/api/notify/clipboard/text?token=secret&verifySSL=false&retry=5
+#   https://user:pass@api.example.com/api/notify/image/raw?retry=2&retryInterval=2000
 # =============================================================================
 
 # mirror:
 #   enabled: true
-#   destinations:
-#     - "http://192.168.1.100:19283?connectTimeout=5000&writeTimeout=5000&retry=3&retryInterval=1000"
-#     - "https://api.example.com?token=your-auth-token&verifySSL=false"
-#   # 单个目的地也支持字符串格式:
-#   # destinations: "http://192.168.1.100:19283"
+#   endpoints:
+#     notify:
+#       - "http://192.168.1.100:19283/api/notify?connectTimeout=5000&writeTimeout=5000&retry=3&retryInterval=1000"
+#     clipboardText:
+#       - "https://api.example.com/api/notify/clipboard/text?token=your-auth-token&verifySSL=false"
+#       - "http://192.168.1.200:19283/api/notify/clipboard/text"
+#     clipboardImage:
+#       - "http://192.168.1.100:19283/api/notify/clipboard/image"
+#     imageRaw:
+#       - "http://192.168.1.100:19283/api/notify/image/raw"
+#   # 每个端点也支持单个字符串格式:
+#   # clipboardText: "http://192.168.1.100:19283/api/notify/clipboard/text"

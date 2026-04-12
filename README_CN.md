@@ -62,15 +62,19 @@
 
 ## 镜像转发
 
-通过 YAML 配置镜像目的地，同时转发到多个服务器：
+通过 YAML 按端点独立配置镜像目的地，同时转发到多个服务器：
 
 ```yaml
 mirror:
   enabled: true
-  destinations:
-    - "http://192.168.1.100:19283?connectTimeout=5000&retry=3"
-    - "https://api.example.com?token=secret&verifySSL=false"
+  endpoints:
+    notify:
+      - "http://192.168.1.100:19283/api/notify?connectTimeout=5000&retry=3"
+    clipboardText:
+      - "https://api.example.com/api/notify/clipboard/text?token=secret&verifySSL=false"
 ```
+
+每个端点（notify、clipboardText、clipboardImage、imageRaw）可独立配置镜像列表。DSN 包含完整请求路径，POST 时直接提交到该 URL。
 
 DSN 支持: `connectTimeout`、`writeTimeout`、`retry`、`retryInterval`、`token`、`verifySSL`。
 
@@ -84,7 +88,7 @@ DSN 支持: `connectTimeout`、`writeTimeout`、`retry`、`retryInterval`、`tok
 - **api**: 自定义端点路径和超时
 - **dedup-filter**: 重复消息过滤（可配置策略和时间窗口）
 - **icon-url**: Base64 图标转远程 URL，支持缓存
-- **mirror**: DSN 格式镜像目的地
+- **mirror**: 按端点独立配置镜像目的地（DSN 包含完整路径）
 
 完整配置参考 [example_config.yaml](app/src/main/res/raw/example_config.yaml)。
 

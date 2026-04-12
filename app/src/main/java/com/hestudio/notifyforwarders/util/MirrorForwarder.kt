@@ -24,20 +24,20 @@ object MirrorForwarder {
     private const val TAG = "MirrorForwarder"
 
     /**
-     * 异步将数据转发到所有镜像目的地
+     * 异步将数据转发到指定端点的所有镜像目的地
      * 每个目的地在独立的协程中并行发送，互不影响
      *
-     * @param scope     协程作用域
-     * @param jsonBody  请求体 JSON
-     * @param endpoint  API 端点路径，如 /api/notify
+     * @param scope         协程作用域
+     * @param jsonBody      请求体 JSON
+     * @param endpointName  端点名称，如 "notify"、"clipboardText"
      */
-    fun forwardToMirrors(scope: CoroutineScope, jsonBody: JSONObject, endpoint: String) {
-        val destinations = AppConfigManager.getMirrorDestinations()
+    fun forwardToMirrors(scope: CoroutineScope, jsonBody: JSONObject, endpointName: String) {
+        val destinations = AppConfigManager.getMirrorDestinations(endpointName)
         if (destinations.isEmpty()) return
 
         for (dest in destinations) {
             scope.launch(Dispatchers.IO) {
-                forwardToSingleMirror(dest, jsonBody, endpoint)
+                forwardToSingleMirror(dest, jsonBody)
             }
         }
     }
@@ -45,8 +45,8 @@ object MirrorForwarder {
     /**
      * 向单个镜像目的地发送请求，支持重试
      */
-    private suspend fun forwardToSingleMirror(dest: MirrorDestination, jsonBody: JSONObject, endpoint: String) {
-        val url = dest.buildUrl(endpoint)
+    private suspend fun forwardToSingleMirror(dest: MirrorDestination, jsonBody: JSONObject) {
+        val url = dest.url
         val maxAttempts = 1 + dest.retry.coerceAtLeast(0)
         for (attempt in 1..maxAttempts) {
             try {

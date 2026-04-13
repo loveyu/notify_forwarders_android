@@ -40,8 +40,8 @@ object AppConfigManager {
                         val textStr = item["text"]
 
                         val regexList = when (regexStr) {
-                            is String -> listOf(regexStr)
-                            is List<*> -> regexStr.filterIsInstance<String>()
+                            is String -> listOf(normalizeRegexPattern(regexStr))
+                            is List<*> -> regexStr.filterIsInstance<String>().map { normalizeRegexPattern(it) }
                             else -> emptyList()
                         }
 
@@ -289,6 +289,20 @@ object AppConfigManager {
         }
 
         return TimeoutConfig(connect, read)
+    }
+
+    /**
+     * 规范化正则表达式模式，去除 preg_match 风格的 /分隔符/ 和修饰符
+     * 例如: '/Running [\d]+ fibers/' → 'Running [\d]+ fibers'
+     *       '/尚东大门状态变更/u' → '尚东大门状态变更'
+     *       'Running [\d]+' → 'Running [\d]+' （无分隔符时原样返回）
+     */
+    private fun normalizeRegexPattern(pattern: String): String {
+        val trimmed = pattern.trim()
+        if (!trimmed.startsWith('/')) return trimmed
+        val lastSlash = trimmed.lastIndexOf('/')
+        if (lastSlash <= 0) return trimmed
+        return trimmed.substring(1, lastSlash)
     }
 
     /**

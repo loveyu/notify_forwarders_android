@@ -22,6 +22,33 @@ object AppConfigManager {
     private var isConfigLoaded = false
 
     /**
+     * Application Context 引用，用于配置未加载时自动从文件恢复
+     */
+    @Volatile
+    private var appContext: Context? = null
+
+    /**
+     * 初始化，保存 Application Context 供后续懒加载使用
+     */
+    fun init(context: Context) {
+        appContext = context.applicationContext
+    }
+
+    /**
+     * 确保配置已加载，若未加载则从文件自动恢复
+     * 在所有读取配置的公开方法入口处调用
+     */
+    private fun ensureConfigLoaded() {
+        if (isConfigLoaded) return
+        val ctx = appContext ?: return
+        synchronized(this) {
+            if (isConfigLoaded) return
+            Log.w(TAG, "配置未加载，自动从文件恢复")
+            loadFromFile(ctx)
+        }
+    }
+
+    /**
      * 从YAML字符串解析配置
      */
     fun parseFromYaml(yamlContent: String): Result<AppConfig> {
@@ -217,6 +244,7 @@ object AppConfigManager {
      * @param endpointName 端点名称，如 "notify"、"clipboardText"
      */
     fun getMirrorDestinations(endpointName: String): List<MirrorDestination> {
+        ensureConfigLoaded()
         val config = currentConfig.mirror
         if (!config.enabled) {
             return emptyList()
@@ -310,6 +338,7 @@ object AppConfigManager {
      * 匹配逻辑: appName匹配 AND (regex任意匹配 OR text任意匹配)
      */
     fun shouldIgnore(appName: String, title: String, content: String): Boolean {
+        ensureConfigLoaded()
         val config = currentConfig
 
         for (rule in config.ignoreFilter.rules) {
@@ -379,6 +408,7 @@ object AppConfigManager {
      * @return true 表示是重复消息，应忽略
      */
     fun shouldDedup(packageName: String, title: String, content: String): Boolean {
+        ensureConfigLoaded()
         val config = currentConfig.dedupFilter
         if (!config.enabled) {
             return false
@@ -760,12 +790,18 @@ object AppConfigManager {
     /**
      * 获取当前配置
      */
-    fun getCurrentConfig(): AppConfig = currentConfig
+    fun getCurrentConfig(): AppConfig {
+        ensureConfigLoaded()
+        return currentConfig
+    }
 
     /**
      * 获取当前API配置
      */
-    fun getApiConfig(): ApiConfig = currentConfig.api
+    fun getApiConfig(): ApiConfig {
+        ensureConfigLoaded()
+        return currentConfig.api
+    }
 
     /**
      * 检查配置是否已加载

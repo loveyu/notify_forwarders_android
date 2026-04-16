@@ -170,18 +170,21 @@ class NotificationService : NotificationListenerService() {
         // 根据持久化通知设置决定通知内容
         val (title, text) = if (isPersistentEnabled) {
             // 持久化通知开启时，显示状态相关内容
-            getString(R.string.app_name) to getNotificationText()
+            "" to getNotificationText()
         } else {
             // 持久化通知关闭时，显示基本前台服务内容
             getString(R.string.foreground_service_title) to getString(R.string.foreground_service_text)
         }
 
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(title)
             .setContentText(text)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setOngoing(true) // 设置为不可清除
+
+        if (title.isNotBlank()) {
+            notificationBuilder.setContentTitle(title)
+        }
 
         // 如果持久化通知开启，添加操作按钮
         if (isPersistentEnabled) {

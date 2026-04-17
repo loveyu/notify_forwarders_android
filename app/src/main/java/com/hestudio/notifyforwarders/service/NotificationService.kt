@@ -173,38 +173,39 @@ class NotificationService : NotificationListenerService() {
 
         val isPersistentEnabled = ServerPreferences.isPersistentNotificationEnabled(this)
 
-        // 根据持久化通知设置决定通知内容
-        val (title, text) = if (isPersistentEnabled) {
-            // 持久化通知开启时，显示状态相关内容
-            "" to getNotificationText()
-        } else {
-            // 持久化通知关闭时，显示基本前台服务内容
-            getString(R.string.foreground_service_title) to getString(R.string.foreground_service_text)
-        }
-
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentText(text)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setOngoing(true) // 设置为不可清除
-
-        notificationBuilder.setContentTitle(title.ifBlank { "" })
+ 
+        if (isPersistentEnabled) {
+            notificationBuilder
+                .setContentTitle(getPersistentNotificationTitle())
+                .setShowWhen(false)
+        } else {
+            notificationBuilder
+                .setContentTitle(getString(R.string.foreground_service_title))
+                .setContentText(getString(R.string.foreground_service_text))
+        }
 
         // 如果持久化通知开启，添加操作按钮
         if (isPersistentEnabled) {
             addActionButtons(notificationBuilder)
         }
 
-        return notificationBuilder.build()
+        return notificationBuilder.build().apply {
+            flags = flags and Notification.FLAG_AUTO_CANCEL.inv()
+            flags = flags or Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
+        }
     }
 
     /**
      * 获取通知文本
      */
-    private fun getNotificationText(): String {
+    private fun getPersistentNotificationTitle(): String {
         return when (currentNotificationState) {
-            PersistentNotificationManager.SendingState.SENDING_CLIPBOARD -> getString(R.string.sending_clipboard)
-            PersistentNotificationManager.SendingState.SENDING_IMAGE -> getString(R.string.sending_image)
+            PersistentNotificationManager.SendingState.SENDING_CLIPBOARD -> getString(R.string.sending_clipboard_short)
+            PersistentNotificationManager.SendingState.SENDING_IMAGE -> getString(R.string.sending_image_short)
             PersistentNotificationManager.SendingState.IDLE -> getStatusNotificationText()
         }
     }

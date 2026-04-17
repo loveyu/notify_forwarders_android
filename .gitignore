@@ -21,3 +21,4 @@ keystore.properties
 *.keystore
 *.jks
 app/release.keystore
+.kotlin/sessions

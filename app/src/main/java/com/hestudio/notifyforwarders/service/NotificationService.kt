@@ -43,7 +43,7 @@ class NotificationService : NotificationListenerService() {
     companion object {
         const val TAG = "NotificationService"
         private const val FOREGROUND_SERVICE_ID = 1000  // 使用统一的通知ID
-        private const val CHANNEL_ID = "notifyforwarders_service_channel"
+        private const val CHANNEL_ID = "notify_forwarders_service_channel"
 
         // 存储收到的通知，使用可观察的列表以便UI自动更新
         private val notifications = mutableStateListOf<NotificationData>()
@@ -182,9 +182,7 @@ class NotificationService : NotificationListenerService() {
             .setContentIntent(pendingIntent)
             .setOngoing(true) // 设置为不可清除
 
-        if (title.isNotBlank()) {
-            notificationBuilder.setContentTitle(title)
-        }
+        notificationBuilder.setContentTitle(title.ifBlank { "" })
 
         // 如果持久化通知开启，添加操作按钮
         if (isPersistentEnabled) {

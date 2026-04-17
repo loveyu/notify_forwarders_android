@@ -95,6 +95,12 @@ class NotificationService : NotificationListenerService() {
         // 保存服务实例引用
         serviceInstance = this
 
+        // 确保配置管理器已初始化，防止系统重启后 Application.onCreate 未先执行的情况
+        AppConfigManager.init(this)
+        if (!AppConfigManager.isConfigLoaded()) {
+            AppConfigManager.loadFromFile(this)
+        }
+
         // 启动时清空图标缓存
         IconCacheManager.clearAllCache(this)
 

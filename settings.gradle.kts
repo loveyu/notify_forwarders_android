@@ -27,5 +27,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Notify forwarders"
+rootProject.name = "NotiHub"
 include(":app")

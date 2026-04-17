@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">通知轉發器</string>
+    <string name="app_name">NotiHub</string>
     <string name="settings">設定</string>
     <string name="no_notifications">目前沒有通知</string>
     <string name="notification_permission_title">需要通知權限</string>

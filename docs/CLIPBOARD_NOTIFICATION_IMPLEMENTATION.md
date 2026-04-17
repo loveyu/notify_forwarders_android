@@ -85,7 +85,7 @@ private fun handleSendClipboard() {
 
 ### 3. 使用剪贴板发送
 1. 在任意应用中复制文本到剪贴板
-2. 在通知栏找到"Notify forwarders"通知
+2. 在通知栏找到"NotiHub"通知
 3. 点击"发送剪贴板"按钮
 4. 观察发送结果提示
 

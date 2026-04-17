@@ -40,7 +40,7 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 
 ### 3. 测试通知栏剪贴板发送功能
 1. 在任意应用中复制一些文本到剪贴板（如浏览器、记事本等）
-2. 在通知栏中找到"Notify forwarders"的持久化通知
+2. 在通知栏中找到"NotiHub"的持久化通知
 3. 点击通知中的"发送剪贴板"按钮
 4. 应用会自动读取当前剪贴板内容并发送到配置的服务器
 5. 观察Toast提示和服务器接收情况

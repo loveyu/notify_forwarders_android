@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Переадресация уведомлений</string>
+    <string name="app_name">NotiHub</string>
     <string name="settings">Настройки</string>
     <string name="no_notifications">В настоящее время уведомлений нет</string>
     <string name="notification_permission_title">Требуются разрешения уведомлений</string>

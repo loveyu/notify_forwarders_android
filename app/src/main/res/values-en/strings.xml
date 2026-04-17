@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Notify forwarders</string>
+    <string name="app_name">NotiHub</string>
     <string name="settings">Settings</string>
     <string name="no_notifications">No notifications currently</string>
     <string name="notification_permission_title">Notification permissions required</string>

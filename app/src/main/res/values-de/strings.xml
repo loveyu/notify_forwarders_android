@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Benachrichtigungsweiterleitung</string>
+    <string name="app_name">NotiHub</string>
     <string name="settings">Einstellungen</string>
     <string name="no_notifications">Derzeit keine Benachrichtigungen</string>
     <string name="notification_permission_title">Benachrichtigungsberechtigungen erforderlich</string>

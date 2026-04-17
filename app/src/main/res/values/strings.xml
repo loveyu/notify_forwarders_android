@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Notify forwarders</string>
+    <string name="app_name">NotiHub</string>
     <string name="settings">设置</string>
     <string name="no_notifications">当前没有通知</string>
     <string name="notification_permission_title">需要通知权限</string>

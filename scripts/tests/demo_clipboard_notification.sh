@@ -59,7 +59,7 @@ echo "  - 确保剪贴板中有内容"
 echo ""
 
 echo "步骤3: 测试通知栏剪贴板发送"
-echo "  - 在通知栏中找到'Notify forwarders'的持久化通知"
+echo "  - 在通知栏中找到'NotiHub'的持久化通知"
 echo "  - 点击通知中的'发送剪贴板'按钮"
 echo "  - 观察是否成功发送到服务器"
 echo "  - 查看Toast提示信息"

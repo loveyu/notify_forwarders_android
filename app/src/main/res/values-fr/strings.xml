@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Transfert de notifications</string>
+    <string name="app_name">NotiHub</string>
     <string name="settings">Paramètres</string>
     <string name="no_notifications">Aucune notification actuellement</string>
     <string name="notification_permission_title">Autorisations de notification requises</string>

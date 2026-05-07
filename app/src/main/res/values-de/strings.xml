@@ -294,6 +294,9 @@
     <string name="config_download_error">Konfigurationsdownload-Fehler: %s</string>
     <string name="no_app_to_open_config">Keine App zum Öffnen der Konfigurationsdatei verfügbar</string>
     <string name="open_config_error">Konfigurationsdatei konnte nicht geöffnet werden: %s</string>
+    <string name="config_not_exist">Konfigurationsdatei existiert nicht. Bitte zuerst eine Remote-Konfiguration herunterladen und anwenden.</string>
+    <string name="config_apply_detail_title">Konfigurationsdetails</string>
+    <string name="dialog_confirm">OK</string>
     <string name="config_apply_filter_rules">• Filterregeln: %1$d Regeln (%2$d Apps)</string>
     <string name="config_apply_dedup_enabled">• Dedup-Filter: Aktiviert (%d Apps)</string>
     <string name="config_apply_dedup_disabled">• Dedup-Filter: Deaktiviert</string>

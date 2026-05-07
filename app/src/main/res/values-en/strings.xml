@@ -292,6 +292,9 @@
     <string name="config_download_error">Config download error: %s</string>
     <string name="no_app_to_open_config">No app available to open config file</string>
     <string name="open_config_error">Failed to open config file: %s</string>
+    <string name="config_not_exist">Config file does not exist. Please download and apply a remote config first.</string>
+    <string name="config_apply_detail_title">Config Apply Details</string>
+    <string name="dialog_confirm">OK</string>
     <string name="config_apply_filter_rules">• Filter rules: %1$d rules (%2$d apps)</string>
     <string name="config_apply_dedup_enabled">• Dedup filter: Enabled (%d custom apps)</string>
     <string name="config_apply_dedup_disabled">• Dedup filter: Disabled</string>

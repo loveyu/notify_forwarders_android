@@ -2,14 +2,14 @@ package com.hestudio.notifyforwarders
 
 import android.content.Intent
 import android.widget.Toast
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,8 +31,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.hestudio.notifyforwarders.util.AppConfigManager
-import com.hestudio.notifyforwarders.util.IgnoreFilterConfig
-import com.hestudio.notifyforwarders.util.IgnoreFilterRule
 import com.hestudio.notifyforwarders.util.validate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,6 +50,8 @@ fun RemoteConfigSettingsCard(
         mutableStateOf(AppConfigManager.getRemoteConfigUrl(context))
     }
     var isDownloading by remember { mutableStateOf(false) }
+    var applyDetail by remember { mutableStateOf<String?>(null) }
+    var showConfigNotExistDialog by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     Card(
@@ -91,21 +92,11 @@ fun RemoteConfigSettingsCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 按钮行
-            Row(
+            // 按钮区域
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalAlignment = Alignment.End
             ) {
-                // 示例配置按钮
-                OutlinedButton(
-                    onClick = onOpenExampleConfig
-                ) {
-                    Text(stringResource(R.string.show_example_config))
-                }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
                 // 下载并应用按钮
                 Button(
                     onClick = {
@@ -120,7 +111,10 @@ fun RemoteConfigSettingsCard(
 
                         scope.launch {
                             isDownloading = true
-                            downloadAndApplyConfig(context, configUrl)
+                            val detail = downloadAndApplyConfig(context, configUrl)
+                            if (detail != null) {
+                                applyDetail = detail
+                            }
                             isDownloading = false
                         }
                     },
@@ -132,12 +126,24 @@ fun RemoteConfigSettingsCard(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 示例配置按钮
+                OutlinedButton(
+                    onClick = onOpenExampleConfig
+                ) {
+                    Text(stringResource(R.string.show_example_config))
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // 打开按钮
                 OutlinedButton(
                     onClick = {
-                        openConfigInExternalEditor(context)
+                        val fileExists = openConfigInExternalEditor(context)
+                        if (!fileExists) {
+                            showConfigNotExistDialog = true
+                        }
                     }
                 ) {
                     Text(stringResource(R.string.open_external))
@@ -145,11 +151,44 @@ fun RemoteConfigSettingsCard(
             }
         }
     }
+
+    // 配置应用详情弹窗
+    applyDetail?.let { detail ->
+        AlertDialog(
+            onDismissRequest = { applyDetail = null },
+            title = { Text(stringResource(R.string.config_apply_detail_title)) },
+            text = {
+                Text(
+                    text = detail,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { applyDetail = null }) {
+                    Text(stringResource(R.string.dialog_confirm))
+                }
+            }
+        )
+    }
+
+    // 配置文件不存在弹窗
+    if (showConfigNotExistDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfigNotExistDialog = false },
+            text = { Text(stringResource(R.string.config_not_exist)) },
+            confirmButton = {
+                TextButton(onClick = { showConfigNotExistDialog = false }) {
+                    Text(stringResource(R.string.dialog_confirm))
+                }
+            }
+        )
+    }
 }
 
-private suspend fun downloadAndApplyConfig(context: android.content.Context, url: String) {
-    withContext(Dispatchers.IO) {
-        try {
+private suspend fun downloadAndApplyConfig(context: android.content.Context, url: String): String? {
+    return try {
+        withContext(Dispatchers.IO) {
             val parsedUrl = URL(url)
             val connection = parsedUrl.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
@@ -162,55 +201,7 @@ private suspend fun downloadAndApplyConfig(context: android.content.Context, url
                 val yamlContent = reader.readText()
                 reader.close()
                 connection.disconnect()
-
-                // 解析配置
-                val result = AppConfigManager.parseFromYaml(yamlContent)
-                result.onSuccess { config ->
-                    // 验证配置
-                    val errors = config.ignoreFilter.validate()
-                    if (errors.isNotEmpty()) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.config_validation_failed, errors.joinToString("\n")),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                        return@withContext
-                    }
-
-                    // 先加载到内存（同时初始化图标URL缓存）
-                    AppConfigManager.loadConfig(config, context)
-
-                    // 保存原始内容到 full.yaml，不做任何转换
-                    val saved = AppConfigManager.saveRawYamlToFile(context, yamlContent)
-                    if (saved) {
-                        val detail = buildApplyDetail(context, config)
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                context,
-                                detail,
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    } else {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.config_save_failed),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }.onFailure { error ->
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.config_parse_failed, error.message),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
+                yamlContent
             } else {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
@@ -219,16 +210,57 @@ private suspend fun downloadAndApplyConfig(context: android.content.Context, url
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+                null
             }
-        } catch (e: Exception) {
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.config_download_error, e.message),
-                    Toast.LENGTH_SHORT
-                ).show()
+        }?.let { yamlContent ->
+            val result = AppConfigManager.parseFromYaml(yamlContent)
+            result.getOrNull()?.let { config ->
+                val errors = config.ignoreFilter.validate()
+                if (errors.isNotEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.config_validation_failed, errors.joinToString("\n")),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    null
+                } else {
+                    AppConfigManager.loadConfig(config, context)
+                    val saved = AppConfigManager.saveRawYamlToFile(context, yamlContent)
+                    if (saved) {
+                        buildApplyDetail(context, config)
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.config_save_failed),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        null
+                    }
+                }
+            } ?: run {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.config_parse_failed, result.exceptionOrNull()?.message),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                null
             }
         }
+    } catch (e: Exception) {
+        withContext(Dispatchers.Main) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.config_download_error, e.message),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        null
     }
 }
 
@@ -281,32 +313,17 @@ private fun buildApplyDetail(context: android.content.Context, config: com.hestu
     return sb.toString()
 }
 
-private fun openConfigInExternalEditor(context: android.content.Context) {
+private fun openConfigInExternalEditor(context: android.content.Context): Boolean {
     try {
-        // 确保外部文件存在
-        val config = AppConfigManager.getCurrentConfig()
         val externalFile = AppConfigManager.getExternalConfigFile(context)
 
-        if (!externalFile.exists()) {
-            // 如果外部文件不存在，创建它
-            if (config.ignoreFilter.rules.isEmpty()) {
-                // 如果内存中没有配置，创建一个空的示例配置
-                AppConfigManager.saveToExternalFile(
-                    context,
-                    IgnoreFilterConfig(
-                        listOf(
-                            IgnoreFilterRule(
-                                appName = "示例应用",
-                                regex = listOf("/示例正则/u"),
-                                text = listOf("示例文本")
-                            )
-                        )
-                    )
-                )
-            } else {
-                AppConfigManager.saveToExternalFile(context, config)
-            }
+        // 将内部存储的配置文件复制到外部存储，供外部编辑器访问
+        val internalFile = AppConfigManager.getRawYamlFile(context)
+        if (!internalFile.exists()) {
+            return false
         }
+        externalFile.parentFile?.mkdirs()
+        internalFile.copyTo(externalFile, overwrite = true)
 
         // 使用FileProvider获取URI
         val uri = FileProvider.getUriForFile(
@@ -315,36 +332,22 @@ private fun openConfigInExternalEditor(context: android.content.Context) {
             externalFile
         )
 
-        // 创建Intent打开外部编辑器
         val intent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "text/plain")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
 
-        // 检查是否有应用可以处理这个Intent
-        if (intent.resolveActivity(context.packageManager) != null) {
-            context.startActivity(intent)
-        } else {
-            // 没有文本编辑器，尝试用浏览器打开
-            val browserIntent = Intent(Intent.ACTION_VIEW, uri).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            if (browserIntent.resolveActivity(context.packageManager) != null) {
-                context.startActivity(browserIntent)
-            } else {
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.no_app_to_open_config),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+        val chooser = Intent.createChooser(intent, null).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
+        context.startActivity(chooser)
+        return true
     } catch (e: Exception) {
         Toast.makeText(
             context,
             context.getString(R.string.open_config_error, e.message),
             Toast.LENGTH_SHORT
         ).show()
+        return true
     }
 }

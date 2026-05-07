@@ -294,6 +294,9 @@
     <string name="config_download_error">設定下載錯誤: %s</string>
     <string name="no_app_to_open_config">沒有可開啟設定檔案的應用程式</string>
     <string name="open_config_error">開啟設定檔案失敗: %s</string>
+    <string name="config_not_exist">設定檔案不存在，請先下載並套用遠端設定。</string>
+    <string name="config_apply_detail_title">設定套用詳情</string>
+    <string name="dialog_confirm">確定</string>
     <string name="config_apply_filter_rules">• 過濾規則: %1$d 條（%2$d 個應用）</string>
     <string name="config_apply_dedup_enabled">• 去重過濾: 已啟用（%d 個自訂應用）</string>
     <string name="config_apply_dedup_disabled">• 去重過濾: 未啟用</string>

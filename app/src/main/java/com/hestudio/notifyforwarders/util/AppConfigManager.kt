@@ -519,30 +519,6 @@ object AppConfigManager {
     }
 
     /**
-     * 保存配置到文件
-     */
-    fun saveToFile(context: Context, config: IgnoreFilterConfig): Boolean {
-        return saveToFile(context, AppConfig(ignoreFilter = config))
-    }
-
-    /**
-     * 保存完整配置到文件
-     */
-    fun saveToFile(context: Context, config: AppConfig): Boolean {
-        return try {
-            val file = File(context.filesDir, CONFIG_FILE_NAME)
-            FileWriter(file).use { writer ->
-                writer.write(convertToYaml(config))
-            }
-            Log.d(TAG, "配置已保存到文件")
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "保存配置到文件失败", e)
-            false
-        }
-    }
-
-    /**
      * 将下载的原始 YAML 内容直接保存到 full.yaml，不做任何转换
      */
     fun saveRawYamlToFile(context: Context, rawYaml: String): Boolean {
@@ -558,180 +534,10 @@ object AppConfigManager {
     }
 
     /**
-     * 将配置转换为YAML字符串
+     * 获取内部存储的原始配置文件
      */
-    fun convertToYaml(config: IgnoreFilterConfig): String {
-        return convertToYaml(AppConfig(ignoreFilter = config))
-    }
-
-    /**
-     * 将完整配置转换为YAML字符串
-     */
-    fun convertToYaml(config: AppConfig): String {
-        val sb = StringBuilder()
-        sb.append("# ignore-filter 配置文件\n")
-        sb.append("# 用途: 屏蔽不需要推送的通知消息\n\n")
-        sb.append("ignore-filter:\n")
-
-        config.ignoreFilter.rules.forEach { rule ->
-            sb.append("  - appName: \"${rule.appName}\"\n")
-            if (rule.regex.isNotEmpty()) {
-                if (rule.regex.size == 1) {
-                    sb.append("    regex: '${rule.regex[0]}'\n")
-                } else {
-                    sb.append("    regex:\n")
-                    rule.regex.forEach { pattern ->
-                        sb.append("      - '$pattern'\n")
-                    }
-                }
-            }
-            if (rule.text.isNotEmpty()) {
-                if (rule.text.size == 1) {
-                    sb.append("    text: '${rule.text[0]}'\n")
-                } else {
-                    sb.append("    text:\n")
-                    rule.text.forEach { text ->
-                        sb.append("      - '$text'\n")
-                    }
-                }
-            }
-        }
-
-        // 添加 API 配置
-        if (config.api.endpoints != null || config.api.timeouts != null) {
-            sb.append("\n# API端点和超时配置\n")
-            sb.append("api:\n")
-
-            // 端点配置
-            if (config.api.endpoints != null) {
-                sb.append("  endpoints:\n")
-                config.api.endpoints.notify?.let { sb.append("    notify: \"$it\"\n") }
-                config.api.endpoints.clipboardText?.let { sb.append("    clipboardText: \"$it\"\n") }
-                config.api.endpoints.clipboardImage?.let { sb.append("    clipboardImage: \"$it\"\n") }
-                config.api.endpoints.imageRaw?.let { sb.append("    imageRaw: \"$it\"\n") }
-                config.api.endpoints.version?.let { sb.append("    version: \"$it\"\n") }
-            }
-
-            // 超时配置
-            if (config.api.timeouts != null) {
-                sb.append("  timeouts:\n")
-                config.api.timeouts.notify?.let { timeout ->
-                    sb.append("    notify:\n")
-                    timeout.connect?.let { sb.append("      connect: $it\n") }
-                    timeout.read?.let { sb.append("      read: $it\n") }
-                }
-                config.api.timeouts.clipboard?.let { timeout ->
-                    sb.append("    clipboard:\n")
-                    timeout.connect?.let { sb.append("      connect: $it\n") }
-                    timeout.read?.let { sb.append("      read: $it\n") }
-                }
-                config.api.timeouts.image?.let { timeout ->
-                    sb.append("    image:\n")
-                    timeout.connect?.let { sb.append("      connect: $it\n") }
-                    timeout.read?.let { sb.append("      read: $it\n") }
-                }
-                config.api.timeouts.version?.let { timeout ->
-                    sb.append("    version:\n")
-                    timeout.connect?.let { sb.append("      connect: $it\n") }
-                    timeout.read?.let { sb.append("      read: $it\n") }
-                }
-            }
-        }
-
-        // 添加 dedup-filter 配置
-        val dedup = config.dedupFilter
-        if (dedup.enabled || dedup.apps.isNotEmpty()) {
-            sb.append("\n# 重复消息过滤配置\n")
-            sb.append("dedup-filter:\n")
-            sb.append("  enabled: ${dedup.enabled}\n")
-            if (dedup.onlyApps) {
-                sb.append("  onlyApps: true\n")
-            }
-            sb.append("  strategy: \"${dedup.strategy.name.lowercase()}\"\n")
-            sb.append("  timeWindow: ${dedup.timeWindow}\n")
-            if (dedup.apps.isNotEmpty()) {
-                sb.append("  apps:\n")
-                dedup.apps.forEach { app ->
-                    sb.append("    - packageName: \"${app.packageName}\"\n")
-                    app.strategy?.let { sb.append("      strategy: \"${it.name.lowercase()}\"\n") }
-                    app.timeWindow?.let { sb.append("      timeWindow: $it\n") }
-                }
-            }
-        }
-
-        // 添加 icon-url 配置
-        val iconUrl = config.iconUrl
-        if (iconUrl.enabled) {
-            sb.append("\n# 图标URL转换配置\n")
-            sb.append("icon-url:\n")
-            sb.append("  enabled: true\n")
-            sb.append("  baseUrl: \"${iconUrl.baseUrl}\"\n")
-            sb.append("  token: \"${iconUrl.token}\"\n")
-            if (iconUrl.tag != "phone-icon") {
-                sb.append("  tag: \"${iconUrl.tag}\"\n")
-            }
-            if (iconUrl.checkEndpoint != "/tools/resource/check") {
-                sb.append("  checkEndpoint: \"${iconUrl.checkEndpoint}\"\n")
-            }
-            if (iconUrl.uploadEndpoint != "/tools/resource/upload-raw") {
-                sb.append("  uploadEndpoint: \"${iconUrl.uploadEndpoint}\"\n")
-            }
-            if (iconUrl.headerAuthToken != "x-auth-token") {
-                sb.append("  headerAuthToken: \"${iconUrl.headerAuthToken}\"\n")
-            }
-            if (iconUrl.headerUploadTag != "x-upload-tag") {
-                sb.append("  headerUploadTag: \"${iconUrl.headerUploadTag}\"\n")
-            }
-            if (iconUrl.headerUploadFilename != "x-upload-filename") {
-                sb.append("  headerUploadFilename: \"${iconUrl.headerUploadFilename}\"\n")
-            }
-            if (iconUrl.headerUploadFilesize != "x-upload-filesize") {
-                sb.append("  headerUploadFilesize: \"${iconUrl.headerUploadFilesize}\"\n")
-            }
-            if (iconUrl.headerUploadSource != "x-upload-source") {
-                sb.append("  headerUploadSource: \"${iconUrl.headerUploadSource}\"\n")
-            }
-            if (iconUrl.headerUploadDescription != "x-upload-description") {
-                sb.append("  headerUploadDescription: \"${iconUrl.headerUploadDescription}\"\n")
-            }
-            if (iconUrl.filenameTemplate != "icon_{md5}.png") {
-                sb.append("  filenameTemplate: \"${iconUrl.filenameTemplate}\"\n")
-            }
-            sb.append("  cache:\n")
-            val cache = iconUrl.cache
-            sb.append("    memoryCache: ${cache.memoryCache}\n")
-            sb.append("    memoryCacheSize: ${cache.memoryCacheSize}\n")
-            sb.append("    sqliteCache: ${cache.sqliteCache}\n")
-        }
-
-        // 添加 mirror 配置
-        val mirror = config.mirror
-        if (mirror.enabled || mirror.endpoints.hasAnyDestinations()) {
-            sb.append("\n# 镜像目的地配置\n")
-            sb.append("mirror:\n")
-            sb.append("  enabled: ${mirror.enabled}\n")
-            val ep = mirror.endpoints
-            if (ep.hasAnyDestinations()) {
-                sb.append("  endpoints:\n")
-                appendDsnList(sb, "notify", ep.notify)
-                appendDsnList(sb, "clipboardText", ep.clipboardText)
-                appendDsnList(sb, "clipboardImage", ep.clipboardImage)
-                appendDsnList(sb, "imageRaw", ep.imageRaw)
-            }
-        }
-
-        return sb.toString()
-    }
-
-    /**
-     * 将 DSN 列表追加到 YAML 输出
-     */
-    private fun appendDsnList(sb: StringBuilder, name: String, list: List<String>) {
-        if (list.isEmpty()) return
-        sb.append("    $name:\n")
-        list.forEach { dest ->
-            sb.append("      - \"$dest\"\n")
-        }
+    fun getRawYamlFile(context: Context): File {
+        return File(context.filesDir, CONFIG_FILE_NAME)
     }
 
     /**
@@ -740,48 +546,6 @@ object AppConfigManager {
     fun getExternalConfigFile(context: Context): File {
         val externalDir = context.getExternalFilesDir(null)
         return File(externalDir, CONFIG_FILE_NAME)
-    }
-
-    /**
-     * 保存配置到外部目录（用于外部编辑器）
-     */
-    fun saveToExternalFile(context: Context, config: IgnoreFilterConfig): Boolean {
-        return saveToExternalFile(context, AppConfig(ignoreFilter = config))
-    }
-
-    /**
-     * 保存完整配置到外部目录（用于外部编辑器）
-     */
-    fun saveToExternalFile(context: Context, config: AppConfig): Boolean {
-        return try {
-            val file = getExternalConfigFile(context)
-            FileWriter(file).use { writer ->
-                writer.write(convertToYaml(config))
-            }
-            Log.d(TAG, "配置已保存到外部文件: ${file.absolutePath}")
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "保存配置到外部文件失败", e)
-            false
-        }
-    }
-
-    /**
-     * 从外部文件加载配置
-     */
-    fun loadFromExternalFile(context: Context): AppConfig? {
-        return try {
-            val file = getExternalConfigFile(context)
-            if (file.exists()) {
-                val yamlContent = file.readText()
-                parseFromYaml(yamlContent).getOrNull()
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "从外部文件加载配置失败", e)
-            null
-        }
     }
 
     /**
@@ -802,32 +566,9 @@ object AppConfigManager {
             .getString(KEY_REMOTE_CONFIG_URL, "") ?: ""
     }
 
-    /**
-     * 获取当前配置
-     */
-    fun getCurrentConfig(): AppConfig {
-        ensureConfigLoaded()
-        return currentConfig
-    }
-
-    /**
-     * 获取当前API配置
-     */
-    fun getApiConfig(): ApiConfig {
-        ensureConfigLoaded()
-        return currentConfig.api
-    }
 
     /**
      * 检查配置是否已加载
      */
     fun isConfigLoaded(): Boolean = isConfigLoaded
-
-    /**
-     * 清除当前配置
-     */
-    fun clearConfig() {
-        currentConfig = AppConfig()
-        isConfigLoaded = false
-    }
 }

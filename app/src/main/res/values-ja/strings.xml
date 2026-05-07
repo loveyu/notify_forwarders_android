@@ -294,6 +294,9 @@
     <string name="config_download_error">設定のダウンロードエラー: %s</string>
     <string name="no_app_to_open_config">設定ファイルを開くアプリがありません</string>
     <string name="open_config_error">設定ファイルを開けませんでした: %s</string>
+    <string name="config_not_exist">設定ファイルが存在しません。先にリモート設定をダウンロードして適用してください。</string>
+    <string name="config_apply_detail_title">設定適用の詳細</string>
+    <string name="dialog_confirm">OK</string>
     <string name="config_apply_filter_rules">• フィルタールール: %1$d 件（%2$d アプリ）</string>
     <string name="config_apply_dedup_enabled">• 重複フィルター: 有効（%d 個のカスタムアプリ）</string>
     <string name="config_apply_dedup_disabled">• 重複フィルター: 無効</string>

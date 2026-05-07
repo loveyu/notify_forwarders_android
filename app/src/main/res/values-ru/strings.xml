@@ -294,6 +294,9 @@
     <string name="config_download_error">Ошибка загрузки конфигурации: %s</string>
     <string name="no_app_to_open_config">Нет приложения для открытия файла конфигурации</string>
     <string name="open_config_error">Не удалось открыть файл конфигурации: %s</string>
+    <string name="config_not_exist">Файл конфигурации не существует. Сначала скачайте и примените удалённую конфигурацию.</string>
+    <string name="config_apply_detail_title">Детали применения конфигурации</string>
+    <string name="dialog_confirm">OK</string>
     <string name="config_apply_filter_rules">• Правила фильтра: %1$d шт. (%2$d прил.)</string>
     <string name="config_apply_dedup_enabled">• Дедупликация: Включена (%d прил.)</string>
     <string name="config_apply_dedup_disabled">• Дедупликация: Выключена</string>

@@ -294,6 +294,9 @@
     <string name="config_download_error">配置下载错误: %s</string>
     <string name="no_app_to_open_config">没有可打开配置文件的应用程序</string>
     <string name="open_config_error">打开配置文件失败: %s</string>
+    <string name="config_not_exist">配置文件不存在，请先下载并应用远程配置。</string>
+    <string name="config_apply_detail_title">配置应用详情</string>
+    <string name="dialog_confirm">确定</string>
     <string name="config_apply_filter_rules">• 过滤规则: %1$d 条（%2$d 个应用）</string>
     <string name="config_apply_dedup_enabled">• 去重过滤: 已启用（%d 个自定义应用）</string>
     <string name="config_apply_dedup_disabled">• 去重过滤: 未启用</string>

@@ -294,6 +294,9 @@
     <string name="config_download_error">Erreur de téléchargement de la configuration : %s</string>
     <string name="no_app_to_open_config">Aucune application disponible pour ouvrir le fichier de configuration</string>
     <string name="open_config_error">Échec de l\'ouverture du fichier de configuration : %s</string>
+    <string name="config_not_exist">Le fichier de configuration n\'existe pas. Veuillez d\'abord télécharger et appliquer une configuration distante.</string>
+    <string name="config_apply_detail_title">Détails de l\'application</string>
+    <string name="dialog_confirm">OK</string>
     <string name="config_apply_filter_rules">• Règles de filtrage : %1$d règles (%2$d applis)</string>
     <string name="config_apply_dedup_enabled">• Filtre de déduplication : Activé (%d applis)</string>
     <string name="config_apply_dedup_disabled">• Filtre de déduplication : Désactivé</string>

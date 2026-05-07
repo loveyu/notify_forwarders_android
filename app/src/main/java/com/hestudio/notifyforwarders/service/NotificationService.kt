@@ -361,14 +361,13 @@ class NotificationService : NotificationListenerService() {
             // 优先使用通知中的图标
             val notificationIcon = getNotificationIcon(notification)
             if (notificationIcon != null) {
-                // 先计算原始图标的MD5值
-                val originalIconBase64 = IconCacheManager.bitmapToBase64(notificationIcon)
-                iconMd5 = IconCacheManager.calculateMd5(originalIconBase64)
-
-                // 然后应用圆角效果
+                // 先应用圆角效果
                 val cornerRadius = ServerPreferences.getIconCornerRadius(this)
                 val roundedIcon = applyRoundedCorners(notificationIcon, cornerRadius)
                 iconBase64 = IconCacheManager.bitmapToBase64(roundedIcon)
+
+                // 处理完圆角后再计算MD5值，确保相同图片相同圆角参数的MD5一致
+                iconMd5 = IconCacheManager.calculateMd5(iconBase64!!)
                 Log.d(TAG, "使用通知图标: $packageName")
             } else {
                 // 使用应用图标（缓存）
@@ -629,6 +628,7 @@ class NotificationService : NotificationListenerService() {
                 val iconUrl = IconUrlManager.convertToUrl(iconBase64, iconMd5, notification.appName)
                 if (iconUrl != null) {
                     put("iconUrl", iconUrl)
+                    put(ApiConstants.FIELD_ICON_MD5, iconMd5)
                     Log.d(TAG, "使用图标URL: $iconMd5")
                 } else {
                     put(ApiConstants.FIELD_ICON_MD5, iconMd5)

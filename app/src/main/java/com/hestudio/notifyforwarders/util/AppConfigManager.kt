@@ -12,7 +12,7 @@ import java.io.FileWriter
  */
 object AppConfigManager {
     private const val TAG = "AppConfigManager"
-    private const val CONFIG_FILE_NAME = "ignore_filter_config.yaml"
+    private const val CONFIG_FILE_NAME = "full.yaml"
     private const val KEY_REMOTE_CONFIG_URL = "remote_config_url"
 
     @Volatile
@@ -538,6 +538,21 @@ object AppConfigManager {
             true
         } catch (e: Exception) {
             Log.e(TAG, "保存配置到文件失败", e)
+            false
+        }
+    }
+
+    /**
+     * 将下载的原始 YAML 内容直接保存到 full.yaml，不做任何转换
+     */
+    fun saveRawYamlToFile(context: Context, rawYaml: String): Boolean {
+        return try {
+            val file = File(context.filesDir, CONFIG_FILE_NAME)
+            file.writeText(rawYaml)
+            Log.d(TAG, "原始配置内容已保存到文件: ${file.absolutePath}")
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "保存原始配置内容失败", e)
             false
         }
     }

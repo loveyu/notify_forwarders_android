@@ -286,7 +286,7 @@
     <string name="show_example_config">Exemple de configuration</string>
     <string name="downloading">Téléchargement…</string>
     <string name="config_url_required">Veuillez entrer l\'URL de configuration</string>
-    <string name="config_downloaded_and_applied">Configuration téléchargée et appliquée, %d règles chargées</string>
+    <string name="config_downloaded_and_applied">Configuration téléchargée et appliquée</string>
     <string name="config_save_failed">Échec de la sauvegarde de la configuration</string>
     <string name="config_validation_failed">Échec de la validation de la configuration :\n%s</string>
     <string name="config_parse_failed">Échec de l\'analyse de la configuration : %s</string>
@@ -294,6 +294,15 @@
     <string name="config_download_error">Erreur de téléchargement de la configuration : %s</string>
     <string name="no_app_to_open_config">Aucune application disponible pour ouvrir le fichier de configuration</string>
     <string name="open_config_error">Échec de l\'ouverture du fichier de configuration : %s</string>
+    <string name="config_apply_filter_rules">• Règles de filtrage : %1$d règles (%2$d applis)</string>
+    <string name="config_apply_dedup_enabled">• Filtre de déduplication : Activé (%d applis)</string>
+    <string name="config_apply_dedup_disabled">• Filtre de déduplication : Désactivé</string>
+    <string name="config_apply_api_custom">• Config API : Personnalisée</string>
+    <string name="config_apply_api_default">• Config API : Par défaut</string>
+    <string name="config_apply_icon_url_enabled">• URL d\'icône : Activée</string>
+    <string name="config_apply_icon_url_disabled">• URL d\'icône : Désactivée</string>
+    <string name="config_apply_mirror_enabled">• Transfert miroir : Activé (%d destinations)</string>
+    <string name="config_apply_mirror_disabled">• Transfert miroir : Désactivé</string>
 
     <!-- Page d\'exemple de configuration -->
     <string name="example_config_title">Guide de configuration exemple</string>

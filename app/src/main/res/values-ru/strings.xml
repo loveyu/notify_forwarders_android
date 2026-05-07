@@ -286,7 +286,7 @@
     <string name="show_example_config">Пример конфигурации</string>
     <string name="downloading">Загрузка…</string>
     <string name="config_url_required">Пожалуйста, введите URL конфигурации</string>
-    <string name="config_downloaded_and_applied">Конфигурация загружена и применена, загружено %d правил</string>
+    <string name="config_downloaded_and_applied">Конфигурация загружена и применена</string>
     <string name="config_save_failed">Ошибка сохранения конфигурации</string>
     <string name="config_validation_failed">Ошибка проверки конфигурации:\n%s</string>
     <string name="config_parse_failed">Ошибка разбора конфигурации: %s</string>
@@ -294,6 +294,15 @@
     <string name="config_download_error">Ошибка загрузки конфигурации: %s</string>
     <string name="no_app_to_open_config">Нет приложения для открытия файла конфигурации</string>
     <string name="open_config_error">Не удалось открыть файл конфигурации: %s</string>
+    <string name="config_apply_filter_rules">• Правила фильтра: %1$d шт. (%2$d прил.)</string>
+    <string name="config_apply_dedup_enabled">• Дедупликация: Включена (%d прил.)</string>
+    <string name="config_apply_dedup_disabled">• Дедупликация: Выключена</string>
+    <string name="config_apply_api_custom">• Настройки API: Кастомные</string>
+    <string name="config_apply_api_default">• Настройки API: По умолчанию</string>
+    <string name="config_apply_icon_url_enabled">• URL иконки: Включён</string>
+    <string name="config_apply_icon_url_disabled">• URL иконки: Выключен</string>
+    <string name="config_apply_mirror_enabled">• Зеркалирование: Включено (%d адресов)</string>
+    <string name="config_apply_mirror_disabled">• Зеркалирование: Выключено</string>
 
     <!-- Страница примера конфигурации -->
     <string name="example_config_title">Руководство по примерной конфигурации</string>

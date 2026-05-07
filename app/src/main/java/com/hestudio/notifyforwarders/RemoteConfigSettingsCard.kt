@@ -182,14 +182,15 @@ private suspend fun downloadAndApplyConfig(context: android.content.Context, url
                     // 先加载到内存（同时初始化图标URL缓存）
                     AppConfigManager.loadConfig(config, context)
 
-                    // 保存到文件
-                    val saved = AppConfigManager.saveToFile(context, config)
+                    // 保存原始内容到 full.yaml，不做任何转换
+                    val saved = AppConfigManager.saveRawYamlToFile(context, yamlContent)
                     if (saved) {
+                        val detail = buildApplyDetail(context, config)
                         withContext(Dispatchers.Main) {
                             Toast.makeText(
                                 context,
-                                context.getString(R.string.config_downloaded_and_applied, config.ignoreFilter.rules.size),
-                                Toast.LENGTH_SHORT
+                                detail,
+                                Toast.LENGTH_LONG
                             ).show()
                         }
                     } else {
@@ -229,6 +230,55 @@ private suspend fun downloadAndApplyConfig(context: android.content.Context, url
             }
         }
     }
+}
+
+private fun buildApplyDetail(context: android.content.Context, config: com.hestudio.notifyforwarders.util.AppConfig): String {
+    val sb = StringBuilder()
+    sb.append(context.getString(R.string.config_downloaded_and_applied))
+
+    // 过滤规则
+    val filterAppCount = config.ignoreFilter.rules.map { it.appName }.distinct().size
+    sb.append("\n").append(
+        context.getString(R.string.config_apply_filter_rules, config.ignoreFilter.rules.size, filterAppCount)
+    )
+
+    // 去重过滤
+    val dedup = config.dedupFilter
+    if (dedup.enabled) {
+        sb.append("\n").append(
+            context.getString(R.string.config_apply_dedup_enabled, dedup.apps.size)
+        )
+    } else {
+        sb.append("\n").append(context.getString(R.string.config_apply_dedup_disabled))
+    }
+
+    // API 配置
+    if (config.api.endpoints != null || config.api.timeouts != null) {
+        sb.append("\n").append(context.getString(R.string.config_apply_api_custom))
+    } else {
+        sb.append("\n").append(context.getString(R.string.config_apply_api_default))
+    }
+
+    // 图标 URL
+    if (config.iconUrl.enabled) {
+        sb.append("\n").append(context.getString(R.string.config_apply_icon_url_enabled))
+    } else {
+        sb.append("\n").append(context.getString(R.string.config_apply_icon_url_disabled))
+    }
+
+    // 镜像转发
+    val mirror = config.mirror
+    if (mirror.enabled) {
+        val destCount = mirror.endpoints.notify.size + mirror.endpoints.clipboardText.size +
+            mirror.endpoints.clipboardImage.size + mirror.endpoints.imageRaw.size
+        sb.append("\n").append(
+            context.getString(R.string.config_apply_mirror_enabled, destCount)
+        )
+    } else {
+        sb.append("\n").append(context.getString(R.string.config_apply_mirror_disabled))
+    }
+
+    return sb.toString()
 }
 
 private fun openConfigInExternalEditor(context: android.content.Context) {

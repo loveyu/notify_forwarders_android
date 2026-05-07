@@ -286,7 +286,7 @@
     <string name="show_example_config">Beispielkonfiguration</string>
     <string name="downloading">Herunterladen…</string>
     <string name="config_url_required">Bitte Konfigurations-URL eingeben</string>
-    <string name="config_downloaded_and_applied">Konfiguration heruntergeladen und angewendet, %d Regeln geladen</string>
+    <string name="config_downloaded_and_applied">Konfiguration heruntergeladen und angewendet</string>
     <string name="config_save_failed">Konfigurationsspeicherung fehlgeschlagen</string>
     <string name="config_validation_failed">Konfigurationsvalidierung fehlgeschlagen:\n%s</string>
     <string name="config_parse_failed">Konfigurationsanalyse fehlgeschlagen: %s</string>
@@ -294,6 +294,15 @@
     <string name="config_download_error">Konfigurationsdownload-Fehler: %s</string>
     <string name="no_app_to_open_config">Keine App zum Öffnen der Konfigurationsdatei verfügbar</string>
     <string name="open_config_error">Konfigurationsdatei konnte nicht geöffnet werden: %s</string>
+    <string name="config_apply_filter_rules">• Filterregeln: %1$d Regeln (%2$d Apps)</string>
+    <string name="config_apply_dedup_enabled">• Dedup-Filter: Aktiviert (%d Apps)</string>
+    <string name="config_apply_dedup_disabled">• Dedup-Filter: Deaktiviert</string>
+    <string name="config_apply_api_custom">• API-Konfiguration: Angepasst</string>
+    <string name="config_apply_api_default">• API-Konfiguration: Standard</string>
+    <string name="config_apply_icon_url_enabled">• Icon-URL: Aktiviert</string>
+    <string name="config_apply_icon_url_disabled">• Icon-URL: Deaktiviert</string>
+    <string name="config_apply_mirror_enabled">• Spiegelweiterleitung: Aktiviert (%d Ziele)</string>
+    <string name="config_apply_mirror_disabled">• Spiegelweiterleitung: Deaktiviert</string>
 
     <!-- Beispielkonfigurationsseite -->
     <string name="example_config_title">Beispielkonfiguration-Anleitung</string>

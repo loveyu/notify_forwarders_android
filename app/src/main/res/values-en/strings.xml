@@ -284,7 +284,7 @@
     <string name="show_example_config">Example Config</string>
     <string name="downloading">Downloading…</string>
     <string name="config_url_required">Please enter config URL</string>
-    <string name="config_downloaded_and_applied">Config downloaded and applied, %d rules loaded</string>
+    <string name="config_downloaded_and_applied">Config downloaded and applied</string>
     <string name="config_save_failed">Config save failed</string>
     <string name="config_validation_failed">Config validation failed:\n%s</string>
     <string name="config_parse_failed">Config parse failed: %s</string>
@@ -292,6 +292,15 @@
     <string name="config_download_error">Config download error: %s</string>
     <string name="no_app_to_open_config">No app available to open config file</string>
     <string name="open_config_error">Failed to open config file: %s</string>
+    <string name="config_apply_filter_rules">• Filter rules: %1$d rules (%2$d apps)</string>
+    <string name="config_apply_dedup_enabled">• Dedup filter: Enabled (%d custom apps)</string>
+    <string name="config_apply_dedup_disabled">• Dedup filter: Disabled</string>
+    <string name="config_apply_api_custom">• API config: Customized</string>
+    <string name="config_apply_api_default">• API config: Default</string>
+    <string name="config_apply_icon_url_enabled">• Icon URL: Enabled</string>
+    <string name="config_apply_icon_url_disabled">• Icon URL: Disabled</string>
+    <string name="config_apply_mirror_enabled">• Mirror forwarding: Enabled (%d destinations)</string>
+    <string name="config_apply_mirror_disabled">• Mirror forwarding: Disabled</string>
 
     <!-- Example config page -->
     <string name="example_config_title">Example Configuration Guide</string>

@@ -286,7 +286,7 @@
     <string name="show_example_config">示例配置</string>
     <string name="downloading">下载中…</string>
     <string name="config_url_required">请输入配置地址</string>
-    <string name="config_downloaded_and_applied">配置已下载并应用，共 %d 条规则</string>
+    <string name="config_downloaded_and_applied">配置已下载并应用</string>
     <string name="config_save_failed">配置保存失败</string>
     <string name="config_validation_failed">配置验证失败:\n%s</string>
     <string name="config_parse_failed">配置解析失败: %s</string>
@@ -294,6 +294,15 @@
     <string name="config_download_error">配置下载错误: %s</string>
     <string name="no_app_to_open_config">没有可打开配置文件的应用程序</string>
     <string name="open_config_error">打开配置文件失败: %s</string>
+    <string name="config_apply_filter_rules">• 过滤规则: %1$d 条（%2$d 个应用）</string>
+    <string name="config_apply_dedup_enabled">• 去重过滤: 已启用（%d 个自定义应用）</string>
+    <string name="config_apply_dedup_disabled">• 去重过滤: 未启用</string>
+    <string name="config_apply_api_custom">• API配置: 已自定义</string>
+    <string name="config_apply_api_default">• API配置: 默认</string>
+    <string name="config_apply_icon_url_enabled">• 图标URL转换: 已启用</string>
+    <string name="config_apply_icon_url_disabled">• 图标URL转换: 未启用</string>
+    <string name="config_apply_mirror_enabled">• 镜像转发: 已启用（%d 个目标地址）</string>
+    <string name="config_apply_mirror_disabled">• 镜像转发: 未启用</string>
 
     <!-- 示例配置页面 -->
     <string name="example_config_title">示例配置说明</string>

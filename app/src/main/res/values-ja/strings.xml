@@ -286,7 +286,7 @@
     <string name="show_example_config">設定例</string>
     <string name="downloading">ダウンロード中…</string>
     <string name="config_url_required">設定URLを入力してください</string>
-    <string name="config_downloaded_and_applied">設定がダウンロードされ、適用されました。%d 件のルールが読み込まれました</string>
+    <string name="config_downloaded_and_applied">設定がダウンロードされ、適用されました</string>
     <string name="config_save_failed">設定の保存に失敗しました</string>
     <string name="config_validation_failed">設定の検証に失敗しました:\n%s</string>
     <string name="config_parse_failed">設定の解析に失敗しました: %s</string>
@@ -294,6 +294,15 @@
     <string name="config_download_error">設定のダウンロードエラー: %s</string>
     <string name="no_app_to_open_config">設定ファイルを開くアプリがありません</string>
     <string name="open_config_error">設定ファイルを開けませんでした: %s</string>
+    <string name="config_apply_filter_rules">• フィルタールール: %1$d 件（%2$d アプリ）</string>
+    <string name="config_apply_dedup_enabled">• 重複フィルター: 有効（%d 個のカスタムアプリ）</string>
+    <string name="config_apply_dedup_disabled">• 重複フィルター: 無効</string>
+    <string name="config_apply_api_custom">• API設定: カスタム</string>
+    <string name="config_apply_api_default">• API設定: デフォルト</string>
+    <string name="config_apply_icon_url_enabled">• アイコンURL変換: 有効</string>
+    <string name="config_apply_icon_url_disabled">• アイコンURL変換: 無効</string>
+    <string name="config_apply_mirror_enabled">• ミラー転送: 有効（%d 宛先）</string>
+    <string name="config_apply_mirror_disabled">• ミラー転送: 無効</string>
 
     <!-- 設定例ページ -->
     <string name="example_config_title">設定例ガイド</string>

@@ -286,7 +286,7 @@
     <string name="show_example_config">範例設定</string>
     <string name="downloading">下載中…</string>
     <string name="config_url_required">請輸入設定位址</string>
-    <string name="config_downloaded_and_applied">設定已下載並套用，共 %d 條規則</string>
+    <string name="config_downloaded_and_applied">設定已下載並套用</string>
     <string name="config_save_failed">設定儲存失敗</string>
     <string name="config_validation_failed">設定驗證失敗:\n%s</string>
     <string name="config_parse_failed">設定解析失敗: %s</string>
@@ -294,6 +294,15 @@
     <string name="config_download_error">設定下載錯誤: %s</string>
     <string name="no_app_to_open_config">沒有可開啟設定檔案的應用程式</string>
     <string name="open_config_error">開啟設定檔案失敗: %s</string>
+    <string name="config_apply_filter_rules">• 過濾規則: %1$d 條（%2$d 個應用）</string>
+    <string name="config_apply_dedup_enabled">• 去重過濾: 已啟用（%d 個自訂應用）</string>
+    <string name="config_apply_dedup_disabled">• 去重過濾: 未啟用</string>
+    <string name="config_apply_api_custom">• API設定: 已自訂</string>
+    <string name="config_apply_api_default">• API設定: 預設</string>
+    <string name="config_apply_icon_url_enabled">• 圖示URL轉換: 已啟用</string>
+    <string name="config_apply_icon_url_disabled">• 圖示URL轉換: 未啟用</string>
+    <string name="config_apply_mirror_enabled">• 鏡像轉發: 已啟用（%d 個目標地址）</string>
+    <string name="config_apply_mirror_disabled">• 鏡像轉發: 未啟用</string>
 
     <!-- 範例設定頁面 -->
     <string name="example_config_title">範例設定說明</string>

@@ -590,23 +590,22 @@ class NotificationService : NotificationListenerService() {
             return
         }
 
-        val jsonBody = buildNotificationJson(notification)
-
         serviceScope.launch {
             try {
+                val jsonBody = buildNotificationJson(notification)
                 val serverUrl = ApiConstants.buildApiUrl(serverAddress, ApiConstants.ENDPOINT_NOTIFY)
                 Log.d(TAG, "正在转发通知到 $serverUrl")
                 MirrorForwarder.sendHttpRequest(
                     serverUrl, jsonBody,
                     ApiConstants.TIMEOUT_NOTIFY_CONNECT, ApiConstants.TIMEOUT_NOTIFY_READ
                 )
+
+                // 异步执行镜像转发（不阻塞主流程）
+                MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_NAME_NOTIFY)
             } catch (e: Exception) {
                 Log.e(TAG, "通知转发失败", e)
             }
         }
-
-        // 异步执行镜像转发（不阻塞主流程）
-        MirrorForwarder.forwardToMirrors(serviceScope, jsonBody, ApiConstants.ENDPOINT_NAME_NOTIFY)
     }
 
     /**
